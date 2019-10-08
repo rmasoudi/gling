@@ -1,0 +1,124 @@
+{% extends 'base.twig' %}
+
+{% block title %}G-Ling{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position){
+				//var loc=position.coords.latitude+","+position.coords.longitude;
+				var loc="35.735766,51.429760";
+				var data={
+					query:{
+						geo_distance:{
+							distance:"200km",
+							loc:loc
+						}
+					},
+					sort : [
+						{
+							_geo_distance : {
+								loc : loc,
+								order : "asc",
+								unit : "km",
+								mode : "min",
+								distance_type : "arc",
+								ignore_unmapped: true
+							}
+						}
+					]
+				};
+				fetch("https://first-cluster-6104576857.us-east-1.bonsaisearch.net:443/_search?size=5",{
+					method:"post",
+					headers: {
+							"Authorization": "Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2",
+							"Content-Type": "application/json"
+					},
+					body: JSON.stringify(data)
+				})
+				.then(res=>res.json())
+				.then(
+					(result) => {
+						var list= result.hits.hits.map(function(item){
+							return item["_source"];
+						});
+						$("#geoContainer").css("display","block");
+						$("#centerList").html("");
+						for(var i=0;i<list.length;i++){
+							var item=$('<a href="#" class="list-group-item list-group-item-action flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1">دفتر ترجمه رسمی شماره '+list[i].code+' '+list[i].city+'</h6><small style="color: #26b2ff">'+list[i].manager+'</small></div><small class="mb-1">'+list[i].address+'</small><small>'+list[i].phone+'</small></a>');
+							$("#centerList").append(item);
+						}
+					},
+					(error) => {
+						
+					}
+				);
+			});
+		} 
+
+	});
+	function categClick(id,e){
+		$(".category").removeClass("categorySelected");
+		$("#categ"+id).addClass("categorySelected");
+		
+		if(id===0){
+			for(var i=1;i<=5;i++){
+				$(".categ"+i).removeClass("hidden");
+				$(".categ"+i).addClass("visible");
+			}
+		}
+		else{
+			for(var i=1;i<=5;i++){
+				if(i==id){
+					$(".categ"+i).removeClass("hidden");
+					$(".categ"+i).addClass("visible");					
+				}
+				else{
+					$(".categ"+i).removeClass("visible");
+					$(".categ"+i).addClass("hidden");					
+				}
+			}
+		}
+	}
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div id="geoContainer" class="container mainContainer">
+	<div id="geoHeader" class="row">
+		<div class="col-sm-12">
+			نزدیک ترین دفاتر ترجمه رسمی به شما
+		</div>
+	</div>
+	<div class="row">
+		<div id="centerList" class="list-group" style="width: 100%;direction: rtl;">
+		</div>
+	</div>
+</div>
+<div class="row" style="direction:rtl;margin-top:10px;">
+	<div class="col-sm-2">
+		<div id="categ0" onclick="categClick(0);" class="category categorySelected" >همه مدارک</div>
+	</div>
+	<div class="col-sm-2">
+		<div id="categ5" onclick="categClick(5);" class="category">احوال شخصیه</div>
+	</div>
+	<div class="col-sm-2">
+		<div id="categ2" onclick="categClick(2);" class="category">اسناد</div>
+	</div>
+	<div class="col-sm-2">
+		<div id="categ4" onclick="categClick(4);" class="category">مدارک تحصیلی</div>
+	</div>
+	<div class="col-sm-2">
+		<div id="categ1" onclick="categClick(1);" class="category">شرکت ها و دفاتر</div>
+	</div>
+	<div class="col-sm-2">
+		<div id="categ3" onclick="categClick(3);" class="category">گواهی و پروانه</div>
+	</div>
+</div>
+<div class="row">
+    {% for product in products %}
+        <div class='col-sm-3 categ{{product.category}}'><a href='{{product.url}}'> <div class='product'>{{product.title}}</div> </a></div>
+    {% endfor %}
+</div>
+{% endblock %}

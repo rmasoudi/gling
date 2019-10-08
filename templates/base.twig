@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-#W3C#DTD XHTML 1.0 Transitional#EN" "http:#www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http:#www.w3.org/1999/xhtml">
+<head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/styles.css">
+        <title>{% block title %}{% endblock %}</title>
+</head>
+<body>	
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/jquery-3.3.1.slim.min.js"></script>
+<!--<script src="js/umd/popper.min.js"></script>-->
+<script src="js/bootstrap.min.js"></script>
+{% block scripts %}{% endblock %}
+<div class="topBar">
+	<div id="userPanel">
+		<div class="btn btn-light topButton">ورود</div>
+		<div class="btn btn-light topButton">ثبت نام</div>
+	</div>
+</div>
+<div class="container mainContainer">
+	{% block content %}{% endblock %}
+ </div>
