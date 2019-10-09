@@ -13,7 +13,7 @@ DEFINE('USER', 'root');
 DEFINE('PASSWORD', 'a');
 DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'جیلینگ');
-DEFINE('APP_SITE', 'gling.ir');
+DEFINE('APP_SITE', 'http://gling.ir');
 session_start();
 
 
@@ -41,21 +41,21 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
     }
     $stmt->close();
     $conn->close();
-    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser()]));
+    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser(),"app_name"=>APP_NAME,"app_site"=>APP_SITE]));
 })->setName('main');
 
 $app->get('/register', function (Request $request, Response $response, $args) use ($twig, $app) {
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('register.twig', []));
+        $response->getBody()->write($twig->render('register.twig', ["app_name"=>APP_NAME,"app_site"=>APP_SITE]));
     }
 })->setName('register');
 $app->get('/login', function (Request $request, Response $response, $args) use ($twig, $app) {
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('login.twig', []));
+        $response->getBody()->write($twig->render('login.twig', ["app_name"=>APP_NAME,"app_site"=>APP_SITE]));
     }
 })->setName('login');
 $app->get('/logout', function (Request $request, Response $response, $args) use ($twig, $app) {
@@ -81,7 +81,7 @@ $app->post('/dologin', function (Request $request, Response $response, $args) us
             setCurrentUser($row["name"], $row["id"], $row["mail"], $row["mobile"]);
             return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
         } else {
-            $response->getBody()->write($twig->render('login.twig', ["error" => "رایانامه یا رمز اشتباه است"]));
+            $response->getBody()->write($twig->render('login.twig', ["error" => "رایانامه یا رمز اشتباه است","app_name"=>APP_NAME,"app_site"=>APP_SITE]));
         }
     }
 })->setName('dologin');
@@ -105,9 +105,9 @@ $app->post('/save_user', function (Request $request, Response $response, $args) 
             $stmt->bind_param("ssss", $name, $mail, $mobile, $password);
             $stmt->execute();
             $result = $stmt->get_result();
-            $response->getBody()->write($twig->render('register.twig', ["success" => true]));
+            $response->getBody()->write($twig->render('register.twig', ["success" => true,"app_name"=>APP_NAME,"app_site"=>APP_SITE]));
         } else {
-            $response->getBody()->write($twig->render('register.twig', ["error" => "شماره موبایل یا رایانامه قبلا ثبت شده است"]));
+            $response->getBody()->write($twig->render('register.twig', ["error" => "شماره موبایل یا رایانامه قبلا ثبت شده است","app_name"=>APP_NAME,"app_site"=>APP_SITE]));
         }
     }
 })->setName('save_user');
@@ -116,7 +116,7 @@ $app->get('/profile', function (Request $request, Response $response, $args) use
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('profile.twig', ["user" => getCurrentUser()]));
+        $response->getBody()->write($twig->render('profile.twig', ["user" => getCurrentUser(),"app_name"=>APP_NAME,"app_site"=>APP_SITE]));
     }
 })->setName('profile');
 
@@ -145,7 +145,7 @@ $app->get('/forget', function (Request $request, Response $response, $args) use 
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('forget.twig', []));
+        $response->getBody()->write($twig->render('forget.twig', ["app_name"=>APP_NAME,"app_site"=>APP_SITE]));
     }
 })->setName('forget');
 
@@ -165,7 +165,7 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
             $row = $result->fetch_assoc();
             $message = "رمز عبور شما: " + $row["password"];
             sendMail($mail, $message, "بازیابی رمز", $twig);
-            $response->getBody()->write($twig->render('forget.twig', ["success" => true]));
+            $response->getBody()->write($twig->render('forget.twig', ["success" => true,"app_name"=>APP_NAME,"app_site"=>APP_SITE]));
         }
     }
 })->setName('profile');
@@ -203,6 +203,6 @@ function sendMail($to, $message, $title, $twig) {
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
     $headers .= 'From: <info@' + APP_SITE + '>' . "\r\n";
-    $body = $twig->render('mail.twig', ["title" => $title, "message" => $message, "app_site" => APP_SITE, "app_name" => APP_NAME]);
+    $body = $twig->render('mail.twig', ["title" => $title, "message" => $message, "app_site" => APP_SITE, "app_name" => APP_NAME,"app_site"=>APP_SITE]);
     mail($to, $title, $body, $headers);
 }
