@@ -122,3 +122,13 @@ a:active {
     border-color: transparent;
     color: #ffffff;
 }
+.error{
+    color: red;
+    margin: 5px;
+    text-align: center;
+}
+.success{
+    color: #00df24;
+    margin: 5px;
+    text-align: center;
+}

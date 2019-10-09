@@ -15,8 +15,13 @@
 {% block scripts %}{% endblock %}
 <div class="topBar">
 	<div id="userPanel">
-		<div class="btn btn-light topButton">ورود</div>
-                <a href="ثبت_نام"> <div class="btn btn-light topButton">ثبت نام</div></a>
+            {% if user == null %}
+                <a href="login" ><div class="btn btn-light topButton">ورود</div></a>
+                <a href="register" ><div class="btn btn-light topButton">ثبت نام</div></a>
+            {% else %}
+                <a href="profile" ><div class="btn btn-light topButton">{{user.name}}</div></a>
+                <a href="logout" ><div class="btn btn-light topButton">خروج</div></a>
+            {% endif %}
 	</div>
 </div>
 <div class="container mainContainer">
