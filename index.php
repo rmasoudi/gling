@@ -13,7 +13,7 @@ DEFINE('USER', 'root');
 DEFINE('PASSWORD', 'a');
 DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'جیلینگ');
-DEFINE('APP_SITE', 'http://gling.ir');
+DEFINE('APP_SITE', 'gling.ir');
 session_start();
 
 
