@@ -1,0 +1,74 @@
+{% extends 'base.twig' %}
+
+{% block title %}G-Ling{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function(){          
+		var langs=[
+                    "انگلیسی",
+                    "فرانسوی",
+                    "آلمانی",
+                    "اسپانیایی",
+                    "چینی",
+                    "عربی",
+                    "اردو",
+                    "ژاپنی",
+                    "ترکی استانبولی",
+                    "ترکی آذری",
+                    "ایتالیایی",
+                    "روسی",
+                    "ارمنی",
+                    "کردی"
+                ];
+                $("#langContainer").html("");
+                for(var i=0;i<langs.length;i++){
+                        var item=$('<a href="#" class="list-group-item list-group-item-action ">'+langs[i]+'</a>');
+                        item.click(function (){
+                            $(".list-group-item").removeClass("active");
+                            $(this).addClass("active");
+                        });
+                        if(i===0){
+                            item.addClass("active");
+                        }
+                        $("#langContainer").append(item);
+                }
+
+	});
+        
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="stepper">
+  <div class="circle done"> <span class="label">1</span>
+    <span class="title">انتخاب مدارک</span>
+
+  </div> <span class="bar done"></span>
+
+  <div class="circle active"> <span class="label">2</span>
+    <span class="title">انتخاب زبان</span>
+
+  </div> <span class="bar active"></span>
+
+  <div class="circle"> <span class="label">3</span>
+    <span class="title">تعیین آدرس</span>
+
+  </div> <span class="bar"></span>
+
+  <div class="circle"> <span class="label">4</span>
+    <span class="title">انتخاب مرکز ترجمه</span>
+
+  </div> <span class="bar"></span>
+
+  <div class="circle"> <span class="label">5</span>
+    <span class="title">صورتحساب</span>
+
+  </div>
+</div>
+
+<div id="langContainer" class="list-group" style="width: 100%;direction: rtl;text-align: right;">
+    
+</div>
+<a href="تعیین_آدرس"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+{% endblock %}

@@ -24,7 +24,7 @@
 
 
 {% block content %}
-<form class="needs-validation" style="margin-top: 100px;" method="post" action="save_user" novalidate>
+<form class="needs-validation" style="margin-top: 100px;text-align: right;" method="post" action="save_user" novalidate>
     {% if success == true %}
     <div class="success">
         ثبت نام با موفقیت انجام شد.
@@ -68,6 +68,7 @@
         </div>
     </div>
     <div class="error">{{error}}</div>
+    <input style="display: none;" name="redirect" value="{{redirect}}" />
     <button type="submit" class="btn btn-primary topButton">ثبت نام</button>
     {% endif %}
 </form>

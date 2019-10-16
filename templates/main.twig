@@ -1,61 +1,10 @@
 {% extends 'base.twig' %}
 
-{% block title %}G-Ling{% endblock %}
+{% block title %}انتخاب_مدارک_ترجمه_رسمی{% endblock %}
 {% block scripts %}
 <script type="text/javascript">
-	$(document).ready(function(){          
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(position){
-				//var loc=position.coords.latitude+","+position.coords.longitude;
-				var loc="35.735766,51.429760";
-				var data={
-					query:{
-						geo_distance:{
-							distance:"200km",
-							loc:loc
-						}
-					},
-					sort : [
-						{
-							_geo_distance : {
-								loc : loc,
-								order : "asc",
-								unit : "km",
-								mode : "min",
-								distance_type : "arc",
-								ignore_unmapped: true
-							}
-						}
-					]
-				};
-				fetch("https://first-cluster-6104576857.us-east-1.bonsaisearch.net:443/_search?size=5",{
-					method:"post",
-					headers: {
-							"Authorization": "Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2",
-							"Content-Type": "application/json"
-					},
-					body: JSON.stringify(data)
-				})
-				.then(res=>res.json())
-				.then(
-					(result) => {
-						var list= result.hits.hits.map(function(item){
-							return item["_source"];
-						});
-						$("#geoContainer").css("display","block");
-						$("#centerList").html("");
-						for(var i=0;i<list.length;i++){
-							var item=$('<a href="#" class="list-group-item list-group-item-action flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1">دفتر ترجمه رسمی شماره '+list[i].code+' '+list[i].city+'</h6><small style="color: #26b2ff">'+list[i].manager+'</small></div><small class="mb-1">'+list[i].address+'</small><small>'+list[i].phone+'</small></a>');
-							$("#centerList").append(item);
-						}
-					},
-					(error) => {
-						
-					}
-				);
-			});
-		} 
-
+	$(document).ready(function(){      
+            createTable();
 	});
 	function categClick(id,e){
 		$(".category").removeClass("categorySelected");
@@ -69,7 +18,7 @@
 		}
 		else{
 			for(var i=1;i<=5;i++){
-				if(i==id){
+				if(i===id){
 					$(".categ"+i).removeClass("hidden");
 					$(".categ"+i).addClass("visible");					
 				}
@@ -80,23 +29,84 @@
 			}
 		}
 	}
+        
+        function createTable(){
+            var products= getProducts();
+            for(var i=0;i<products.length;i++){
+                var col=$("<div></div>");
+                var item=$("<div></div>");
+                col.addClass("col-sm-3");
+                col.addClass("col-6");
+                item.addClass("listItem");
+                item.data("index",i);
+                
+                var contentRow=$("<div></div>");
+                contentRow.addClass("row");
+                
+                var title=products[i].product.title;
+                if(title.length>20){
+                    title=title.substr(0,20)+" ...";
+                }
+                
+                var titleCol=$("<div style='border-bottom:solid 1px #1b96bb;font-size:10pt;'>"+title+"</div>");
+                titleCol.addClass("col-12");
+                
+                var removeCol=$("<div>حذف</div>");
+                removeCol.addClass("col-6");
+                removeCol.addClass("deleteButton");
+                removeCol.click(function(){
+                    var index= $(this).parent().parent().data().index;
+                    removeProduct(index);
+                    $(this).parent().parent().parent().remove();
+                });
+                
+                var editCol=$("<div>ویرایش</div>");
+                editCol.addClass("col-6");
+                editCol.addClass("editButton");
+                editCol.click(function(){
+                    var index= $(this).parent().parent().data().index;
+                    var product=getProducts()[index];
+                    setEditing(index,product);
+                    window.location=product.product.url;
+                });
+                
+                contentRow.append(titleCol);
+                contentRow.append(removeCol);
+                contentRow.append(editCol);
+                
+                
+                
+                item.html(contentRow);
+                col.append(item);
+                
+                var deleteButton=$("<span class='glyphicon glyphicon-remove'></span>");
+                col.append(deleteButton);
+                
+                $("#productList").append(col);
+            }
+        }
+        function productClick(e){
+            var href = this.href;
+            setEditing(-1,null);
+            location.href = href;
+        }
 </script>
 {% endblock %}
 
 
 {% block content %}
 <div class="stepper">
-  <div class="circle done"> <span class="label">1</span>
+  <div class="circle active"> <span class="label">1</span>
     <span class="title">انتخاب مدارک</span>
-
-  </div> <span class="bar done"></span>
-
-  <div class="circle done"> <span class="label">2</span>
-    <span class="title">انتخاب زبان</span>
 
   </div> <span class="bar active"></span>
 
-  <div class="circle active"> <span class="label">3</span>
+  <div class="circle"> <span class="label">2</span>
+    <span class="title">انتخاب زبان</span>
+
+  </div> <span class="bar"></span>
+
+  <div class="circle"> <span class="label">3</span>
     <span class="title">تعیین آدرس</span>
 
   </div> <span class="bar"></span>
@@ -111,41 +121,31 @@
 
   </div>
 </div>
+<fieldset class="scheduler-border">
+    <legend class="scheduler-border">مدارک انتخاب شده</legend>
+    <div id="productList" class="row">
+    </div>
+</fieldset>
+<a href="زبان_های_ترجمه_رسمی"> <div class="btn btn-primary topButton">ثبت سفارش</div></a>
 
-<div id="geoContainer" class="container mainContainer">
-	<div id="geoHeader" class="row">
-		<div class="col-sm-12">
-			نزدیک ترین دفاتر ترجمه رسمی به شما
-		</div>
-	</div>
-	<div class="row">
-		<div id="centerList" class="list-group" style="width: 100%;direction: rtl;">
-		</div>
-	</div>
+<div id="page1" class="row" style="direction:rtl;margin-top:10px;">
+    <div class="col-4 col-sm-2">
+                <div id="categ0" onclick="categClick(0);" class="category categorySelected" >همه مدارک</div>
+                <div id="categ1" onclick="categClick(1);" class="category">احوال شخصیه</div>
+                <div id="categ3" onclick="categClick(3);" class="category">اسناد</div>
+                <div id="categ2" onclick="categClick(2);" class="category">مدارک تحصیلی</div>
+                <div id="categ4" onclick="categClick(4);" class="category">شرکت ها و دفاتر</div>
+                <div id="categ5" onclick="categClick(5);" class="category">گواهی و پروانه</div>
+    </div>
+    <div class="col-8 col-sm-10">
+        <div class="row" style="overflow:auto;margin-top: 10px;height: 290px;background-color: #f1f6ff;">
+            {% for product in products %}
+            <div class='col-6 col-sm-3 categ{{product.category}}'><a onclick="productClick(event);" href='{{product.url}}'> <div class='product'>{{product.title}}</div> </a></div>
+            {% endfor %}
+        </div>
+    </div>
+	
 </div>
-<div class="row" style="direction:rtl;margin-top:10px;">
-	<div class="col-sm-2">
-		<div id="categ0" onclick="categClick(0);" class="category categorySelected" >همه مدارک</div>
-	</div>
-	<div class="col-sm-2">
-		<div id="categ5" onclick="categClick(5);" class="category">احوال شخصیه</div>
-	</div>
-	<div class="col-sm-2">
-		<div id="categ2" onclick="categClick(2);" class="category">اسناد</div>
-	</div>
-	<div class="col-sm-2">
-		<div id="categ4" onclick="categClick(4);" class="category">مدارک تحصیلی</div>
-	</div>
-	<div class="col-sm-2">
-		<div id="categ1" onclick="categClick(1);" class="category">شرکت ها و دفاتر</div>
-	</div>
-	<div class="col-sm-2">
-		<div id="categ3" onclick="categClick(3);" class="category">گواهی و پروانه</div>
-	</div>
-</div>
-<div class="row">
-    {% for product in products %}
-        <div class='col-sm-3 categ{{product.category}}'><a href='{{product.url}}'> <div class='product'>{{product.title}}</div> </a></div>
-    {% endfor %}
-</div>
+
+
 {% endblock %}

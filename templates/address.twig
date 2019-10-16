@@ -1,0 +1,78 @@
+{% extends 'base.twig' %}
+
+{% block title %}تعیین آدرس تحویل مدارک ترجمه رسمی{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="https://static.neshan.org/sdk/openlayers/5.3.0/ol.css">
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function (){
+           $(".list-group-item").first().addClass("active");
+           $(".list-group-item").click(function (){
+               $(".list-group-item").removeClass("active");
+               $(this).addClass("active");
+           });
+        });
+    </script>
+{% endblock %}
+
+
+{% block content %}
+<div class="stepper">
+  <div class="circle done"> <span class="label">1</span>
+    <span class="title">انتخاب مدارک</span>
+
+  </div> <span class="bar done"></span>
+
+  <div class="circle done"> <span class="label">2</span>
+    <span class="title">انتخاب زبان</span>
+
+  </div> <span class="bar done"></span>
+
+  <div class="circle active"> <span class="label">3</span>
+    <span class="title">تعیین آدرس</span>
+
+  </div> <span class="bar active"></span>
+
+  <div class="circle"> <span class="label">4</span>
+    <span class="title">انتخاب مرکز ترجمه</span>
+
+  </div> <span class="bar"></span>
+
+  <div class="circle"> <span class="label">5</span>
+    <span class="title">صورتحساب</span>
+
+  </div>
+</div>
+    {% if user == null %}
+        <div class="info">لطفا وارد سیستم شوید. برای ورود 
+            <a href="login">اینجا</a>
+            را کلیک کنید</div>
+        <div class="info"> برای ثبت نام
+        <a href="register">اینجا</a>
+        را کلیک کنید</div>
+    
+    <div class="info">
+        نگران نباشید بعد از ورود به همین مرحله باز می گردید!
+    </div>
+    {% else %}
+        {% if addressList != null %}
+                    <div class="row">
+                        {% for address in addressList %}
+                        <div  class="list-group-item list-group-item-action flex-column align-items-start" style="cursor: pointer;">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{address.name}}</h6>
+                                    <small style="color: #00469c">{{address.address}}</small>
+                                </div>
+                                <small class="mb-1">{{address.mobile}}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+        {% endif %}
+        <br></br>
+        <a href="newaddress"> <div class="btn btn-primary topButton" style="margin-top:10px;">آدرس جدید</div></a>
+        <a href="لیست_دفاتر_ترجمه_رسمی"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+        
+    {% endif %}
+
+{% endblock %}

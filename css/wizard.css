@@ -35,7 +35,7 @@
   position: relative;
   width: 10%;
   height: 6px;
-  margin: 0 -2px 17px -2px;
+  margin: 0 -4px 17px -4px;
   border-left: none;
   border-right: none;
   border-radius: 0;
@@ -69,11 +69,11 @@
   cursor: pointer;
 }
 .stepper .bar.active {
-  background: linear-gradient(to right, #EEE 40%, #FFF 60%);
+  background: linear-gradient(to left, #EEE 40%, #FFF 60%);
 }
 .stepper .circle.done .label {
   color: #FFF;
-  background: #8bc435;
+  background: #61e465;
   box-shadow: inset 0 0 2px rgba(0, 0, 0, .2);
 }
 .stepper .circle.done .title {

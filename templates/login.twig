@@ -24,7 +24,7 @@
 
 
 {% block content %}
-<form class="needs-validation" style="margin-top: 100px;" method="post" action="dologin" novalidate>
+<form class="needs-validation" style="margin-top: 100px;text-align: right;" method="post" action="dologin" novalidate>
 
     <div class="form-group row">
         <label for="staticEmail" class="col-sm-2 col-form-label">رایانامه</label>
@@ -45,6 +45,7 @@
         </div>
     </div>
     <div class="error">{{error}}</div>
+    <input style="display: none;" name="redirect" value="{{redirect}}" />
     <button type="submit" class="btn btn-primary topButton">ورود</button>
     <a href="forget"> <div class="btn btn-primary topButton">رمز را فراموش کردم</div></a>
 </form>

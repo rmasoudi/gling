@@ -6,13 +6,13 @@
         <link rel="stylesheet" href="css/bootstrap.min.css">
             <link rel="stylesheet" href="css/wizard.css">
         <link rel="stylesheet" href="css/styles.css">
+        {% block styles %}{% endblock %}
         <title>{% block title %}{% endblock %}</title>
 </head>
 <body>	
 <script src="js/jquery-3.4.1.min.js"></script>
-<script src="js/jquery-3.3.1.slim.min.js"></script>
-<!--<script src="js/umd/popper.min.js"></script>-->
 <script src="js/bootstrap.min.js"></script>
+<script src="js/general.js"></script>
 {% block scripts %}{% endblock %}
 <div class="topBar">
 	<div id="userPanel">
@@ -25,7 +25,7 @@
             {% endif %}
 	</div>
 </div>
-<div class="container mainContainer">
+<div class="container mainContainer" style="margin-bottom: 120px;">
 	{% block content %}{% endblock %}
  </div>
 <div class="bottomBar">
