@@ -12,8 +12,7 @@
     
     function createUploadForm(){
         var fileSelect = document.getElementById("fileSelect"),
-          fileElem = document.getElementById("fileElem"),
-            urlSelect = document.getElementById("urlSelect");
+          fileElem = document.getElementById("fileElem");
           fileSelect.addEventListener("click", function(e) {
           if (fileElem) {
             fileElem.click();
@@ -125,22 +124,14 @@
 
 
 
-<div id="dropbox">
-  <form class="my-form">
-    <div class="form_line">
-      <div class="form_controls">
-        <div class="upload_button_holder">
+<div onclick="" class="uploadItem">
           <input type="file" id="fileElem" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
           <a href="#" id="fileSelect">Select some files</a>
         </div>
-      </div>
-    </div>
-  </form>
-  <div class="progress-bar" id="progress-bar">
-    <div class="progress" id="progress"></div>
-  </div>
-  <div id="gallery" />
+<div class="progress" style="direction: ltr;">
+    <div id="progress" class="progress-bar" role="progressbar" ></div>
 </div>
+  <div id="gallery" />
 </div>
 
 
