@@ -24,19 +24,19 @@
         function apply(){
             var item={
               product:$("#productForm").data().item,  
-              lang:$("#lang").val(),
-              clone:$("#clone").val(),
-              pages:$("#pageCount").val(),
+              lang:getCount("lang"),
+              clone:getCount("clone"),
+              pages:getCount("pageCount"),
               marriage:elementChecked("chkMarriage"),
               talagh:elementChecked("chkTalagh"),
               wifeDie:elementChecked("chkWifeDie"),
               child:elementChecked("chkChild"),
               die:elementChecked("chkDie"),
               desc:elementChecked("chkDesc"),
-              childCount:$("#childCount").val(),
-              mohrCount:$("#mohrCount").val(),
-              vizaCount:$("#vizaCount").val(),
-              entghalCount:$("#enteghalCount").val()
+              childCount:getCount("childCount"),
+              mohrCount:getCount("mohrCount"),
+              vizaCount:getCount("vizaCount"),
+              entghalCount:getCount("enteghalCount")
             };
             var editing= getEditing();
             if(editing==null){
@@ -45,6 +45,15 @@
             else{
                 editProduct(editing.index,item);
             }
+            window.location="انتخاب_مدارک_ترجمه_رسمی";
+        }
+        function getCount(id){
+            if($("#"+id)[0]===undefined){
+                return 0;
+            }
+            return $("#"+id).val();
+        }
+        function cancel(){
             window.location="انتخاب_مدارک_ترجمه_رسمی";
         }
         function checkElement(id){
@@ -114,7 +123,7 @@
   </div> <span class="bar active"></span>
 
   <div class="circle"> <span class="label">2</span>
-    <span class="title">انتخاب زبان</span>
+    <span class="title"> پیوست مدارک</span>
 
   </div> <span class="bar"></span>
 
@@ -124,7 +133,7 @@
   </div> <span class="bar"></span>
 
   <div class="circle"> <span class="label">4</span>
-    <span class="title">انتخاب مرکز ترجمه</span>
+    <span class="title">انتخاب دفتر ترجمه</span>
 
   </div> <span class="bar"></span>
 
@@ -230,4 +239,5 @@
 </form>
 </div>
 <div class="btn btn-primary topButton" onclick="apply();" style="margin-top:10px;">تایید</div>
+<div class="btn btn-primary topButton" onclick="cancel();" style="margin-top:10px;">انصراف</div>
 {% endblock %}

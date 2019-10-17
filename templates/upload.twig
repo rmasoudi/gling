@@ -1,0 +1,156 @@
+{% extends 'base.twig' %}
+
+{% block title %}پیوست مدارک ترجمه رسمی{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+    const cloudName = 'dr4eclxx1';
+    const unsignedUploadPreset = 'rasoul';
+    $(document).ready(function() {
+            createUploadFields();
+            createUploadForm();
+    });
+    
+    function createUploadForm(){
+        var fileSelect = document.getElementById("fileSelect"),
+          fileElem = document.getElementById("fileElem"),
+            urlSelect = document.getElementById("urlSelect");
+          fileSelect.addEventListener("click", function(e) {
+          if (fileElem) {
+            fileElem.click();
+          }
+          e.preventDefault();
+        }, false);
+    }
+    function handleFiles(files){
+          for (var i = 0; i < files.length; i++) {
+            uploadFile(files[i]); // call the function to upload the file
+          }
+    }
+    function uploadFile(file) {
+      var url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+      var xhr = new XMLHttpRequest();
+      var fd = new FormData();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+       document.getElementById('progress').style.width = 0;
+      xhr.upload.addEventListener("progress", function(e) {
+        var progress = Math.round((e.loaded * 100.0) / e.total);
+        document.getElementById('progress').style.width = progress + "%";
+
+        console.log(`fileuploadprogress data.loaded: ${e.loaded},
+      data.total: ${e.total}`);
+      });
+
+      xhr.onreadystatechange = function(e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          var response = JSON.parse(xhr.responseText);
+          var url = response.secure_url;
+          var tokens = url.split('/');
+          tokens.splice(-2, 0, 'w_150,c_scale');
+          var img = new Image(); // HTML5 Constructor
+          img.src = tokens.join('/');
+          img.alt = response.public_id;
+          document.getElementById('gallery').appendChild(img);
+        }
+      };
+
+      fd.append('upload_preset', unsignedUploadPreset);
+      fd.append('tags', 'browser_upload'); // Optional - add tag for image admin in Cloudinary
+      fd.append('file', file);
+      xhr.send(fd);
+    }
+    function createUploadFields() {
+        var products = getProducts();
+        if (products.length === 0) {
+            window.location = "انتخاب_مدارک_ترجمه_رسمی";
+            return;
+        }
+        for (var i = 0; i < products.length; i++) {
+            
+            var pages = parseInt(products[i].pages);
+            if (pages === 0) {
+                var item = $("<div class='col-6 col-sm-3'></div>");
+                var title = $("<div></div>");
+                title.addClass("uploadItem");
+                title.html("تصویر " + products[i].product.title);
+                item.append(title);
+                $("#uploadContainer").append(item);
+            }
+            else {
+                for (var j = 0; j < pages; j++) {
+                    var item = $("<div class='col-6 col-sm-3'></div>");
+                    var title = $("<div></div>");
+                    title.addClass("uploadItem");
+                    title.html("تصویر صفحه " + (j + 1) + " " + products[i].product.title);
+                    item.append(title);
+                    $("#uploadContainer").append(item);
+                }
+            }
+        }
+
+    }
+
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="stepper">
+    <div class="circle done"> <span class="label">1</span>
+        <span class="title">انتخاب مدارک</span>
+
+    </div> <span class="bar done"></span>
+
+    <div class="circle active"> <span class="label">2</span>
+        <span class="title"> پیوست مدارک</span>
+
+    </div> <span class="bar active"></span>
+
+    <div class="circle"> <span class="label">3</span>
+        <span class="title">تعیین آدرس</span>
+
+    </div> <span class="bar"></span>
+
+    <div class="circle"> <span class="label">4</span>
+        <span class="title">انتخاب دفتر ترجمه</span>
+
+    </div> <span class="bar"></span>
+
+    <div class="circle"> <span class="label">5</span>
+        <span class="title">صورتحساب</span>
+
+    </div>
+</div>
+
+
+
+
+<div id="dropbox">
+  <form class="my-form">
+    <div class="form_line">
+      <div class="form_controls">
+        <div class="upload_button_holder">
+          <input type="file" id="fileElem" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+          <a href="#" id="fileSelect">Select some files</a>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="progress-bar" id="progress-bar">
+    <div class="progress" id="progress"></div>
+  </div>
+  <div id="gallery" />
+</div>
+</div>
+
+
+
+
+<div class="container">
+    <div id="uploadContainer" class="row">
+
+    </div>
+</div>
+
+<a href="تعیین_آدرس"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+{% endblock %}

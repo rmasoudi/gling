@@ -66,7 +66,6 @@
 .stepper .bar.done,
 .stepper .circle.done {
   background: #eee;
-  cursor: pointer;
 }
 .stepper .bar.active {
   background: linear-gradient(to left, #EEE 40%, #FFF 60%);
@@ -78,6 +77,9 @@
 }
 .stepper .circle.done .title {
   color: #444;
+}
+.stepper .circle.done{
+    cursor: pointer;
 }
 .stepper .circle.active .label {
   color: #FFF;

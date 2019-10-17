@@ -22,6 +22,8 @@ $globalPrices=[
     "shenas_item"=>5000,
     "copy" => 1000
 ];
+
+
 session_start();
 
 
@@ -38,6 +40,37 @@ $config = [
     ],
 ];
 $app = new \Slim\App($config);
+
+
+$app->get('/upload_test', function (Request $request, Response $response, $args) use ($twig, $app) {
+    \Cloudinary::config(array( 
+      "cloud_name" => "dr4eclxx1", 
+      "api_key" => "169382814821652", 
+      "api_secret" => "Zq7MK4ARDH6lEbuUW2cBok6XB0o", 
+      "secure" => true
+    ));
+    $default_upload_options = array('tags' => 'basic_sample');
+    $dir="C:\\Users\\User\\Desktop\\google-images-download-master\\google_images_download\\downloads\\hm3\\";
+    $files = scandir($dir);
+    foreach($files as $item) {
+        $path=$dir."". $item;
+        if(!is_dir($path)){
+            echo $path."<br/>";
+            $id = \Cloudinary\Uploader::upload(
+                $path,
+                array_merge(
+                    $default_upload_options,
+                    array('public_id' => $item)
+                )
+            );
+            echo $id."<br/>";
+        }
+        
+    }
+})->setName('upload_test');
+
+
+
 $app->get('/', function (Request $request, Response $response, $args) use ($twig, $app) {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
@@ -95,8 +128,12 @@ $app->post('/dologin', function (Request $request, Response $response, $args) us
         if (mysqli_num_rows($result) != 0) {
             $row = $result->fetch_assoc();
             setCurrentUser($row["name"], $row["id"], $row["mail"], $row["mobile"]);
+            $stmt->close();
+            $conn->close();
             return $response->withRedirect($redirect);
         } else {
+            $stmt->close();
+            $conn->close();
             $response->getBody()->write($twig->render('login.twig', ["error" => "رایانامه یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
         }
     }
@@ -124,8 +161,12 @@ $app->post('/save_user', function (Request $request, Response $response, $args) 
             $result = $stmt->get_result();
             $last_id = $conn->insert_id;
             setCurrentUser($name, $last_id, $mail, $mobile);
+            $stmt->close();
+            $conn->close();
             return $response->withRedirect($redirect);
         } else {
+            $stmt->close();
+            $conn->close();
             $response->getBody()->write($twig->render('register.twig', ["error" => "شماره موبایل یا رایانامه قبلا ثبت شده است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
         }
     }
@@ -150,7 +191,8 @@ $app->post('/save_address', function (Request $request, Response $response, $arg
         $stmt->bind_param("ii", getCurrentUser()["id"],$last_id);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+        $stmt->close();
+        $conn->close();
         return $response->withRedirect("تعیین_آدرس");
     }
 })->setName('save_address');
@@ -179,6 +221,8 @@ $app->post('/update_user', function (Request $request, Response $response, $args
         $stmt->execute();
         $result = $stmt->get_result();
         setCurrentUser($name, $id, $mail, $mobile);
+        $stmt->close();
+        $conn->close();
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     }
 })->setName('update_user');
@@ -203,11 +247,15 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
         $stmt->execute();
         $result = $stmt->get_result();
         if (mysqli_num_rows($result) == 0) {
+            $stmt->close();
+            $conn->close();
             $response->getBody()->write($twig->render('forget.twig', ["error" => "چنین ایمیلی در سیستم ثبت نشده است"]));
         } else {
             $row = $result->fetch_assoc();
             $message = "رمز عبور شما: " + $row["password"];
             sendMail($mail, $message, "بازیابی رمز", $twig);
+            $stmt->close();
+            $conn->close();
             $response->getBody()->write($twig->render('forget.twig', ["success" => true, "app_name" => APP_NAME, "app_site" => APP_SITE]));
         }
     }
@@ -226,6 +274,10 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     }
     if ($path == "لیست_دفاتر_ترجمه_رسمی") {
         $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"globalPrices"=>$globalPrices]));
+        return;
+    }
+    if ($path == "پیوست_مدارک_ترجمه_رسمی") {
+        $response->getBody()->write($twig->render('upload.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser()]));
         return;
     }
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
@@ -265,6 +317,8 @@ function getDocType($url){
             return null;
         }
         $row = $result->fetch_assoc();
+        $stmt->close();
+        $conn->close();
         return ["id"=>$row["id"],"title"=>$row["title"],"price"=>$row["price"],"extra"=>$row["extra"],"desc"=>$row["desc"],"url"=>$row["url"],"category"=>$row["category"],"fi"=>$row["fi"]];
 }
 

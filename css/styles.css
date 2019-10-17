@@ -219,3 +219,19 @@ fieldset.scheduler-border {
     -webkit-box-shadow:  0px 0px 0px 0px #0994af;
             box-shadow:  0px 0px 0px 0px #0994af;
 }
+.uploadItem{
+    text-align: center;
+    background-color: #a3ccff;
+    color: #ffffff;
+    padding: 3px;   
+    cursor: pointer;
+    height: 110px;
+    font-size: 11pt;
+    margin-top: 10px;
+}
+.uploadItem:hover{
+    background-color: #6cacf9;
+}
+#uploadContainer{
+ direction: rtl;   
+}
