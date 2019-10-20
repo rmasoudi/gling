@@ -15,11 +15,11 @@ DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'جیلینگ');
 DEFINE('APP_SITE', 'gling.ir');
 
-$globalPrices=[
-    "daftari"=>15000,
-    "pasport"=>10000,
-    "enteghal"=>10000,
-    "shenas_item"=>5000,
+$globalPrices = [
+    "daftari" => 15000,
+    "pasport" => 10000,
+    "enteghal" => 10000,
+    "shenas_item" => 5000,
     "copy" => 1000
 ];
 
@@ -43,29 +43,26 @@ $app = new \Slim\App($config);
 
 
 $app->get('/upload_test', function (Request $request, Response $response, $args) use ($twig, $app) {
-    \Cloudinary::config(array( 
-      "cloud_name" => "dr4eclxx1", 
-      "api_key" => "169382814821652", 
-      "api_secret" => "Zq7MK4ARDH6lEbuUW2cBok6XB0o", 
-      "secure" => true
+    \Cloudinary::config(array(
+        "cloud_name" => "dr4eclxx1",
+        "api_key" => "169382814821652",
+        "api_secret" => "Zq7MK4ARDH6lEbuUW2cBok6XB0o",
+        "secure" => true
     ));
     $default_upload_options = array('tags' => 'basic_sample');
-    $dir="C:\\Users\\User\\Desktop\\google-images-download-master\\google_images_download\\downloads\\hm3\\";
+    $dir = "C:\\Users\\User\\Desktop\\google-images-download-master\\google_images_download\\downloads\\hm3\\";
     $files = scandir($dir);
-    foreach($files as $item) {
-        $path=$dir."". $item;
-        if(!is_dir($path)){
-            echo $path."<br/>";
+    foreach ($files as $item) {
+        $path = $dir . "" . $item;
+        if (!is_dir($path)) {
+            echo $path . "<br/>";
             $id = \Cloudinary\Uploader::upload(
-                $path,
-                array_merge(
-                    $default_upload_options,
-                    array('public_id' => $item)
-                )
+                            $path, array_merge(
+                                    $default_upload_options, array('public_id' => $item)
+                            )
             );
-            echo $id."<br/>";
+            echo $id . "<br/>";
         }
-        
     }
 })->setName('upload_test');
 
@@ -82,7 +79,7 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
     }
     $stmt->close();
     $conn->close();
-    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));    
+    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
 })->setName('main');
 
 $app->get('/register', function (Request $request, Response $response, $args) use ($twig, $app) {
@@ -101,9 +98,42 @@ $app->get('/login', function (Request $request, Response $response, $args) use (
         $response->getBody()->write($twig->render('login.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "redirect" => $referer]));
     }
 })->setName('login');
+
 $app->get('/newaddress', function (Request $request, Response $response, $args) use ($twig, $app) {
-    $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser()]));
+    $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "address" => null]));
 })->setName('newaddress');
+
+$app->get('/editaddress', function (Request $request, Response $response, $args) use ($twig, $app) {
+    if (!isLogged()) {
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
+    } else {
+        $id = $request->getQueryParams()["id"];
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT * FROM user_address WHERE user_id=? AND address_id=?");
+        $stmt->bind_param("ii", getCurrentUser()["id"], $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if (mysqli_num_rows($result) != 0) {
+            $stmt = $conn->prepare("SELECT * FROM address WHERE id=?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $addr = [
+                "id" => $id,
+                "address" => $row["address"],
+                "mobile" => $row["mobile"],
+                "point" => $row["point"],
+                "name" => $row["name"]
+            ];
+            $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "address" => $addr]));
+            return;
+        }
+        $stmt->close();
+        $conn->close();
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
+    }
+})->setName('ecitaddress');
 
 $app->get('/logout', function (Request $request, Response $response, $args) use ($twig, $app) {
     session_unset();
@@ -176,26 +206,62 @@ $app->post('/save_address', function (Request $request, Response $response, $arg
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
+        $id = (int) ($_POST["id"]);
         $name = $_POST["name"];
         $mobile = $_POST["mobile"];
         $address = $_POST["address"];
         $point = $_POST["point"];
         $conn = getConnection();
-        $stmt = $conn->prepare("INSERT INTO address(name,mobile,address,point)VALUES(?,?,?,?)");
-        $stmt->bind_param("ssss", $name, $mobile, $address, $point);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $last_id = $conn->insert_id;
-        
-        $stmt = $conn->prepare("INSERT INTO user_address(user_id,address_id)VALUES(?,?)");
-        $stmt->bind_param("ii", getCurrentUser()["id"],$last_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->close();
+        if ($id == -1) {
+            
+            $stmt = $conn->prepare("INSERT INTO address(name,mobile,address,point)VALUES(?,?,?,?)");
+            $stmt->bind_param("ssss", $name, $mobile, $address, $point);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $last_id = $conn->insert_id;
+
+            $stmt = $conn->prepare("INSERT INTO user_address(user_id,address_id)VALUES(?,?)");
+            $stmt->bind_param("ii", getCurrentUser()["id"], $last_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->close();
+            
+        }
+        else{
+            $stmt = $conn->prepare("UPDATE address SET name=?,mobile=?,address=?,point=? WHERE id=?");
+            $stmt->bind_param("ssssi", $name,$mobile,$address,$point,$id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->close();
+        }
         $conn->close();
         return $response->withRedirect("تعیین_آدرس");
     }
 })->setName('save_address');
+
+$app->get('/remove_address', function (Request $request, Response $response, $args) use ($twig, $app) {
+
+    if (!isLogged()) {
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
+    } else {
+        $id = $request->getQueryParams()["id"];
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT * FROM user_address WHERE user_id=? AND address_id=?");
+        $stmt->bind_param("ii", getCurrentUser()["id"], $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if (mysqli_num_rows($result) != 0) {
+            $iid = (int) $id;
+            $stmt = $conn->prepare("DELETE FROM address WHERE id=" . $iid);
+            $stmt->execute();
+        }
+
+        $stmt->close();
+        $conn->close();
+        $response->getBody()->write(json_encode($id));
+        return;
+    }
+})->setName('remove_address');
 
 $app->get('/profile', function (Request $request, Response $response, $args) use ($twig, $app) {
     if (!isLogged()) {
@@ -261,19 +327,18 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
     }
 })->setName('profile');
 
-$app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app,$globalPrices) {
+$app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $path = trim(urldecode($args["name"]));
     if ($path == "زبان_های_ترجمه_رسمی") {
         $response->getBody()->write($twig->render('lang.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser()]));
         return;
     }
     if ($path == "تعیین_آدرس") {
-        $response->getBody()->write($twig->render('address.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"addressList"=>  getUserAddressList()]));
-//        $response->getBody()->write(json_encode(getUserAddressList()));
+        $response->getBody()->write($twig->render('address.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "addressList" => getUserAddressList()]));
         return;
     }
     if ($path == "لیست_دفاتر_ترجمه_رسمی") {
-        $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"globalPrices"=>$globalPrices]));
+        $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices]));
         return;
     }
     if ($path == "پیوست_مدارک_ترجمه_رسمی") {
@@ -283,16 +348,16 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     }
-    $docType=getDocType($path);
-    if($docType!=null){
-        $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"doc"=>$docType]));
+    $docType = getDocType($path);
+    if ($docType != null) {
+        $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "doc" => $docType]));
         return;
     }
     $response->getBody()->write($path);
 });
 $app->run();
 
-function getUserAddressList(){
+function getUserAddressList() {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM address LEFT JOIN user_address ON user_address.user_id=? AND address.id=user_address.address_id");
     $stmt->bind_param("i", getCurrentUser()["id"]);
@@ -300,26 +365,26 @@ function getUserAddressList(){
     $result = $stmt->get_result();
     $list = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($list, [ "address" => $row["address"], "mobile" => $row["mobile"], "point" => $row["point"], "name" => $row["name"]]);
+        array_push($list, [ "address" => $row["address"], "mobile" => $row["mobile"], "point" => $row["point"], "name" => $row["name"], "id" => $row["address_id"]]);
     }
     $stmt->close();
     $conn->close();
     return $list;
 }
 
-function getDocType($url){
-        $conn = getConnection();
-        $stmt = $conn->prepare("SELECT * FROM product WHERE url=?");
-        $stmt->bind_param("s", $url);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if (mysqli_num_rows($result) == 0) {
-            return null;
-        }
-        $row = $result->fetch_assoc();
-        $stmt->close();
-        $conn->close();
-        return ["id"=>$row["id"],"title"=>$row["title"],"price"=>$row["price"],"extra"=>$row["extra"],"desc"=>$row["desc"],"url"=>$row["url"],"category"=>$row["category"],"fi"=>$row["fi"]];
+function getDocType($url) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM product WHERE url=?");
+    $stmt->bind_param("s", $url);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (mysqli_num_rows($result) == 0) {
+        return null;
+    }
+    $row = $result->fetch_assoc();
+    $stmt->close();
+    $conn->close();
+    return ["id" => $row["id"], "title" => $row["title"], "price" => $row["price"], "extra" => $row["extra"], "desc" => $row["desc"], "url" => $row["url"], "category" => $row["category"], "fi" => $row["fi"]];
 }
 
 function isLogged() {

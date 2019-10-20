@@ -4,66 +4,69 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(document).ready(function(){  
-		if (navigator.geolocation) {
-			navigator.geolocation.getCurrentPosition(function(position){
-				//var loc=position.coords.latitude+","+position.coords.longitude;
-				var loc="35.735766,51.429760";
-				var data={
-					query:{
-						geo_distance:{
-							distance:"200km",
-							loc:loc
-						}
-					},
-					sort : [
-						{
-							_geo_distance : {
-								loc : loc,
-								order : "asc",
-								unit : "km",
-								mode : "min",
-								distance_type : "arc",
-								ignore_unmapped: true
-							}
-						}
-					]
-				};
-				fetch("https://first-cluster-6104576857.us-east-1.bonsaisearch.net:443/_search?size=5",{
-					method:"post",
-					headers: {
-							"Authorization": "Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2",
-							"Content-Type": "application/json"
-					},
-					body: JSON.stringify(data)
-				})
-				.then(res=>res.json())
-				.then(
-					(result) => {
-                                            debugger
-						var list= result.hits.hits.map(function(item){
-							return item["_source"];
-						});
-						$("#centerList").html("");
-						for(var i=0;i<list.length;i++){
-							var item=$('<a href="#" class="list-group-item list-group-item-action flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1">دفتر ترجمه رسمی شماره '+list[i].code+' '+list[i].city+'</h6><small style="color: #00469c">'+list[i].manager+'</small></div><small class="mb-1">'+list[i].address+'</small><small>'+list[i].phone+'</small></a>');
-							$("#centerList").append(item);
-						}
-                                                $(".list-group-item").first().addClass("active");
-                                                $(".list-group-item").click(function (){
-                                                    $(".list-group-item").removeClass("active");
-                                                    $(this).addClass("active");
-                                                });
+                var loc=getAddress().item.point;
+                var data={
+                        query:{
+                                geo_distance:{
+                                        distance:"200km",
+                                        loc:loc
+                                }
+                        },
+                        sort : [
+                                {
+                                        _geo_distance : {
+                                                loc : loc,
+                                                order : "asc",
+                                                unit : "km",
+                                                mode : "min",
+                                                distance_type : "arc",
+                                                ignore_unmapped: true
+                                        }
+                                }
+                        ]
+                };
+                fetch("https://first-cluster-6104576857.us-east-1.bonsaisearch.net:443/_search?size=5",{
+                        method:"post",
+                        headers: {
+                                        "Authorization": "Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2",
+                                        "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                })
+                .then(res=>res.json())
+                .then(
+                        (result) => {
+                                var list= result.hits.hits.map(function(item){
+                                        var res=item["_source"];;
+                                        res["sort"]=item["sort"];
+                                        return res;
+                                });
+                                $("#centerList").html("");
+                                for(var i=0;i<list.length;i++){
+                                        var item=$('<a href="#" class="list-group-item list-group-item-action flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1">دفتر ترجمه رسمی شماره '+list[i].code+' '+list[i].city+'</h6><small style="color: #00469c">'+list[i].manager+'</small></div><small class="mb-1">'+list[i].address+'<br/></small><small>'+list[i].phone+'</small><br/><small class="distance">'+getDistance(list[i].sort)+'</small></a>');
+                                        $("#centerList").append(item);
+                                }
+                                $(".list-group-item").first().addClass("active");
+                                $(".list-group-item").click(function (){
+                                    $(".list-group-item").removeClass("active");
+                                    $(this).addClass("active");
+                                });
 
-					},
-					(error) => {
-						
-					}
-				);
-			});
-		} 
-                
-                
+                        },
+                        (error) => {
+
+                        }
+                );
 	});
+        
+        function getDistance(sort){
+            if(sort<1.0){
+                return "فاصله تا شما: "+ Math.round(sort*1000)+" متر";
+            }
+            else{
+                return "فاصله تا شما: "+  parseFloat(Math.round(sort * 100) / 100).toFixed(2)+" کیلومتر";
+            }
+        }
         
 </script>
 {% endblock %}

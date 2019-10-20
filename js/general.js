@@ -20,33 +20,64 @@ function setProducts(products) {
     localStorage.setItem("products", JSON.stringify(products));
 }
 
-function removeProduct(index){
-    var products=getProducts();
-    products.splice(index,1);
+function removeProduct(index) {
+    var products = getProducts();
+    products.splice(index, 1);
     setProducts(products);
 }
-function editProduct(index,item){
-    var products=getProducts();
-    products[index]=item;
+function editProduct(index, item) {
+    var products = getProducts();
+    products[index] = item;
     setProducts(products);
 }
 
-function setEditing(index,product){
-    if(index===-1){ // clear editing item
+function setProductUrl(index, pageIndex, url) {
+    var products = getProducts();
+    var product = products[index];
+    var uploads;
+    if (product.uploads === null || product.uploads === undefined) {
+        uploads = [];
+    }
+    else {
+        uploads = product.uploads;
+    }
+    uploads[pageIndex] = url;
+    product.uploads = uploads;
+    products[index] = product;
+    setProducts(products);
+}
+
+function setEditing(index, product) {
+    if (index === -1) { // clear editing item
         localStorage.removeItem("editing");
         return;
     }
-    var pair={
-        index:index,
-        product:product
+    var pair = {
+        index: index,
+        product: product
     };
-    localStorage.setItem("editing",JSON.stringify(pair));
+    localStorage.setItem("editing", JSON.stringify(pair));
 }
 
-function getEditing(){
-    var str=localStorage.getItem("editing");
-    if(str===null || str===undefined){
+function getEditing() {
+    var str = localStorage.getItem("editing");
+    if (str === null || str === undefined) {
         return null;
     }
     return JSON.parse(localStorage.getItem("editing"));
+}
+
+function setAddress(index,item){
+    var obj={
+        index:index,
+        item:item
+    };
+    localStorage.setItem("address",JSON.stringify(obj));
+}
+
+function getAddress(){
+    if(localStorage.getItem("address")===null){
+        return null;
+    }
+    return JSON.parse(localStorage.getItem("address"));
 }

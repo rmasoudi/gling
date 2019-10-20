@@ -11,6 +11,7 @@
         marker=null;
         map=null;
         $(document).ready(function (){
+         
          var lon=35.735766;
          var lat=51.429760;
         $("#name").focus();
@@ -42,8 +43,34 @@
                 marker = L.marker(e.latlng).addTo(map);
                 $("#point").val(e.latlng.lat+","+e.latlng.lng);
             });
-            
+            initValues();
         });
+        
+        function initValues(){
+            var editing=getEditingAddress();
+            if(editing===null){
+                $("#id").val(-1);
+                return;
+            }
+            $("#id").val(editing.id);
+            $("#name").val(editing.name);
+            $("#phone").val(editing.mobile);
+            $("#address").val(editing.address);
+            $("#point").val(editing.point);
+            var parts=editing.point.split(",");
+            var lat=parseFloat(parts[0]);
+            var lng=parseFloat(parts[1]);
+            if(marker!==null){
+                map.removeLayer(marker);
+            }
+            marker = L.marker({lat:lat,lng:lng}).addTo(map);
+            map.panTo({lat:lat,lng:lng});
+        }
+        
+        function getEditingAddress(){
+            var str=$("form").data().item;
+            return str;
+        }
     </script>
 {% endblock %}
 
@@ -75,7 +102,8 @@
 
   </div>
 </div>
-<form class="needs-validation" style="margin-top: 100px;text-align: right;" method="post" action="save_address" novalidate>
+<form data-item="{{address | json_encode()}}" class="needs-validation" style="margin-top: 100px;text-align: right;" method="post" action="save_address" novalidate>
+    <input name="id" style="display: none;" type="number" class="form-control" id="id">
     <div class="form-group row" >
         <label  for="name" class="col-sm-2 col-form-label">نام و نام خانوادگی</label>
         <div class="col-sm-10">

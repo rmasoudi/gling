@@ -11,8 +11,36 @@
            $(".list-group-item").click(function (){
                $(".list-group-item").removeClass("active");
                $(this).addClass("active");
+                var index = $(this).index();
+                var item=$(this).data().item;
+                setAddress(index,item);
            });
+           var selectedAddress=getAddress();
+           if(selectedAddress!=null){
+               $(".list-group-item").removeClass("active");
+               $($(".list-group-item")[selectedAddress.index]).addClass("active");
+           }
         });
+        
+        function removeAddress(id){
+            if(confirm("آیا مطمئن هستید؟")){
+                fetch("remove_address?id="+id,{
+                    method:"get"
+                })
+                .then(res=>res.json())
+                .then(
+                    (result) => {
+                        location.reload();
+                    },
+                    (error) => {
+                        location.reload();
+                    }
+                );
+            }
+        }
+        function editAddress(id){
+            window.location="editaddress?id="+id;
+        }
     </script>
 {% endblock %}
 
@@ -59,18 +87,30 @@
         {% if addressList != null %}
                     <div class="row">
                         {% for address in addressList %}
-                        <div  class="list-group-item list-group-item-action flex-column align-items-start" style="cursor: pointer;">
+                        <div data-item="{{address | json_encode()}}"  class="list-group-item list-group-item-action flex-column align-items-start" style="cursor: pointer;">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h6 class="mb-1">{{address.name}}</h6>
                                     <small style="color: #00469c">{{address.address}}</small>
                                 </div>
                                 <small class="mb-1">{{address.mobile}}</small>
+                                <br/>
+                                <div onclick="removeAddress({{address.id}});" class="btn listButton">حذف</div>
+                                <div onclick="editAddress({{address.id}});" class="btn listButton">ویرایش</div>
                             </div>
                         {% endfor %}
+                        <a href="newaddress" style="width: 100%;"> 
+                            <div  class="list-group-item list-group-item-action flex-column align-items-start" style="cursor: pointer;">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <div style="width: 120px;margin-right: auto;margin-left: auto;">آدرس جدید</div>
+                                    </div>
+                                    <small class="mb-1"></small>
+                                    <br/>
+                             </div>
+                        </a>
+
                     </div>
         {% endif %}
         <br></br>
-        <a href="newaddress"> <div class="btn btn-primary topButton" style="margin-top:10px;">آدرس جدید</div></a>
         <a href="لیست_دفاتر_ترجمه_رسمی"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
         
     {% endif %}

@@ -151,9 +151,9 @@ a:active {
 
 .list-group-item.active {
     z-index: 2;
-    color: #fff;
-    background-color: #77cafb;
-    border-color: #77cafb;
+    color: #2d589a;
+    background-color: #f3fcff;
+    border-color: #73d5df;
 }
 
 #app {
@@ -221,11 +221,12 @@ fieldset.scheduler-border {
 }
 .uploadItem{
     text-align: center;
-    background-color: #a3ccff;
-    color: #ffffff;
+    background-color: #ffffff;
+    border: dashed 1px #13608a;
+    color: #13608a;
     padding: 3px;   
     cursor: pointer;
-    height: 110px;
+    height: 130px;
     font-size: 11pt;
     margin-top: 10px;
 }
@@ -234,4 +235,45 @@ fieldset.scheduler-border {
 }
 #uploadContainer{
  direction: rtl;   
+}
+.prg{
+    width: 0;
+    height: 3px;
+    background-color: #188cc4;
+    float: left;
+    -webkit-transition: width .5s; /* Safari prior 6.1 */
+    transition: width .5s;
+}
+.uploadTitle{
+    height: 30px;
+    font-size: 8pt;
+    margin-top: 5px;
+}
+.imgPreview{
+    max-height: 70px;
+}
+
+
+.listButton{
+    color: #ffffff;
+    background-color: #44bae3;
+    border-color: transparent;
+    cursor: pointer;
+    font-size: 10pt;
+    -webkit-transition: background-color .2s; 
+    transition: background-color .2s;
+}
+.listButton:hover{
+    background-color: #08889a;
+    border: solid 1px #17b8d0;
+    color: #ffffff;
+}
+.listButton:active{
+    background-color: #3e98f8;
+}
+.distance{
+    background-color: #16d54e;
+    color: #ffffff;
+    padding: 3px;
+    border-radius: 5px;
 }
