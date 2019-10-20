@@ -81,3 +81,44 @@ function getAddress(){
     }
     return JSON.parse(localStorage.getItem("address"));
 }
+
+function getSelectedLang(){
+    var products=getProducts();
+    var val;
+    for(var i=0;i<products.length;i++){
+        val =products[i].lang;
+        break;
+    }
+    switch (val){
+        case "1":
+            return "انگلیسی";
+        case "2":
+            return "فرانسوی";
+        case "3":
+            return "آلمانی";
+        case "4":
+            return "اسپانیایی";
+        case "5":
+            return "چینی";
+        case "6":
+            return "عربی";
+        case "7":
+            return "اردو";
+        case "8":
+            return "ژاپنی";
+        case "9":
+            return "ترکی استانبولی";
+        case "10":
+            return "ترکی";
+        case "11":
+            return "ایتالیایی";
+        case "12":
+            return "روسی";
+        case "13":
+            return "ارمنی";
+        case "14":
+            return "کردی";
+            
+    }
+    return "";
+}

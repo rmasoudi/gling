@@ -217,7 +217,7 @@ fieldset.scheduler-border {
     padding: 0 1.4em 1.4em 1.4em !important;
     margin: 0 0 1.5em 0 !important;
     -webkit-box-shadow:  0px 0px 0px 0px #0994af;
-            box-shadow:  0px 0px 0px 0px #0994af;
+    box-shadow:  0px 0px 0px 0px #0994af;
 }
 .uploadItem{
     text-align: center;
@@ -234,7 +234,7 @@ fieldset.scheduler-border {
     background-color: #6cacf9;
 }
 #uploadContainer{
- direction: rtl;   
+    direction: rtl;   
 }
 .prg{
     width: 0;
@@ -276,4 +276,14 @@ fieldset.scheduler-border {
     color: #ffffff;
     padding: 3px;
     border-radius: 5px;
+}
+.contactPhone{
+    border-radius: 5px;
+    padding: 3px;
+    color: #ffffff;
+    background-color: #41bdca;
+}
+#lblLang{
+    color: #1282a3;
+    font-weight: bold;
 }

@@ -5,12 +5,26 @@
 <script type="text/javascript">
 	$(document).ready(function(){  
                 var loc=getAddress().item.point;
+                var lang=getSelectedLang();
+                $("#lblLang").html(lang);
                 var data={
                         query:{
-                                geo_distance:{
-                                        distance:"200km",
-                                        loc:loc
-                                }
+                            bool:{
+                                must:[
+                                    {
+                                        geo_distance:{
+                                                distance:"200km",
+                                                loc:loc
+                                        }
+                                    },
+                                    {
+                                        term:{
+                                                lang:lang
+                                        }
+                                    }
+                                ]
+                            }
+                                
                         },
                         sort : [
                                 {
@@ -103,7 +117,8 @@
 <div class="container mainContainer">
 	<div id="geoHeader" class="row">
 		<div class="col-sm-12">
-			نزدیک ترین دفاتر ترجمه رسمی به شما
+			نزدیک ترین دفاتر ترجمه رسمی با زبان تخصصی 
+                        <span id="lblLang"></span>
 		</div>
 	</div>
 	<div class="row">
