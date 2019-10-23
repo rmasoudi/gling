@@ -25,24 +25,23 @@
             {% endif %}
 	</div>
 </div>
-<div class="container mainContainer" style="margin-bottom: 120px;">
+<div class="container mainContainer" style="margin-bottom: 10px;">
 	{% block content %}{% endblock %}
  </div>
-<div class="bottomBar">
+<footer>
     <div class="row">
             <div style="margin-right: auto;margin-left: auto;width: 300px;margin-top: 5px;text-align: center;">
                 <strong><a href="{{app_site}}" style="color: #FFFFFF;text-decoration: bold;">{{app_name}}</a></strong>
                 <br/>
                 <a href="{{app_site}}" style="color: #FFFFFF">سیستم جامع ترجمه رسمی</a>
-                <br/>
-                <a href="mailto:info@{{app_site}}" style="color: #FFFFFF">info@{{app_site}}</a>
-                <br/>
-                <a href="tel:77990540" class="contactPhone">021-77990540</a>
-                
+                <div style="margin-top:5px;">
+                    <a href="mailto:info@{{app_site}}" class="contactPhone">info@{{app_site}}</a>
+                    <a href="tel:77990540" class="contactPhone">021-77990540</a>
+                </div>
             </div>
     </div>
     
-</div>
+</footer>
 
 <a href="https://api.whatsapp.com/send?phone=989367270443">
     <div class="chat">

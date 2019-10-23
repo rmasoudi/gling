@@ -82,6 +82,7 @@ function getAddress(){
     return JSON.parse(localStorage.getItem("address"));
 }
 
+
 function getSelectedLang(){
     var products=getProducts();
     var val;

@@ -14,6 +14,7 @@ DEFINE('PASSWORD', 'a');
 DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'جیلینگ');
 DEFINE('APP_SITE', 'gling.ir');
+DEFINE('ELASTIC_HOST', 'https://6b9o9l9h74:yqegnzdccv@first-cluster-6104576857.us-east-1.bonsaisearch.net:443');
 
 $globalPrices = [
     "daftari" => 15000,
@@ -213,7 +214,7 @@ $app->post('/save_address', function (Request $request, Response $response, $arg
         $point = $_POST["point"];
         $conn = getConnection();
         if ($id == -1) {
-            
+
             $stmt = $conn->prepare("INSERT INTO address(name,mobile,address,point)VALUES(?,?,?,?)");
             $stmt->bind_param("ssss", $name, $mobile, $address, $point);
             $stmt->execute();
@@ -225,11 +226,9 @@ $app->post('/save_address', function (Request $request, Response $response, $arg
             $stmt->execute();
             $result = $stmt->get_result();
             $stmt->close();
-            
-        }
-        else{
+        } else {
             $stmt = $conn->prepare("UPDATE address SET name=?,mobile=?,address=?,point=? WHERE id=?");
-            $stmt->bind_param("ssssi", $name,$mobile,$address,$point,$id);
+            $stmt->bind_param("ssssi", $name, $mobile, $address, $point, $id);
             $stmt->execute();
             $result = $stmt->get_result();
             $stmt->close();
@@ -327,6 +326,47 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
     }
 })->setName('profile');
 
+
+$app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $centerId = getCurrentManager()["id"];
+    $center = getElasticCenter($centerId);
+    $user=["name"=>$center->manager];
+    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
+})->setName('translators');
+
+$app->get('/translators-login', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $referer = urldecode($_SERVER['HTTP_REFERER']);
+    $response->getBody()->write($twig->render('mlogin.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "redirect" => $referer]));
+})->setName('translators-login');
+
+$app->post('/domlogin', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $redirect = $_POST["redirect"];
+    if (isManagerLogged()) {
+        return $response->withRedirect($redirect);
+    } else {
+        $mobile = $_POST["mobile"];
+        $password = $_POST["password"];
+
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT * FROM center WHERE username=? AND password=?");
+        $stmt->bind_param("ss", $mobile, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if (mysqli_num_rows($result) != 0) {
+            $row = $result->fetch_assoc();
+            setCurrentManager($row["id"], $mobile);
+            $stmt->close();
+            $conn->close();
+            return $response->withRedirect($redirect);
+        } else {
+            $stmt->close();
+            $conn->close();
+            $response->getBody()->write($twig->render('mlogin.twig', ["error" => "رایانامه یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+        }
+    }
+})->setName('domlogin');
+
+
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $path = trim(urldecode($args["name"]));
     if ($path == "زبان_های_ترجمه_رسمی") {
@@ -355,6 +395,7 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     }
     $response->getBody()->write($path);
 });
+
 $app->run();
 
 function getUserAddressList() {
@@ -391,13 +432,28 @@ function isLogged() {
     return getCurrentUser() != null;
 }
 
+function isManagerLogged() {
+    return getCurrentManager() != null;
+}
+
 function setCurrentUser($name, $id, $mail, $mobile) {
     $_SESSION["user"] = ["name" => $name, "id" => $id, "mail" => $mail, "mobile" => $mobile];
+}
+
+function setCurrentManager($id, $mobile) {
+    $_SESSION["manager"] = ["id" => $id, "mobile" => $mobile];
 }
 
 function getCurrentUser() {
     if (isset($_SESSION["user"])) {
         return $_SESSION["user"];
+    }
+    return null;
+}
+
+function getCurrentManager() {
+    if (isset($_SESSION["manager"])) {
+        return $_SESSION["manager"];
     }
     return null;
 }
@@ -417,4 +473,25 @@ function sendMail($to, $message, $title, $twig) {
     $headers .= 'From: <info@' + APP_SITE + '>' . "\r\n";
     $body = $twig->render('mail.twig', ["title" => $title, "message" => $message, "app_site" => APP_SITE, "app_name" => APP_NAME, "app_site" => APP_SITE]);
     mail($to, $title, $body, $headers);
+}
+
+function getElasticCenter($id) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST."/centers/_doc/".$id);
+    curl_setopt($curl,CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $res = curl_exec($curl);
+    $error=curl_error($curl);
+    curl_close($curl);
+    $res= json_decode($res);
+    $res=$res->_source;
+    $res->id=$id;
+    return $res;    
 }

@@ -1,0 +1,27 @@
+{% extends 'base.twig' %}
+
+{% block title %}صفحه مترجمان رسمی{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function(){  
+            $(".manageItem").click(function (e){
+                $(".manageItem").removeClass("manageItem-active");
+                $(e.target).addClass("manageItem-active");
+            });
+	});
+        
+</script>
+{% endblock %}
+
+
+{% block content %} 
+<div class="manageBar">
+    <div class="d-flex justify-content-center">
+            <div data-page="orders" class="manageItem manageItem-active">سفارشات</div>
+            <div data-page="personels" class="manageItem">تنظیمات</div>
+    </div>
+</div>
+<div id="setting">
+    
+</div>
+{% endblock %}

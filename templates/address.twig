@@ -14,6 +14,7 @@
                 var index = $(this).index();
                 var item=$(this).data().item;
                 setAddress(index,item);
+                $("#centersLink").attr("href","لیست_دفاتر_ترجمه_رسمی"+"?point="+item.point);
            });
            var selectedAddress=getAddress();
            if(selectedAddress!=null){
@@ -111,7 +112,7 @@
                     </div>
         {% endif %}
         <br></br>
-        <a href="لیست_دفاتر_ترجمه_رسمی"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+        <a id ="centersLink" href="لیست_دفاتر_ترجمه_رسمی"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
         
     {% endif %}
 

@@ -48,9 +48,24 @@
 .categorySelected{
     background-color: #61c7ff;
 }
+html, body {
+    height: 100%;
+}
+body{
+    display: flex;
+    flex-direction: column;
+}
+footer {
+    flex-shrink: 0;
+    height: 100px;
+    width: 100%;
+    background-color: #73d5df;
+    z-index: 1000;
+    overflow: hidden;
+}
 .mainContainer{
     margin-top: 150px;
-    margin-bottom: 60px;
+    flex: 1 0 auto;
 }
 .topBar{
     height: 60px;
@@ -59,15 +74,6 @@
     top:0;
     background-color: #73d5df;
     z-index: 1000;
-}
-.bottomBar{
-    height: 100px;
-    width: 100%;
-    background-color: #73d5df;
-    z-index: 1000;
-    overflow: hidden;
-    position: fixed;
-    bottom: 0;
 }
 a{
     color:#54acff;
@@ -147,6 +153,7 @@ a:active {
     color: #ffffff;
     border-radius:5px;
     cursor: pointer;
+    z-index: 10001;
 }
 
 .list-group-item.active {
@@ -286,4 +293,40 @@ fieldset.scheduler-border {
 #lblLang{
     color: #1282a3;
     font-weight: bold;
+}
+
+
+.manageBar {
+    width: 100%;
+    margin: 20px auto;
+    text-align: center;
+    padding-bottom: 30px;
+    background-color: white !important;
+    position: fixed;
+    top: 40px;
+    padding-top: 10px;
+    left:50%;
+    z-index: 100000;
+    transform: translateX(-50%);
+}
+
+.manageItem{
+    background-color: #27a9c2;
+    color: #ffffff;
+    width: 100px;
+    font-size: 10pt;
+    margin-top: 5px;
+    padding: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+.manageItem:hover{
+    background-color: #90c5fd;
+}
+.manageItem-active{
+    background-color: #69aaf1;
+}
+.formButton{
+    width: 150px;
+    margin-right: 5px;
 }
