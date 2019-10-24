@@ -328,6 +328,9 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
 
 
 $app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app) {
+    if(!isManagerLogged()){
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
+    }
     $centerId = getCurrentManager()["id"];
     $center = getElasticCenter($centerId);
     $user=["name"=>$center->manager];
@@ -342,7 +345,7 @@ $app->get('/translators-login', function (Request $request, Response $response, 
 $app->post('/domlogin', function (Request $request, Response $response, $args) use ($twig, $app) {
     $redirect = $_POST["redirect"];
     if (isManagerLogged()) {
-        return $response->withRedirect($redirect);
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
     } else {
         $mobile = $_POST["mobile"];
         $password = $_POST["password"];
@@ -357,7 +360,7 @@ $app->post('/domlogin', function (Request $request, Response $response, $args) u
             setCurrentManager($row["id"], $mobile);
             $stmt->close();
             $conn->close();
-            return $response->withRedirect($redirect);
+            return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
         } else {
             $stmt->close();
             $conn->close();
