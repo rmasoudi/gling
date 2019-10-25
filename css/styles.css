@@ -48,24 +48,10 @@
 .categorySelected{
     background-color: #61c7ff;
 }
-html, body {
-    height: 100%;
-}
-body{
-    display: flex;
-    flex-direction: column;
-}
-footer {
-    flex-shrink: 0;
-    height: 100px;
-    width: 100%;
-    background-color: #73d5df;
-    z-index: 1000;
-    overflow: hidden;
-}
 .mainContainer{
     margin-top: 150px;
-    flex: 1 0 auto;
+    min-height: 100%;
+    margin-bottom: -100px;
 }
 .topBar{
     height: 60px;
@@ -74,6 +60,16 @@ footer {
     top:0;
     background-color: #73d5df;
     z-index: 1000;
+}
+.bottomBar{
+    height: 100px;
+    width: 100%;
+    background-color: #73d5df;
+    z-index: 1000;
+    overflow: hidden;
+}
+.push{
+    height: 100px;
 }
 a{
     color:#54acff;
@@ -153,7 +149,6 @@ a:active {
     color: #ffffff;
     border-radius:5px;
     cursor: pointer;
-    z-index: 10001;
 }
 
 .list-group-item.active {
@@ -295,7 +290,6 @@ fieldset.scheduler-border {
     font-weight: bold;
 }
 
-
 .manageBar {
     width: 100%;
     margin: 20px auto;
@@ -329,4 +323,8 @@ fieldset.scheduler-border {
 .formButton{
     width: 150px;
     margin-right: 5px;
+}
+html, body {
+  height: 100%;
+  margin: 0;
 }

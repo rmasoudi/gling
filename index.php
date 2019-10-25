@@ -328,12 +328,12 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
 
 
 $app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app) {
-    if(!isManagerLogged()){
+    if (!isManagerLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
     }
     $centerId = getCurrentManager()["id"];
     $center = getElasticCenter($centerId);
-    $user=["name"=>$center->manager];
+    $user = ["name" => $center->manager];
     $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
 })->setName('translators');
 
@@ -368,6 +368,20 @@ $app->post('/domlogin', function (Request $request, Response $response, $args) u
         }
     }
 })->setName('domlogin');
+
+$app->post('/centers', function (Request $request, Response $response, $args) use ($twig, $app) {
+
+    if (!isLogged()) {
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
+    } else {
+        $point = $_POST["point"];
+        $lang = urldecode($_POST["lang"]);
+        $centers = getElasticCenters($point, $lang);
+//        $response->getBody()->write($centers);
+        $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "centers" => $centers, "lang" => $lang]));
+        return;
+    }
+})->setName('centers');
 
 
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
@@ -487,14 +501,85 @@ function getElasticCenter($id) {
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST."/centers/_doc/".$id);
-    curl_setopt($curl,CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_doc/" . $id);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $res = curl_exec($curl);
-    $error=curl_error($curl);
+    $error = curl_error($curl);
     curl_close($curl);
-    $res= json_decode($res);
-    $res=$res->_source;
-    $res->id=$id;
-    return $res;    
+    $res = json_decode($res);
+    $res = $res->_source;
+    $res->id = $id;
+    return $res;
+}
+
+function getElasticCenters($point, $lang) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $param = '
+        {
+            "query" : {
+                            "bool":{
+                                "must":[
+                                    {
+                                        "geo_distance":{
+                                                "distance":"200km",
+                                                "loc":"' . $point . '"
+                                        }
+                                    },
+                                    {
+                                        "term":{
+                                                "lang":"' . $lang . '"
+                                        }
+                                    }
+                                ]
+                            }
+            },
+                        "sort" : [
+                                {
+                                        "_geo_distance" : {
+                                                "loc" : "' . $point . '",
+                                                "order" : "asc",
+                                                "unit" : "km",
+                                                "mode" : "min",
+                                                "distance_type" : "arc",
+                                                "ignore_unmapped": true
+                                        }
+                                }
+                        ]
+        }';
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search");
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
+    $res = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+    $res = json_decode($res);
+    $res = $res->hits;
+    $res = $res->hits;
+    $array = [];
+    foreach ($res as $item) {
+        $correct = $item->_source;
+        //$correct["sort"] =  $item->sort;
+        //$correct["sort"] =  getDistance( $item->sort);
+        array_push($array, $correct);
+    }
+    return $array;
+}
+
+function getDistance($sort){
+    if($sort<1.0){
+        return round($sort*1000)." متر";
+    }
+    else{
+        return sprintf("%.2f", $sort*1000)." کیلومتر";
+    }
 }

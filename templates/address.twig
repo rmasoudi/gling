@@ -7,6 +7,7 @@
 {% block scripts %}
     <script type="text/javascript">
         $(document).ready(function (){
+            $("#txtLang").val(getSelectedLang());
            $(".list-group-item").first().addClass("active");
            $(".list-group-item").click(function (){
                $(".list-group-item").removeClass("active");
@@ -14,7 +15,7 @@
                 var index = $(this).index();
                 var item=$(this).data().item;
                 setAddress(index,item);
-                $("#centersLink").attr("href","لیست_دفاتر_ترجمه_رسمی"+"?point="+item.point);
+                $("#txtPoint").val(item.point);
            });
            var selectedAddress=getAddress();
            if(selectedAddress!=null){
@@ -112,7 +113,11 @@
                     </div>
         {% endif %}
         <br></br>
-        <a id ="centersLink" href="لیست_دفاتر_ترجمه_رسمی"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+        <form method="post" action="centers">
+            <input style="display: none;" required name="point" type="text" id="txtPoint">
+            <input style="display: none;" required name="lang" type="text" id="txtLang">
+            <button type="submit" style="margin-top: 10px;" class="btn btn-primary topButton">ادامه</button>
+        </form>
         
     {% endif %}
 
