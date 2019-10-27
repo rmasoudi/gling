@@ -7,7 +7,9 @@
 {% block scripts %}
     <script type="text/javascript">
         $(document).ready(function (){
-            $("#txtLang").val(getSelectedLang());
+            $(".circle").click(function (e){
+                stepClicked(e);
+            });
            $(".list-group-item").first().addClass("active");
            $(".list-group-item").click(function (){
                $(".list-group-item").removeClass("active");
@@ -20,7 +22,7 @@
            var selectedAddress=getAddress();
            if(selectedAddress!=null){
                $(".list-group-item").removeClass("active");
-               $($(".list-group-item")[selectedAddress.index]).addClass("active");
+               $($(".list-group-item")[selectedAddress.index]).click();
            }
         });
         
@@ -49,27 +51,27 @@
 
 {% block content %}
 <div class="stepper">
-  <div class="circle done"> <span class="label">1</span>
+  <div id="step1" class="circle done"> <span class="label">1</span>
     <span class="title">انتخاب مدارک</span>
 
   </div> <span class="bar done"></span>
 
-  <div class="circle done"> <span class="label">2</span>
+  <div id="step2" class="circle done"> <span class="label">2</span>
     <span class="title"> پیوست مدارک</span>
 
   </div> <span class="bar done"></span>
 
-  <div class="circle active"> <span class="label">3</span>
+  <div id="step3" class="circle active"> <span class="label">3</span>
     <span class="title">تعیین آدرس</span>
 
   </div> <span class="bar active"></span>
 
-  <div class="circle"> <span class="label">4</span>
+  <div id="step4" class="circle"> <span class="label">4</span>
     <span class="title">انتخاب دفتر ترجمه</span>
 
   </div> <span class="bar"></span>
 
-  <div class="circle"> <span class="label">5</span>
+  <div id="step5" class="circle"> <span class="label">5</span>
     <span class="title">صورتحساب</span>
 
   </div>
@@ -114,8 +116,7 @@
         {% endif %}
         <br></br>
         <form method="post" action="centers">
-            <input style="display: none;" required name="point" type="text" id="txtPoint">
-            <input style="display: none;" required name="lang" type="text" id="txtLang">
+            <input style="display: none;" name="point" type="text" id="txtPoint">
             <button type="submit" style="margin-top: 10px;" class="btn btn-primary topButton">ادامه</button>
         </form>
         

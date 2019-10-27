@@ -375,10 +375,9 @@ $app->post('/centers', function (Request $request, Response $response, $args) us
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
         $point = $_POST["point"];
-        $lang = urldecode($_POST["lang"]);
-        $centers = getElasticCenters($point, $lang);
+        $centers = getElasticCenters($point);
 //        $response->getBody()->write($centers);
-        $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "centers" => $centers, "lang" => $lang]));
+        $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "centers" => $centers]));
         return;
     }
 })->setName('centers');
@@ -513,7 +512,7 @@ function getElasticCenter($id) {
     return $res;
 }
 
-function getElasticCenters($point, $lang) {
+function getElasticCenters($point) {
     $header = array(
         "content-type: application/json",
         "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
@@ -522,21 +521,10 @@ function getElasticCenters($point, $lang) {
     $param = '
         {
             "query" : {
-                            "bool":{
-                                "must":[
-                                    {
-                                        "geo_distance":{
-                                                "distance":"200km",
-                                                "loc":"' . $point . '"
-                                        }
-                                    },
-                                    {
-                                        "term":{
-                                                "lang":"' . $lang . '"
-                                        }
-                                    }
-                                ]
-                            }
+                        "geo_distance":{
+                                "distance":"200km",
+                                "loc":"' . $point . '"
+                        }
             },
                         "sort" : [
                                 {
@@ -568,7 +556,7 @@ function getElasticCenters($point, $lang) {
     $array = [];
     foreach ($res as $item) {
         $correct = $item->_source;
-        //$correct["sort"] =  $item->sort;
+        $correct->sort =  getDistance($item->sort[0]);
         //$correct["sort"] =  getDistance( $item->sort);
         array_push($array, $correct);
     }
@@ -580,6 +568,6 @@ function getDistance($sort){
         return round($sort*1000)." متر";
     }
     else{
-        return sprintf("%.2f", $sort*1000)." کیلومتر";
+        return sprintf("%.2f", $sort)." کیلومتر";
     }
 }

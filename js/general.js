@@ -67,30 +67,30 @@ function getEditing() {
     return JSON.parse(localStorage.getItem("editing"));
 }
 
-function setAddress(index,item){
-    var obj={
-        index:index,
-        item:item
+function setAddress(index, item) {
+    var obj = {
+        index: index,
+        item: item
     };
-    localStorage.setItem("address",JSON.stringify(obj));
+    localStorage.setItem("address", JSON.stringify(obj));
 }
 
-function getAddress(){
-    if(localStorage.getItem("address")===null){
+function getAddress() {
+    if (localStorage.getItem("address") === null) {
         return null;
     }
     return JSON.parse(localStorage.getItem("address"));
 }
 
 
-function getSelectedLang(){
-    var products=getProducts();
+function getSelectedLang() {
+    var products = getProducts();
     var val;
-    for(var i=0;i<products.length;i++){
-        val =products[i].lang;
+    for (var i = 0; i < products.length; i++) {
+        val = products[i].lang;
         break;
     }
-    switch (val){
+    switch (val) {
         case "1":
             return "انگلیسی";
         case "2":
@@ -119,7 +119,39 @@ function getSelectedLang(){
             return "ارمنی";
         case "14":
             return "کردی";
-            
+
     }
     return "";
+}
+
+function stepClicked(e) {
+    var item = $(e.target);
+    var id = "";
+    if (item.prop("tagName") === "DIV" && item.hasClass("done") && item.hasClass("circle")) {
+        id = item.prop("id");
+    }
+    else if (item.prop("tagName") === "SPAN" && item.parent().hasClass("done") && item.parent().hasClass("circle")) {
+        id = item.parent().prop("id");
+    }
+    var loc = "";
+    switch (id) {
+        case "step1":
+            loc = "انتخاب_مدارک_ترجمه_رسمی";
+            break;
+        case "step2":
+            loc = "پیوست_مدارک_ترجمه_رسمی";
+            break;
+        case "step3":
+            loc = "تعیین_آدرس";
+            break;
+        case "step4":
+            loc = "";
+            break;
+        case "step5":
+            loc = "centers";
+            break;
+    }
+    if (loc !== "") {
+        window.location = loc;
+    }
 }

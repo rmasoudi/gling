@@ -6,7 +6,10 @@
     const cloudName = 'dr4eclxx1';
     const unsignedUploadPreset = 'rasoul';
     $(document).ready(function() {
-            createUploadFields();
+        $(".circle").click(function (e){
+            stepClicked(e);
+        });
+        createUploadFields();
     });
     function uploadClicked(e){
         var elem=$(e.target);
@@ -128,27 +131,27 @@
 
 {% block content %}
 <div class="stepper">
-    <div class="circle done"> <span class="label">1</span>
+    <div id="step1" class="circle done"> <span class="label">1</span>
         <span class="title">انتخاب مدارک</span>
 
     </div> <span class="bar done"></span>
 
-    <div class="circle active"> <span class="label">2</span>
+    <div id="step2" class="circle active"> <span class="label">2</span>
         <span class="title"> پیوست مدارک</span>
 
     </div> <span class="bar active"></span>
 
-    <div class="circle"> <span class="label">3</span>
+    <div id="step3" class="circle"> <span class="label">3</span>
         <span class="title">تعیین آدرس</span>
 
     </div> <span class="bar"></span>
 
-    <div class="circle"> <span class="label">4</span>
+    <div id="step4" class="circle"> <span class="label">4</span>
         <span class="title">انتخاب دفتر ترجمه</span>
 
     </div> <span class="bar"></span>
 
-    <div class="circle"> <span class="label">5</span>
+    <div id="step5" class="circle"> <span class="label">5</span>
         <span class="title">صورتحساب</span>
 
     </div>
