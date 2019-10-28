@@ -4,8 +4,13 @@
 
 {% block scripts %}
 <script type="text/javascript">
+    const cloudName = 'dr4eclxx1';
+    const unsignedUploadPreset = 'rasoul';
     $(document).ready(function() {
         $("#name").focus();
+        $(".btnUpload").click(function (e){
+            uploadClicked(e);
+        });
         window.addEventListener('load', function() {
             var forms = document.getElementsByClassName('needs-validation');
             var validation = Array.prototype.filter.call(forms, function(form) {
@@ -19,36 +24,156 @@
             });
         }, false);
     });
+    function uploadClicked(e){
+        var elem=$(e.target);
+        if(elem.hasClass("imgPreview") || elem.hasClass("uploadTitle")){
+            elem=elem.parent();
+        }
+        
+        var input=elem.find("input")[0];
+        if(input){
+            input.click();
+        }
+        
+    }
+    
+    function handleFiles(files,e){
+          var preview= $(e.target).parent().find(".imgPreview")
+          var prg= $(e.target).parent().find(".prg")
+          for (var i = 0; i < files.length; i++) {
+            uploadFile(files[i],preview,prg); // call the function to upload the file
+          }
+    }
+    function uploadFile(file,preview,prg) {
+      var url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+      var xhr = new XMLHttpRequest();
+      var fd = new FormData();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      $(prg).css("width", "0");
+      xhr.upload.addEventListener("progress", function(e) {
+        var progress = Math.round((e.loaded * 100.0) / e.total);
+        $(prg).css("width",progress + "%");
+      });
+
+      xhr.onreadystatechange = function(e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          var response = JSON.parse(xhr.responseText);
+          var url = response.secure_url;
+          var tokens = url.split('/');
+          tokens.splice(-2, 0, 'w_768,c_scale');
+          var url=tokens.join('/');
+          $(preview).attr("src",url);
+          $(prg).css("width","0");
+          $("#"+ $(preview).parent().data().id).val(url);
+        }
+      };
+
+      fd.append('upload_preset', unsignedUploadPreset);
+      fd.append('file', file);
+      xhr.send(fd);
+    }
 </script>
 {% endblock %}
 
 
 {% block content %}
-<form class="needs-validation" style="margin-top: 100px;text-align: right;" method="post" action="domlogin" novalidate>
+<div style="border-radius: 5px; text-align: justify;direction: rtl;background-color: #fdfdfd;color: #2891c2;padding: 10px;font-size: 10pt;border: solid 1px #d4d4d4;">
+    <div style="color: #0d00d3;font-size: 12pt;">{{user.name}} عزیز</div>
+    <br/>
+    خوشحالیم که {{app_name}} رو برای همکاری انتخاب کردید. شما میتونید از طریق این صفحه دفتر ترجمه رسمی خودتون رو در {{app_name}} ثبت کنید و به صورت آنلاین سفارش ترجمه بگیرید. {{app_name}} امکاناتی رو برای شما فراهم می کنه تا مشتری ها بتونن خیلی راحت شما رو پیدا کنن. ما تسهیلاتی رو برای سهولت ارتباط با مشتری و دریافت و ارسال مدارکشون فراهم کردیم تا شما فقط روی کار ترجمه متمرکز بشید و نگران بقه ماجرا نباشید.
+    <br/>
+    کاربری که برای ترجمه مدارکش به سایت مراجعه می کنه میتونه دفاتر ترجمه رو بر اساس فاصله مکانی، امتیاز و میزان اعتبار  مرتب کنه. منظور ما از میزان اعتبار این هست که آیا دفتر ترجمه همه مجوزهای خودش رو در سایت آپلود کرده یا نه. پس لطفا اطلاعات زیر رو به طور دقیق کامل کنید و همه مدارک لازم رو آپلود کنید تا مشتری نهایی بتونه راحت به شما اعتماد کنه و شما جزء بهترین دفاتر ترجمه شناخته بشید.
+    
+</div>
+
+<form class="needs-validation" style="margin-top: 10px;text-align: right;" method="post" action="domlogin" novalidate>
 
     <div class="form-group row">
-        <label for="staticEmail" class="col-3 col-sm-2 col-form-label">شماره موبایل</label>
+        <label for="staticEmail" class="col-3 col-sm-2 col-form-label">رایانامه</label>
         <div class="col-9 col-sm-10">
-            <input placeholder="مثلا 09123334444" required name="mobile" type="text" class="form-control" id="mobile"  pattern=".{11,11}">
+            <input placeholder="مثل   gling@gmail.com" required name="mail" type="email" class="form-control" id="staticEmail">
             <div class="invalid-feedback">
-                لطفا شماره موبایل را به درستی وارد کنید
+                لطفا آدرس رایانامه را به درستی وارد کنید
             </div>
         </div>
     </div>
     <div class="form-group row">
-        <label for="inputPassword" class="col-3 col-sm-2 col-form-label">رمز</label>
+        <label for="account" class="col-3 col-sm-2 col-form-label">شماره حساب زرین پال</label>
         <div class="col-9 col-sm-10">
-            <input required name="password" type="password" class="form-control" id="password"   pattern=".{8,16}"/>
+            <input placeholder="مثل  328734" required name="account" type="text" class="form-control" id="account"   pattern=".{6,7}"/>
+            <small id="emailHelp" class="form-text text-muted">شماره حساب زرین پال ندارید یا نمیدونید چیه؟ <a  target="_blank" href="https://my.zarinpal.com/auth/register">اینجا</a> رو کلیک کنید.</small>
             <div class="invalid-feedback">
-                لطفا رمز خود را به درستی وارد کنید
+                لطفا شماره حساب را به درستی وارد کنید
             </div>
         </div>
     </div>
+    <div class="form-group row">
+        <label class="col-3 col-sm-2 col-form-label">محدوده پیک رایگان</label>
+        <div class="col-9 col-sm-10">
+            <select class="form-control" id="lang" name="carrier">
+                <option selected value="0">هزینه پیک بر عهده مشتری</option>
+                <option value="1">تا 3 کیلومتری دفتر ترجمه</option>
+                <option value="2">تا 6 کیلومتری دفتر ترجمه</option>
+                <option value="3">تا 10 کیلومتری دفتر ترجمه</option>
+                <option value="4">تا 20 کیلومتری دفتر ترجمه</option>
+                <option value="5">تا 30 کیلومتری دفتر ترجمه</option>
+                <option value="6">تا 50 کیلومتری دفتر ترجمه</option>
+                <option value="7">ارسال رایگان به همه جا</option>
+            </select>
+            <small id="emailHelp" class="form-text text-muted">طبیعتا دفاتری که پیک رایگان دارن برای مشتری جذاب ترن! </small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="account" class="col-3 col-sm-2 col-form-label">تعداد روز کاری برای ترجمه کارت ملی</label>
+        <div class="col-9 col-sm-10">
+            <input placeholder="مثل 2" required name="days" type="number" class="form-control" id="days"/>
+            <small id="emailHelp" class="form-text text-muted">با استفاده از این عدد تخمین می زنیم ترجمه مدارک کاربر چند روز زمان می بره. طبیعتا هر چه سرعت ترجمه بالاتر باشه برای مشتری جذابیت بیشتری داره! </small>
+            <div class="invalid-feedback">
+                لطفا تعداد روز کاری برای ترجمه کارت ملی را تعیین کنید.
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-6 col-sm-3 btnUpload">
+            <div class="uploadItem" data-id="license">
+                <input type="file" multiple="" accept="image/*" style="display:none" onchange="handleFiles(this.files,event)">
+                <div class="prg"></div>
+                <img src="images/upload.png" class="imgPreview">
+                <div class="uploadTitle">تصویر پروانه ترجمه</div>
+ 
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 btnUpload">
+            <div class="uploadItem" data-id="javaz">
+                <input type="file" multiple="" accept="image/*" style="display:none" onchange="handleFiles(this.files,event)">
+                <div class="prg"></div>
+                <img src="images/upload.png" class="imgPreview">
+                <div class="uploadTitle">تصویر جواز کسب</div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-9 col-sm-10">
+            <input required name="license" type="text" class="form-control urlHolder" id="license"/>
+            <div class="invalid-feedback">
+                لطفا تصویر پروانه ترجمه را آپلود کنید.
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-9 col-sm-10">
+            <input required name="javaz" type="text" class="form-control urlHolder" id="javaz"/>
+            <div class="invalid-feedback">
+                   لطفا تصویر جواز کسب را آپلود کنید.
+            </div>
+        </div>
+    </div>
+    
+    
     <div class="d-flex justify-content-end">
         <div class="error">{{error}}</div>
-        <input style="display: none;" name="redirect" value="{{redirect}}" />
-        <a href="forget"> <div class="formButton btn btn-primary topButton">رمز را فراموش کردم</div></a>
-        <button type="submit" class="formButton btn btn-primary topButton">ورود</button>
+        <button type="submit" class="formButton btn btn-primary topButton">ثبت نام در {{app_name}}</button>
     </div>
 
 </form>

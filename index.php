@@ -326,6 +326,27 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
     }
 })->setName('profile');
 
+$app->get('/act{code}', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $code = $args['code'];
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM center WHERE link=?");
+    $stmt->bind_param("s", $code);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (mysqli_num_rows($result) != 0) {
+        $row = $result->fetch_assoc();
+        setCurrentManager($row["id"], $row["username"]);
+        $center= getElasticCenter($row["id"]);
+        $user = ["name" => $center->manager];
+        $response->getBody()->write($twig->render('mregister.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
+    } else {
+        $stmt->close();
+        $conn->close();
+        $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE]));
+        return;
+    }
+    return;
+})->setName('translators');
 
 $app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app) {
     if (!isManagerLogged()) {
@@ -409,7 +430,8 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
         $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "doc" => $docType]));
         return;
     }
-    $response->getBody()->write($path);
+    $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE]));
+    return;
 });
 
 $app->run();
@@ -556,18 +578,17 @@ function getElasticCenters($point) {
     $array = [];
     foreach ($res as $item) {
         $correct = $item->_source;
-        $correct->sort =  getDistance($item->sort[0]);
+        $correct->sort = getDistance($item->sort[0]);
         //$correct["sort"] =  getDistance( $item->sort);
         array_push($array, $correct);
     }
     return $array;
 }
 
-function getDistance($sort){
-    if($sort<1.0){
-        return round($sort*1000)." متر";
-    }
-    else{
-        return sprintf("%.2f", $sort)." کیلومتر";
+function getDistance($sort) {
+    if ($sort < 1.0) {
+        return round($sort * 1000) . " متر";
+    } else {
+        return sprintf("%.2f", $sort) . " کیلومتر";
     }
 }
