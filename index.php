@@ -346,7 +346,28 @@ $app->get('/act{code}', function (Request $request, Response $response, $args) u
         return;
     }
     return;
-})->setName('translators');
+})->setName('act');
+
+$app->post('/doact', function (Request $request, Response $response, $args) use ($twig, $app) {
+    if (!isManagerLogged()) {
+        $response->getBody()->write($twig->render('mlogin.twig', ["error" => "", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+    } else {
+        $mail = $_POST["mail"];
+        $account = $_POST["account"];
+        $carrier = $_POST["carrier"];
+        $duration = $_POST["duration"];
+        $license = $_POST["license"];
+        $javaz = $_POST["javaz"];
+        $manager=  getCurrentManager();
+
+        $conn = getConnection();
+        $stmt = $conn->prepare("UPDATE center SET mail=?,account=?,carrier=?,duration=?,license=?,javaz=? WHERE id=?");
+        $stmt->bind_param("ssiissi", $mail, $account,$carrier,$duration,$license,$javaz,$manager["id"]);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+    }
+})->setName('doact');
 
 $app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app) {
     if (!isManagerLogged()) {
