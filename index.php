@@ -21,7 +21,8 @@ $globalPrices = [
     "pasport" => 10000,
     "enteghal" => 10000,
     "shenas_item" => 5000,
-    "copy" => 1000
+    "copy" => 1000,
+    "gain" => 5
 ];
 
 
@@ -328,22 +329,13 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
 
 $app->get('/act{code}', function (Request $request, Response $response, $args) use ($twig, $app) {
     $code = $args['code'];
-    $conn = getConnection();
-    $stmt = $conn->prepare("SELECT * FROM center WHERE link=?");
-    $stmt->bind_param("s", $code);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if (mysqli_num_rows($result) != 0) {
-        $row = $result->fetch_assoc();
-        setCurrentManager($row["id"], $row["username"]);
-        $center= getElasticCenter($row["id"]);
+    $center = getCenterByLink($code);
+    if ($center != null) {
         $user = ["name" => $center->manager];
+        setCurrentManager($center);
         $response->getBody()->write($twig->render('mregister.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
     } else {
-        $stmt->close();
-        $conn->close();
         $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE]));
-        return;
     }
     return;
 })->setName('act');
@@ -358,14 +350,10 @@ $app->post('/doact', function (Request $request, Response $response, $args) use 
         $duration = $_POST["duration"];
         $license = $_POST["license"];
         $javaz = $_POST["javaz"];
-        $manager=  getCurrentManager();
-
-        $conn = getConnection();
-        $stmt = $conn->prepare("UPDATE center SET mail=?,account=?,carrier=?,duration=?,license=?,javaz=? WHERE id=?");
-        $stmt->bind_param("ssiissi", $mail, $account,$carrier,$duration,$license,$javaz,$manager["id"]);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
+        $password = $_POST["password"];
+        $manager = getCurrentManager();
+        updateCenter($manager->id, $mail, $account, $carrier, $duration, $license, $javaz,$password);
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
     }
 })->setName('doact');
 
@@ -373,10 +361,12 @@ $app->get('/translators', function (Request $request, Response $response, $args)
     if (!isManagerLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
     }
-    $centerId = getCurrentManager()["id"];
-    $center = getElasticCenter($centerId);
-    $user = ["name" => $center->manager];
+    $user = ["name" => getCurrentManager()->manager];
     $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
+})->setName('translators');
+
+$app->get('/terms', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $response->getBody()->write($twig->render('terms.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "gain" => $globalPrices["gain"]]));
 })->setName('translators');
 
 $app->get('/translators-login', function (Request $request, Response $response, $args) use ($twig, $app) {
@@ -391,21 +381,11 @@ $app->post('/domlogin', function (Request $request, Response $response, $args) u
     } else {
         $mobile = $_POST["mobile"];
         $password = $_POST["password"];
-
-        $conn = getConnection();
-        $stmt = $conn->prepare("SELECT * FROM center WHERE username=? AND password=?");
-        $stmt->bind_param("ss", $mobile, $password);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if (mysqli_num_rows($result) != 0) {
-            $row = $result->fetch_assoc();
-            setCurrentManager($row["id"], $mobile);
-            $stmt->close();
-            $conn->close();
+        $center = getCenterByAuth($mobile, $password);
+        if ($center != null) {
+            setCurrentManager($center);
             return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
         } else {
-            $stmt->close();
-            $conn->close();
             $response->getBody()->write($twig->render('mlogin.twig', ["error" => "رایانامه یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
         }
     }
@@ -418,7 +398,6 @@ $app->post('/centers', function (Request $request, Response $response, $args) us
     } else {
         $point = $_POST["point"];
         $centers = getElasticCenters($point);
-//        $response->getBody()->write($centers);
         $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "centers" => $centers]));
         return;
     }
@@ -499,8 +478,8 @@ function setCurrentUser($name, $id, $mail, $mobile) {
     $_SESSION["user"] = ["name" => $name, "id" => $id, "mail" => $mail, "mobile" => $mobile];
 }
 
-function setCurrentManager($id, $mobile) {
-    $_SESSION["manager"] = ["id" => $id, "mobile" => $mobile];
+function setCurrentManager($center) {
+    $_SESSION["manager"] = $center;
 }
 
 function getCurrentUser() {
@@ -555,6 +534,54 @@ function getElasticCenter($id) {
     return $res;
 }
 
+function getCenterByLink($link) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search?q=link:" . $link);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $res = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+    $res = json_decode($res);
+    $res = $res->hits;
+    $res = $res->hits;
+    $id = $res[0]->_id;
+    $res = $res[0]->_source;
+    $res->id = $id;
+    return $res;
+}
+
+function getCenterByAuth($username, $password) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search?q=username:" . $username . " AND password:" . $password);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $res = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+    $res = json_decode($res);
+    $res = $res->hits;
+    $res = $res->hits;
+    $id = $res[0]["_id"];
+    $res = $res[0]->_source;
+    $res->id = $id;
+    return $res;
+}
+
 function getElasticCenters($point) {
     $header = array(
         "content-type: application/json",
@@ -604,6 +631,37 @@ function getElasticCenters($point) {
         array_push($array, $correct);
     }
     return $array;
+}
+
+function updateCenter($id, $mail, $account, $carrier, $duration, $license, $javaz,$password) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $param = '
+        {
+            "doc":{
+                "mail":"' . $mail . '",
+                "account":"' . $account . '",
+                "carrier":"' . $carrier . '",
+                "duration":' . $duration . ',
+                "license":"' . $license . '",
+                "password":"' . $password . '",    
+                "javaz":"' . $javaz . '"
+            }
+        }';
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_update/" . $id);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
+    $res = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
 }
 
 function getDistance($sort) {
