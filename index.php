@@ -386,7 +386,7 @@ $app->post('/domlogin', function (Request $request, Response $response, $args) u
             setCurrentManager($center);
             return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
         } else {
-            $response->getBody()->write($twig->render('mlogin.twig', ["error" => "رایانامه یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+            $response->getBody()->write($twig->render('mlogin.twig', ["error" => "شماره موبایل یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
         }
     }
 })->setName('domlogin');
@@ -552,6 +552,9 @@ function getCenterByLink($link) {
     $res = json_decode($res);
     $res = $res->hits;
     $res = $res->hits;
+    if(count($res)==0){
+        return null;
+    }
     $id = $res[0]->_id;
     $res = $res[0]->_source;
     $res->id = $id;
@@ -563,20 +566,45 @@ function getCenterByAuth($username, $password) {
         "content-type: application/json",
         "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
     );
+    
+    $param = '
+        {
+            "query":{
+                "bool":{
+                    "filter":[
+                        {
+                            "term":{
+                                "username":"'.$username.'"
+                            }
+                        },
+                        {
+                            "term":{
+                                "password":"'.$password.'"
+                            }
+                        }
+                    ]
+                }
+            }
+        }';
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search?q=username:" . $username . " AND password:" . $password);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search");
     curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
     $res = curl_exec($curl);
     $error = curl_error($curl);
     curl_close($curl);
     $res = json_decode($res);
+    
     $res = $res->hits;
     $res = $res->hits;
-    $id = $res[0]["_id"];
+    if(count($res)==0){
+        return null;
+    }
+    $id = $res[0]->_id;
     $res = $res[0]->_source;
     $res->id = $id;
     return $res;
