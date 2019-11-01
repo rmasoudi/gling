@@ -425,6 +425,9 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     }
+    if(substr( $path, 0, 23 ) === "دفتر_ترجمه_رسمی_شماره_"){
+        $code= strrpos($path, "_");
+    }
     $docType = getDocType($path);
     if ($docType != null) {
         $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "doc" => $docType]));

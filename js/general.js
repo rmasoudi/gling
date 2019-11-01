@@ -82,6 +82,20 @@ function getAddress() {
     return JSON.parse(localStorage.getItem("address"));
 }
 
+function setCenter(index, item) {
+    var obj = {
+        index: index,
+        item: item
+    };
+    localStorage.setItem("center", JSON.stringify(obj));
+}
+
+function getCenter() {
+    if (localStorage.getItem("center") === null) {
+        return null;
+    }
+    return JSON.parse(localStorage.getItem("center"));
+}
 
 function getSelectedLang() {
     var products = getProducts();

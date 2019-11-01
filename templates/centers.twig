@@ -7,6 +7,14 @@
             $(".circle").click(function (e){
                 stepClicked(e);
             });
+           $(".list-group-item").first().addClass("active");
+           $(".list-group-item").click(function (){
+               $(".list-group-item").removeClass("active");
+               $(this).addClass("active");
+                var index = $(this).index();
+                var item=$(this).data().item;
+                setCenter(index,item);
+           });
 	});
         
         function getDistance(sort){
@@ -59,7 +67,17 @@
 	<div class="row">
 		<div id="centerList" class="list-group" style="width: 100%;direction: rtl;">
                     {% for center in centers %}
-                        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h6 class="mb-1">دفتر رسمی شماره {{center.code}} {{center.city}}</h6><small style="color: #00469c">{{center.manager}}</small></div><small class="mb-1">{{center.address}}<br/></small><small>{{center.phone}}</small><br/><small class="distance">{{center.sort}}</small></a>
+                        <div href="#" style="cursor: pointer;" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">دفتر رسمی شماره {{center.code}} {{center.city}}</h6>
+                                <small style="color: #00469c">{{center.manager}}</small>
+                            </div>
+                            <a href="دفتر_ترجمه_رسمی_شماره_{{center.code}}_{{center.city}}" class="centerLink">مشاهده جزئیات</a>
+                            <small class="mb-1">{{center.address}}<br/></small>
+                            <small>{{center.phone}}</small>
+                            <br/>
+                            <small class="distance">{{center.sort}}</small>
+                        </div>
                     {% endfor %}
 		</div>
 	</div>

@@ -331,3 +331,16 @@ html, body {
 .urlHolder{
     display: none;
 }
+.centerLink{
+    text-align: right;
+    background-color: #66ccff;
+    padding: 5px;
+    border-radius: 5px;
+    color: #FFFFFF !important;
+    font-size: 10pt;
+    float: right;
+    margin-top: 8px;
+}
+.centerLink:hover{
+    background-color: #8fd9ff;
+}

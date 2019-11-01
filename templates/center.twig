@@ -1,0 +1,41 @@
+{% extends 'base.twig' %}
+
+{% block title %}دفتر ترجمه رسمی شماره {{center.code}} {{center.city}}{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function(){  
+          
+	});
+        
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container mainContainer">
+        <h4>دفتر ترجمه رسمی شماره {{center.code}} {{center.city}}</h4>
+	<div class="row">
+            <div class="col-4">مترجم مسئول</div>
+            <div class="col-8">{{center.manager}}</div>
+	</div>
+	<div class="row">
+            <div class="col-4">زبان تخصصی</div>
+            <div class="col-8">{{center.lang}}</div>
+	</div>
+	<div class="row">
+            <div class="col-4">آدرس</div>
+            <div class="col-8">{{center.address}}</div>
+	</div>
+	<div class="row">
+            <div class="col-4">تلفن</div>
+            <div class="col-8">{{center.phone}}</div>
+	</div>
+	<div class="row">
+            <div class="col-4">شیوه ارسال و تحویل مدارک</div>
+            <div class="col-8">{{center.carrier}}</div>
+	</div>
+        
+</div>
+<a href="centers"> <div class="btn btn-primary topButton" style="margin-top:10px;">بازگشت</div></a>
+{% endblock %}
