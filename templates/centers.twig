@@ -4,9 +4,11 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(document).ready(function(){  
+            
             $(".circle").click(function (e){
                 stepClicked(e);
             });
+            
            $(".list-group-item").first().addClass("active");
            $(".list-group-item").click(function (){
                $(".list-group-item").removeClass("active");
@@ -15,15 +17,150 @@
                 var item=$(this).data().item;
                 setCenter(index,item);
            });
+           
+           $(".btnSort").click(function (){
+                $(".btnSort").removeClass("btnSort-active");    
+                $(this).addClass("btnSort-active");
+                sortClicked();
+           });
+           $("#nearest").click();
+           
 	});
         
-        function getDistance(sort){
+ 
+        
+        function sortClicked(){
+            var sort= $(".btnSort-active").data().sort;
+            var address=getAddress();
+            var point="35.729357,51.437731";
+            if(address!==null && address.item.point!==undefined){
+                point=address.item.point;
+            }
+            $("#centerList").html("");
+            $("#loader").removeClass("hidden");
+            fetch("centers?sort="+sort+"&point="+point,{
+                  method:"get"
+              })
+              .then(res=>res.json())
+              .then(
+                  (result) => {
+                      $("#loader").addClass("hidden");
+                      for(var i=0;i<result.length;i++){
+                          var centerElem=getCenterItem(result[i],sort,point);
+                          $("#centerList").append(centerElem);
+                      }
+                      
+                  },
+                  (error) => {
+                      $("#loader").addClass("hidden");
+                  }
+              );
+        }
+        
+        function getCenterItem(center,sort,point){
+                var dist=getDistance(center.loc,point);
+                var a=$(`<div href="#" style="cursor: pointer;" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">دفتر ترجمه رسمی شماره `+center.code+` `+center.city+`</h6>
+                        <small style="color: #00469c">`+center.manager+`</small>
+                    </div>
+                    <a target="_blank" href="دفتر_ترجمه_رسمی_شماره_`+center.code+`_`+center.city+`" class="centerLink">مشاهده جزئیات</a>
+                    <small class="mb-1">`+center.address+`<br/></small>
+                    <small>`+center.phone+`</small>
+                    <br/>
+                    <small class="distance">`+prettify(dist)+`</small>
+                    <br/>
+                    <small class="duration">`+predictDays(center.duration)+`</small>
+                    <br/>
+                    <div class="freeDelivery">پیک رایگان</div>
+                    
+                </div>`);
+                $(a).click(function (){
+                      $(".list-group-item").removeClass("active");
+                      $(this).addClass("active");
+                       var index = $(this).index();
+                       var item=$(this).data().item;
+                       setCenter(index,item);
+                  });      
+                  if(!isFreeCarrier(center,dist)){
+                      a.find(".freeDelivery").remove();
+                  }
+                
+                return a;
+        }
+        function isFreeCarrier(center,dist){
+            if(center.carrier==="0"){
+                return false;
+            }
+            if(center.carrier==="7"){
+                return true;
+            }
+            var range=0;
+            switch(center.carrier){
+                case "1":
+                    range=3;
+                    break;
+                case "2":
+                    range=6;
+                    break;
+                case "3":
+                    range=10;
+                    break;
+                case "4":
+                    range=20;
+                    break;
+                case "5":
+                    range=30;
+                    break;
+                case "6":
+                    range=50;
+                    break;
+            }
+            return dist<=range;
+        }
+        
+        function getDistance(loc, point) {
+                var array=loc.split(",");
+                lat1=parseFloat(array[0]);
+                lon1=parseFloat(array[1]);
+                array=point.split(",");
+                lat2=parseFloat(array[0]);
+                lon2=parseFloat(array[1]);
+                if ((lat1 == lat2) && (lon1 == lon2)) {
+                        return 0;
+                }
+                else {
+                        var radlat1 = Math.PI * lat1/180;
+                        var radlat2 = Math.PI * lat2/180;
+                        var theta = lon1-lon2;
+                        var radtheta = Math.PI * theta/180;
+                        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+                        if (dist > 1) {
+                                dist = 1;
+                        }
+                        dist = Math.acos(dist);
+                        dist = dist * 180/Math.PI;
+                        dist = dist * 60 * 1.1515;
+                        return dist * 1.609344;
+                }
+        }     
+       function prettify(sort){
             if(sort<1.0){
                 return "فاصله تا شما: "+ Math.round(sort*1000)+" متر";
             }
             else{
                 return "فاصله تا شما: "+  parseFloat(Math.round(sort * 100) / 100).toFixed(2)+" کیلومتر";
             }
+        }
+        
+        function predictDays(duration){
+            var products=getProducts();
+            var counter=0;
+            for(var i=0;i<products.length;i++){
+                counter++;
+                counter+=products[i].pages;
+            }
+            return "زمان ترجمه: حدود  "+ counter*duration+" روز";
         }
         
 </script>
@@ -60,27 +197,21 @@
 
 <div class="container mainContainer">
 	<div id="geoHeader" class="row">
-		<div class="col-sm-12">
-			نزدیک ترین دفاتر ترجمه به شما 
-		</div>
+            <div data-sort="loc" class="btnSort" id="nearest">نزدیکترین ها</div>
+            <div data-sort="score" class="btnSort">محبوب ترین ها</div>
+            <div data-sort="duration" class="btnSort">سریعترین ها</div>
 	</div>
+        <div class="d-flex justify-content-center">
+            <div id="loader" class="spinner-border text-info hidden" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
 	<div class="row">
 		<div id="centerList" class="list-group" style="width: 100%;direction: rtl;">
-                    {% for center in centers %}
-                        <div href="#" style="cursor: pointer;" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">دفتر رسمی شماره {{center.code}} {{center.city}}</h6>
-                                <small style="color: #00469c">{{center.manager}}</small>
-                            </div>
-                            <a href="دفتر_ترجمه_رسمی_شماره_{{center.code}}_{{center.city}}" class="centerLink">مشاهده جزئیات</a>
-                            <small class="mb-1">{{center.address}}<br/></small>
-                            <small>{{center.phone}}</small>
-                            <br/>
-                            <small class="distance">{{center.sort}}</small>
-                        </div>
-                    {% endfor %}
 		</div>
 	</div>
+    <a href="صورتحساب"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
 </div>
-<a href="صورتحساب"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+
 {% endblock %}

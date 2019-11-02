@@ -352,7 +352,7 @@ $app->post('/doact', function (Request $request, Response $response, $args) use 
         $javaz = $_POST["javaz"];
         $password = $_POST["password"];
         $manager = getCurrentManager();
-        updateCenter($manager->id, $mail, $account, $carrier, $duration, $license, $javaz,$password);
+        updateCenter($manager->id, $mail, $account, $carrier, $duration, $license, $javaz, $password);
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
     }
 })->setName('doact');
@@ -391,14 +391,22 @@ $app->post('/domlogin', function (Request $request, Response $response, $args) u
     }
 })->setName('domlogin');
 
-$app->post('/centers', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/centers', function (Request $request, Response $response, $args) use ($twig, $app) {
 
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $point = $_POST["point"];
-        $centers = getElasticCenters($point);
-        $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "centers" => $centers]));
+        $params=$request->getQueryParams();
+        $point="35.729357,51.437731";
+        if(isset($params["point"])){
+            $point = $params["point"];
+        }
+        $sort="loc";
+        if(isset($params["sort"])){
+            $sort = $params["sort"];
+        }
+        $centers = getElasticCenters($point,$sort);
+        $response->getBody()->write(json_encode($centers));
         return;
     }
 })->setName('centers');
@@ -425,8 +433,12 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     }
-    if(substr( $path, 0, 23 ) === "دفتر_ترجمه_رسمی_شماره_"){
-        $code= strrpos($path, "_");
+    if (substr($path, 0, 40) === "دفتر_ترجمه_رسمی_شماره_") {
+        $array = explode("_", $path);
+        $code = $array[count($array) - 2];
+        $center = getCenterByCode($code);
+        $response->getBody()->write($twig->render('center.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "center" => $center]));
+        return;
     }
     $docType = getDocType($path);
     if ($docType != null) {
@@ -537,6 +549,33 @@ function getElasticCenter($id) {
     return $res;
 }
 
+function getCenterByCode($link) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search?q=code:" . $link);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $res = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+    $res = json_decode($res);
+    $res = $res->hits;
+    $res = $res->hits;
+    if (count($res) == 0) {
+        return null;
+    }
+    $id = $res[0]->_id;
+    $res = $res[0]->_source;
+    $res->id = $id;
+    return $res;
+}
+
 function getCenterByLink($link) {
     $header = array(
         "content-type: application/json",
@@ -555,7 +594,7 @@ function getCenterByLink($link) {
     $res = json_decode($res);
     $res = $res->hits;
     $res = $res->hits;
-    if(count($res)==0){
+    if (count($res) == 0) {
         return null;
     }
     $id = $res[0]->_id;
@@ -569,7 +608,7 @@ function getCenterByAuth($username, $password) {
         "content-type: application/json",
         "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
     );
-    
+
     $param = '
         {
             "query":{
@@ -577,12 +616,12 @@ function getCenterByAuth($username, $password) {
                     "filter":[
                         {
                             "term":{
-                                "username":"'.$username.'"
+                                "username":"' . $username . '"
                             }
                         },
                         {
                             "term":{
-                                "password":"'.$password.'"
+                                "password":"' . $password . '"
                             }
                         }
                     ]
@@ -601,10 +640,10 @@ function getCenterByAuth($username, $password) {
     $error = curl_error($curl);
     curl_close($curl);
     $res = json_decode($res);
-    
+
     $res = $res->hits;
     $res = $res->hits;
-    if(count($res)==0){
+    if (count($res) == 0) {
         return null;
     }
     $id = $res[0]->_id;
@@ -613,12 +652,11 @@ function getCenterByAuth($username, $password) {
     return $res;
 }
 
-function getElasticCenters($point) {
+function getElasticCenters($point, $sort) {
     $header = array(
         "content-type: application/json",
         "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
     );
-
     $param = '
         {
             "query" : {
@@ -640,6 +678,38 @@ function getElasticCenters($point) {
                                 }
                         ]
         }';
+    if ($sort == "score") {
+        $param = '
+        {
+            "query" : {
+                        "match_all":{}
+            },
+                        "sort" : [
+                                {
+                                    "score":{
+                                        "order":"desc"
+                                    }
+                                }
+                        ]
+        }';
+    }
+    else if ($sort == "duration") {
+        $param = '
+        {
+            "query" : {
+                        "match_all":{}
+            },
+                        "sort" : [
+                                {
+                                    "duration":{
+                                        "order":"asc"
+                                    }
+                                }
+                        ]
+        }';
+    }
+
+
 
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -657,6 +727,7 @@ function getElasticCenters($point) {
     $array = [];
     foreach ($res as $item) {
         $correct = $item->_source;
+        $correct->raw_sort = $item->sort[0];
         $correct->sort = getDistance($item->sort[0]);
         //$correct["sort"] =  getDistance( $item->sort);
         array_push($array, $correct);
@@ -664,7 +735,7 @@ function getElasticCenters($point) {
     return $array;
 }
 
-function updateCenter($id, $mail, $account, $carrier, $duration, $license, $javaz,$password) {
+function updateCenter($id, $mail, $account, $carrier, $duration, $license, $javaz, $password) {
     $header = array(
         "content-type: application/json",
         "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"

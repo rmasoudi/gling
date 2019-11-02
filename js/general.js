@@ -159,10 +159,10 @@ function stepClicked(e) {
             loc = "تعیین_آدرس";
             break;
         case "step4":
-            loc = "";
+            loc = "لیست_دفاتر_ترجمه_رسمی";
             break;
         case "step5":
-            loc = "centers";
+            loc = "صورتحساب";
             break;
     }
     if (loc !== "") {
