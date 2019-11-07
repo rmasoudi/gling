@@ -158,7 +158,7 @@
             var counter=0;
             for(var i=0;i<products.length;i++){
                 counter++;
-                counter+=products[i].pages;
+                counter+=parseInt(products[i].pages);
             }
             return "زمان ترجمه: حدود  "+ counter*duration+" روز";
         }
@@ -208,10 +208,10 @@
         </div>
 
 	<div class="row">
-		<div id="centerList" class="list-group" style="width: 100%;direction: rtl;">
-		</div>
+            <div id="centerList" class="list-group" style="width: 100%;direction: rtl;">
+            </div>
 	</div>
-    <a href="صورتحساب"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
+    <a href="bill"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
 </div>
 
 {% endblock %}

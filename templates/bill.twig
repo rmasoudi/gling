@@ -1,0 +1,174 @@
+{% extends 'base.twig' %}
+
+{% block title %}صورتحساب{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+	$(document).ready(function(){  
+            $(".circle").click(function (e){
+                stepClicked(e);
+            });
+            var products= getProducts();
+            for(var i=0;i<products.length;i++){
+                 addProductRow(products[i],i);
+            }
+	});
+        function addProductRow(product,index){
+            var row=$("<div></div>");
+            row.addClass("billRow");
+            if(index%2===0){
+                row.addClass("billRowEven");
+            }
+            else{
+                row.addClass("billRowOdd");
+            }
+            row.addClass("row");
+            row.append($("<div class='col-2'>"+product.product.title+"</div>"));
+            row.append($("<div class='col-2'>"+correctPage(product.pages)+"</div>"));
+            row.append($("<div class='col-2'>"+correctPage(product.clone)+"</div>"));
+            var extras=$("<div class='col-2'></div>");
+            addExtraRows(extras,product);
+            row.append(extras);
+            row.append($("<div class='col-2'>"+correctPage(product.product.price)+"</div>"));
+            row.append($("<div class='col-2'>"+getRowPrice(product)+"</div>"));
+            
+            $("#billRows").append(row);
+            
+        }
+        function correctPage(page){
+            if(page==="0" || page===0){
+                return 1;
+            }
+            return parseInt(page);
+        }
+        function addExtraRows(parent,product){
+            var hasExtra=false;
+            if(product.marriage){
+                $(parent).append(getExtraRow("ازدواج"));    
+                hasExtra=true;
+            }
+            if(product.talagh){
+                $(parent).append(getExtraRow("طلاق"));    
+                hasExtra=true;
+            }
+            if(product.wifeDie){
+                $(parent).append(getExtraRow("فوت همسر"));    
+                hasExtra=true;
+            }
+            if(product.child){
+                $(parent).append(getExtraRow(product.childCount+" فرزند"));    
+                hasExtra=true;
+            }
+            if(product.die){
+                $(parent).append(getExtraRow("فوت صاحب شناسنامه"));    
+            }
+            if(product.desc){
+                $(parent).append(getExtraRow("توضیحات شناسنامه"));
+                hasExtra=true;
+            }
+            if(product.mohrCount){
+                $(parent).append(getExtraRow(product.mohrCount+" صفحه مهر شده"));    
+                hasExtra=true;
+            }
+            if(product.vizaCount){
+                $(parent).append(getExtraRow(product.vizaCount+" ویزا"));    
+                hasExtra=true;
+            }
+            if(product.entghalCount){
+                $(parent).append(getExtraRow(product.entghalCount+" انتقال سند"));    
+                hasExtra=true;
+            }
+            if(!hasExtra){
+                $(parent).append(getExtraRow("-"));    
+            }
+        }
+        function getExtraRow(title){
+            return $("<div>"+title+"</div>");
+        }
+        function getRowPrice(product){
+            var prices=JSON.parse($("#txtPrice").val());
+            var total=0;
+            var translateBase=product.product.price;
+            if(product.lang!=="1"){
+                translateBase=product.product.extra;
+            }
+            var pages=parseInt(product.pages);
+            if(pages>1){
+                total=translateBase*pages;
+            }
+            else{
+                total=translateBase;
+            }
+            if(product.marriage){
+                total+=prices.shenas_item;
+            }
+            if(product.talagh){
+                total+=prices.shenas_item;
+            }            
+            if(product.wifeDie){
+                total+=prices.shenas_item;
+            }           
+            if(product.die){
+                total+=prices.shenas_item;
+            }           
+            if(product.desc){
+                total+=prices.shenas_item;
+            }           
+            debugger
+            total+=prices.shenas_item*product.childCount;
+            total+=prices.passport*(product.mohrCount+product.vizaCount);
+            total+=prices.enteghal*(product.entghalCount);
+            if(product.clone!=="1"){
+                total+=(parseInt(product.clone)-1)*total/4;
+            }
+            return total;
+        }
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="stepper">
+  <div id="step1" class="circle done"> <span class="label">1</span>
+    <span class="title">انتخاب مدارک</span>
+
+  </div> <span class="bar done"></span>
+
+  <div id="step2" class="circle done"> <span class="label">2</span>
+    <span class="title"> پیوست مدارک</span>
+
+  </div> <span class="bar done"></span>
+
+  <div id="step3" class="circle done"> <span class="label">3</span>
+    <span class="title">تعیین آدرس</span>
+
+  </div> <span class="bar done"></span>
+
+  <div id="step4" class="circle done"> <span class="label">4</span>
+    <span class="title">انتخاب دفتر ترجمه</span>
+
+  </div> <span class="bar done"></span>
+
+  <div id="step5" class="circle active"> <span class="label">5</span>
+    <span class="title">صورتحساب</span>
+
+  </div>
+</div>
+<div class="container mainContainer" style="text-align: right;direction: rtl;">
+    <input id="txtPrice" style="display: none" value="{{prices}}"/>
+    <br/>
+    <div style="text-align: center;color: #3143a1">کلیه قیمت ها منطبق با قیمت مصوب انجمن مترجمان رسمی است.</div>
+    <br/>
+    <div id="billHeader" class="row">
+        <div class="col-2">نوع مدرک</div>
+        <div class="col-2">تعداد صفحه</div>
+        <div class="col-2">تعداد نسخه</div>
+        <div class="col-2">موارد اضافه</div>
+        <div class="col-2">قیمت پایه</div>
+        <div class="col-2">جمع</div>
+    </div>
+    <div id="billRows">
+        
+    </div>
+        
+</div>
+{% endblock %}

@@ -18,7 +18,7 @@ DEFINE('ELASTIC_HOST', 'https://6b9o9l9h74:yqegnzdccv@first-cluster-6104576857.u
 
 $globalPrices = [
     "daftari" => 15000,
-    "pasport" => 10000,
+    "passport" => 10000,
     "enteghal" => 10000,
     "shenas_item" => 5000,
     "copy" => 1000,
@@ -374,6 +374,7 @@ $app->get('/translators-login', function (Request $request, Response $response, 
     $response->getBody()->write($twig->render('mlogin.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "redirect" => $referer]));
 })->setName('translators-login');
 
+
 $app->post('/domlogin', function (Request $request, Response $response, $args) use ($twig, $app) {
     $redirect = $_POST["redirect"];
     if (isManagerLogged()) {
@@ -411,6 +412,9 @@ $app->get('/centers', function (Request $request, Response $response, $args) use
     }
 })->setName('centers');
 
+$app->get('/bill', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $response->getBody()->write($twig->render('bill.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"prices"=> json_encode($globalPrices)]));
+})->setName('bill');
 
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $path = trim(urldecode($args["name"]));

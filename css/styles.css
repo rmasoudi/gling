@@ -390,3 +390,23 @@ html, body {
     padding: 2px;
     color: #5facff;
 }
+#billHeader{
+    background-color: #9999ff;
+    color: #ffffff;
+    padding: 5px;
+    font-size: 10pt;
+    text-align: center;
+}
+.billRow{
+    padding: 5px;
+    border-right: solid 1px #9999ff;
+    border-left: solid 1px #9999ff;
+    text-align: center;
+    font-size: 10pt;
+}
+.billRowEven{
+    background-color: #fcfcfc;
+}
+.billRowOdd{
+    background-color: #ffffff;
+}
