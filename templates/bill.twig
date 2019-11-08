@@ -8,10 +8,12 @@
                 stepClicked(e);
             });
             var products= getProducts();
+            var total=0;
             for(var i=0;i<products.length;i++){
-                 addProductRow(products[i],i);
+                 total+=addProductRow(products[i],i);
             }
-            addDaftariRow(products.length);
+            total+=addDaftariRow(products.length);
+            addSumRow(total);
 	});
         function addProductRow(product,index){
             var row=$("<div></div>");
@@ -30,7 +32,24 @@
             addExtraRows(extras,product);
             row.append(extras);
             row.append($("<div class='col-2'>"+correctPage(product.product.price)+"</div>"));
-            row.append($("<div class='col-2'>"+getRowPrice(product)+"</div>"));
+            var total=getRowPrice(product);
+            row.append($("<div class='col-2'>"+total+"</div>"));
+            $("#billRows").append(row);
+            return total;
+        }
+        function addSumRow(total){
+            var row=$("<div></div>");
+            row.addClass("billRow");
+            row.css("background-color","rgb(238, 238, 253)");
+            row.css("border-bottom","solid 1px #9999ff");
+            
+            row.addClass("row");
+            row.append($("<div class='col-2'>جمع</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>"+total+"</div>"));
             $("#billRows").append(row);
         }
         function addDaftariRow(index){
@@ -51,6 +70,7 @@
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>"+prices.daftari+"</div>"));
             $("#billRows").append(row);
+            return prices.daftari;
         }
         function correctPage(page){
             if(page==="0" || page===0){
