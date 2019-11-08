@@ -11,6 +11,7 @@
             for(var i=0;i<products.length;i++){
                  addProductRow(products[i],i);
             }
+            addDaftariRow(products.length);
 	});
         function addProductRow(product,index){
             var row=$("<div></div>");
@@ -30,9 +31,26 @@
             row.append(extras);
             row.append($("<div class='col-2'>"+correctPage(product.product.price)+"</div>"));
             row.append($("<div class='col-2'>"+getRowPrice(product)+"</div>"));
-            
             $("#billRows").append(row);
-            
+        }
+        function addDaftariRow(index){
+            var prices=JSON.parse($("#txtPrice").val());
+            var row=$("<div></div>");
+            row.addClass("billRow");
+            if(index%2===0){
+                row.addClass("billRowEven");
+            }
+            else{
+                row.addClass("billRowOdd");
+            }
+            row.addClass("row");
+            row.append($("<div class='col-2'>هزینه های دفتری</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>"+prices.daftari+"</div>"));
+            $("#billRows").append(row);
         }
         function correctPage(page){
             if(page==="0" || page===0){
