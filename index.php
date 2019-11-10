@@ -734,6 +734,9 @@ function getElasticCenters($point, $sort) {
         $correct->raw_sort = $item->sort[0];
         $correct->sort = getDistance($item->sort[0]);
         //$correct["sort"] =  getDistance( $item->sort);
+        unset($correct->username);
+        unset($correct->password);
+        unset($correct->link);
         array_push($array, $correct);
     }
     return $array;

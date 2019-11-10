@@ -7,6 +7,7 @@
             $(".circle").click(function (e){
                 stepClicked(e);
             });
+            $("#carrierPrice").html(getCarrierPrice());
             var products= getProducts();
             var total=0;
             for(var i=0;i<products.length;i++){
@@ -150,8 +151,7 @@
             }           
             if(product.desc){
                 total+=prices.shenas_item;
-            }           
-            debugger
+            }          
             total+=prices.shenas_item*product.childCount;
             total+=prices.passport*(product.mohrCount+product.vizaCount);
             total+=prices.enteghal*(product.entghalCount);
@@ -159,6 +159,53 @@
                 total+=(parseInt(product.clone)-1)*total/4;
             }
             return total;
+        }
+        
+        function getCarrierPrice(){
+            var center=getCenter();
+            var loc=getCenter().item.loc;
+            var userPoint=getAddress().item.point;
+            var dist=getDistance(loc,userPoint);
+            if(isFreeCarrier(center,dist)){
+                return 0;
+            }
+            var p1=loc.split(",");
+            var p2=userPoint.split(",");
+            var data = JSON.stringify({
+              'transport_type': 'motor_taxi',
+              'addresses': [
+                {
+                  'type': 'origin',
+                  'lat' : p1[0],
+                  'lng' : p1[1]
+                },
+                {
+                  'type': 'destination',
+                  'lat' : p2[0],
+                  'lng' : p2[1]
+                }
+              ],
+              'has_return': true,
+              'cashed': false
+            });
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.addEventListener('readystatechange', function () {
+                debugger
+              if (this.readyState === 4) {
+                console.log(this.responseText);
+              }
+            });
+            var token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI0MTEsImlzcyI6Imh0dHA6XC9cL3NhbmRib3gtcGFuZWwuYWxvcGV5ay5jb21cL2dlbmVyYXRlLXRva2VuXC8yNDExIiwiaWF0IjoxNTIzOTQ2NTE1LCJleHAiOjUxMjM5NTAxMTUsIm5iZiI6MTUyMzk0NjUxNSwianRpIjoiMjJlZTBkZmExYzlmOGM0MjRjMjc2ZDc1YjZkOTFkY2IifQ.2AiK11OVIXcpkwfLu5uFLobED8kn-ae3DSZKMZDE7Uo";
+            xhr.open('POST', 'https://sandbox-api.alopeyk.com/api/v2/orders/price/calc');
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Access-Control-Allow-Origin", "localhost");
+            xhr.setRequestHeader("Access-Control-Allow-Headers", "x-requested-with");
+
+            xhr.send(data);
         }
 </script>
 {% endblock %}
@@ -208,6 +255,7 @@
     <div id="billRows">
         
     </div>
+    <div id="carrierPrice"></div>
         
 </div>
 {% endblock %}

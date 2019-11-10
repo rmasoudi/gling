@@ -96,7 +96,61 @@ function getCenter() {
     }
     return JSON.parse(localStorage.getItem("center"));
 }
-
+function isFreeCarrier(center,dist){
+    if(center.carrier==="0"){
+        return false;
+    }
+    if(center.carrier==="7"){
+        return true;
+    }
+    var range=0;
+    switch(center.carrier){
+        case "1":
+            range=3;
+            break;
+        case "2":
+            range=6;
+            break;
+        case "3":
+            range=10;
+            break;
+        case "4":
+            range=20;
+            break;
+        case "5":
+            range=30;
+            break;
+        case "6":
+            range=50;
+            break;
+    }
+    return dist<=range;
+}
+function getDistance(loc, point) {
+        var array=loc.split(",");
+        lat1=parseFloat(array[0]);
+        lon1=parseFloat(array[1]);
+        array=point.split(",");
+        lat2=parseFloat(array[0]);
+        lon2=parseFloat(array[1]);
+        if ((lat1 == lat2) && (lon1 == lon2)) {
+                return 0;
+        }
+        else {
+                var radlat1 = Math.PI * lat1/180;
+                var radlat2 = Math.PI * lat2/180;
+                var theta = lon1-lon2;
+                var radtheta = Math.PI * theta/180;
+                var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+                if (dist > 1) {
+                        dist = 1;
+                }
+                dist = Math.acos(dist);
+                dist = dist * 180/Math.PI;
+                dist = dist * 60 * 1.1515;
+                return dist * 1.609344;
+        }
+}   
 function getSelectedLang() {
     var products = getProducts();
     var val;
