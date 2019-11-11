@@ -397,23 +397,85 @@ $app->get('/centers', function (Request $request, Response $response, $args) use
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $params=$request->getQueryParams();
-        $point="35.729357,51.437731";
-        if(isset($params["point"])){
+        $params = $request->getQueryParams();
+        $point = "35.729357,51.437731";
+        if (isset($params["point"])) {
             $point = $params["point"];
         }
-        $sort="loc";
-        if(isset($params["sort"])){
+        $sort = "loc";
+        if (isset($params["sort"])) {
             $sort = $params["sort"];
         }
-        $centers = getElasticCenters($point,$sort);
+        $centers = getElasticCenters($point, $sort);
         $response->getBody()->write(json_encode($centers));
         return;
     }
 })->setName('centers');
 
+$app->get('/carrier_price', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $p1 = $request->getQueryParams()["p1"];
+    $p2 = $request->getQueryParams()["p2"];
+    $loc1 = explode(",", $p1);
+    $loc2 = explode(",", $p2);
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI0MTEsImlzcyI6Imh0dHA6XC9cL3NhbmRib3gtcGFuZWwuYWxvcGV5ay5jb21cL2dlbmVyYXRlLXRva2VuXC8yNDExIiwiaWF0IjoxNTIzOTQ2NTE1LCJleHAiOjUxMjM5NTAxMTUsIm5iZiI6MTUyMzk0NjUxNSwianRpIjoiMjJlZTBkZmExYzlmOGM0MjRjMjc2ZDc1YjZkOTFkY2IifQ.2AiK11OVIXcpkwfLu5uFLobED8kn-ae3DSZKMZDE7Uo";
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "https://sandbox-api.alopeyk.com/api/v2/orders/price/calc",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode(
+                [
+                    "transport_type" => "motor_taxi",
+                    "addresses" => [
+                        [
+                            "type" => "origin",
+                            "lat" => $loc1[0],
+                            "lng" => $loc1[1],
+                        ],
+                        [
+                            "type" => "destination",
+                            "lat" => $loc2[0],
+                            "lng" => $loc2[1],
+                        ]
+                    ],
+                    "has_return" => true,
+                    "cashed" => false,
+                ]
+        ),
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer " . $token,
+            "Content-Type: application/json; charset=utf-8",
+            "X-Requested-With: XMLHttpRequest"
+        ],
+    ]);
+
+    $res = curl_exec($curl);
+    $err = curl_error($curl);
+
+    curl_close($curl);
+
+    if ($err) {
+        $response->getBody()->write(-1);
+    } else {
+        $res = json_decode($res);
+        $status = $res->status;
+        if ($status == "fail") {
+            $response->getBody()->write(-1);
+        } else {
+            $response->getBody()->write($res->object->price);
+        }
+    }
+    return;
+})->setName('centers');
+
 $app->get('/bill', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
-    $response->getBody()->write($twig->render('bill.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"prices"=> json_encode($globalPrices)]));
+    $response->getBody()->write($twig->render('bill.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
 })->setName('bill');
 
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
@@ -696,8 +758,7 @@ function getElasticCenters($point, $sort) {
                                 }
                         ]
         }';
-    }
-    else if ($sort == "duration") {
+    } else if ($sort == "duration") {
         $param = '
         {
             "query" : {

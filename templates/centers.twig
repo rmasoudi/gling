@@ -37,14 +37,13 @@
               .then(res=>res.json())
               .then(
                   (result) => {
-                      $("#loader").addClass("hidden");
-                      for(var i=0;i<result.length;i++){
-                          var centerElem=getCenterItem(result[i],sort,point);
-                          $("#centerList").append(centerElem);
-                      }
+                    $("#loader").addClass("hidden");
+                    for(var i=0;i<result.length;i++){
+                        var centerElem=getCenterItem(result[i],sort,point);
+                        $("#centerList").append(centerElem);
+                    }
                     $(".list-group-item").first().addClass("active");
                     $(".list-group-item").click(function (){
-                        
                         $(".list-group-item").removeClass("active");
                         $(this).addClass("active");
                          var index = $(this).index();
