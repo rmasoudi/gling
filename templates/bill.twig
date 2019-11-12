@@ -7,22 +7,40 @@
             $(".circle").click(function (e){
                 stepClicked(e);
             });
-            getCarrierPrice();
+            
             var products= getProducts();
             var total=0;
             for(var i=0;i<products.length;i++){
                  total+=addProductRow(products[i],i);
             }
             total+=addDaftariRow(products.length);
+            addCarrierRow();
             addSumRow(total);
+            getCarrierPrice();
+            loadCenterDetails();
+            loadCustomerDetails();
 	});
+        
+        function loadCenterDetails(){
+            var center=getCenter().item;
+            $("#centerTitle").html("دفتر ترجمه رسمی "+center.code+" "+center.city);
+            $("#address").html(center.address);
+            $("#phone").html(center.phone);
+            $("#manager").html(center.manager);
+        }
+        function loadCustomerDetails(){
+            var customer=getAddress().item;
+            $("#customer").html(customer.name);
+            $("#customerAddress").html(customer.address);
+            $("#customerMobile").html(customer.mobile);
+        }
         function getCarrierPrice(){
             var center=getCenter();
             var loc=getCenter().item.loc;
             var userPoint=getAddress().item.point;
             var dist=getDistance(loc,userPoint);
             if(isFreeCarrier(center,dist)){
-                $("#carrierPrice").html("پیک رایگان");
+                $("#carrierPrice").html("رایگان");
             }
             fetch("carrier_price?p1="+userPoint+"&p2="+loc,{
                  method:"get"
@@ -31,15 +49,17 @@
              .then(
                  (result) => {
                      if(result===-1){
-                         $("#carrierPrice").html("هزینه پیک قابل تخمین نیست و توسط دفتر ترجمه اطلاع داده خواهد شد.");
+                         $("#carrierPrice").html("پرداخت حضوری");
                      }
                      else{
-                        $("#carrierPrice").html("هزینه پیک بر اساس نرخ الوپیک: "+result+"تومان");
+                        $("#carrierPrice").html(+result);
+                        var prevSum=parseInt($("#sum").html());
+                        $("#sum").html(prevSum+result)
                      }
                      
                  },
                  (error) => {
-                     $("#carrierPrice").html("هزینه پیک قابل تخمین نیست و توسط دفتر ترجمه اطلاع داده خواهد شد.");
+                     $("#carrierPrice").html("پرداخت حضوری");
                  }
              );            
             
@@ -69,8 +89,9 @@
         function addSumRow(total){
             var row=$("<div></div>");
             row.addClass("billRow");
-            row.css("background-color","rgb(238, 238, 253)");
+            row.css("background-color","rgb(226, 237, 255)");
             row.css("border-bottom","solid 1px #9999ff");
+            
             
             row.addClass("row");
             row.append($("<div class='col-2'>جمع</div>"));
@@ -78,7 +99,27 @@
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>-</div>"));
-            row.append($("<div class='col-2'>"+total+"</div>"));
+            row.append($("<div id='sum' class='col-2'>"+total+"</div>"));
+            $("#billRows").append(row);
+        }
+        function addCarrierRow(total){
+            var row=$("<div></div>");
+            var count=$(".billRow").length;
+            row.addClass("billRow");
+            if(count%2===0){
+                row.addClass("billRowEven");
+            }
+            else{
+                row.addClass("billRowOdd");
+            }
+            
+            row.addClass("row");
+            row.append($("<div class='col-2'>هزینه پیک</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div class='col-2'>-</div>"));
+            row.append($("<div id='carrierPrice' class='col-2'></div>"));
             $("#billRows").append(row);
         }
         function addDaftariRow(index){
@@ -222,8 +263,11 @@
 <div class="container mainContainer" style="text-align: right;direction: rtl;">
     <input id="txtPrice" style="display: none" value="{{prices}}"/>
     <br/>
-    <div style="text-align: center;color: #3143a1">کلیه قیمت ها منطبق با قیمت مصوب انجمن مترجمان رسمی است.</div>
-    <div style="text-align: center;color: #3143a1;font-size: 10pt;margin-top:3px;">قیمت ها به تومان می باشد.</div>
+    <ul style="margin-right: 10px; color: #031fb0;">
+        <li>کلیه قیمت ها منطبق با قیمت مصوب انجمن مترجمان رسمی است.</li>
+        <li>قیمت ها به تومان می باشد.</li>
+        <li>هزینه پیک بر اساس فاصله شما تا دفتر ترجمه بر اساس نرخ الوپیک محاسبه شده است.</li>
+    </ul>
     <br/>
     <div id="billHeader" class="row">
         <div class="col-2">نوع مدرک</div>
@@ -234,9 +278,46 @@
         <div class="col-2">جمع</div>
     </div>
     <div id="billRows">
-        
     </div>
-    <div id="carrierPrice"></div>
-        
+    <div class="centerDetails row">
+        <div class="col-12">
+            <div style="color:  #2da0df;margin-bottom: 5px;">مشخصات دفتر ترجمه</div>
+            <div class="centerLabel">
+                <span id="centerTitle" class="centerFieldValue"></span>
+            </div>
+            <div class="centerLabel">
+                <span>مترجم مسئول: </span>
+                <span id="manager" class="centerFieldValue"></span>
+            </div>
+            <div class="centerLabel">
+                <span>آدرس:  </span>
+                <span id="address" class="centerFieldValue"></span>
+            </div>
+            <div class="centerLabel">
+                <span>تلفن: </span>
+                <span id="phone" class="centerFieldValue"></span>
+            </div>
+        </div>
+    </div>
+    <div class="centerDetails row">
+        <div class="col-12">
+            <div style="color:  #2da0df;margin-bottom: 5px;">مشخصات تحویل گیرنده مدارک</div>
+            <div class="centerLabel">
+                <span id="centerTitle" class="centerFieldValue"></span>
+            </div>
+            <div class="centerLabel">
+                <span>تحویل گیرنده: </span>
+                <span id="customer" class="centerFieldValue"></span>
+            </div>
+            <div class="centerLabel">
+                <span>آدرس:  </span>
+                <span id="customerAddress" class="centerFieldValue"></span>
+            </div>
+            <div class="centerLabel">
+                <span>موبایل: </span>
+                <span id="customerMobile" class="centerFieldValue"></span>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

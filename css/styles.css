@@ -332,8 +332,8 @@ fieldset.scheduler-border {
     margin-right: 5px;
 }
 html, body {
-  height: 100%;
-  margin: 0;
+    height: 100%;
+    margin: 0;
 }
 .urlHolder{
     display: none;
@@ -391,11 +391,13 @@ html, body {
     color: #5facff;
 }
 #billHeader{
-    background-color: #9999ff;
+    background-color: #5b93f9;
     color: #ffffff;
     padding: 5px;
     font-size: 10pt;
     text-align: center;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
 }
 .billRow{
     padding: 5px;
@@ -409,4 +411,17 @@ html, body {
 }
 .billRowOdd{
     background-color: #ffffff;
+}
+.centerDetails{
+    margin-top: 10px;
+    padding: 5px;
+    border: solid 1px #c8dcff;
+}
+.centerLabel{
+    font-size: 10pt;
+    color: #1b82bb;
+}
+.centerFieldValue{
+    font-size: 11pt;
+    color: #1a71c4;
 }
