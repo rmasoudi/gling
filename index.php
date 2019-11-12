@@ -15,6 +15,8 @@ DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'جیلینگ');
 DEFINE('APP_SITE', 'gling.ir');
 DEFINE('ELASTIC_HOST', 'https://6b9o9l9h74:yqegnzdccv@first-cluster-6104576857.us-east-1.bonsaisearch.net:443');
+DEFINE('ZARRIN', '2fca4aec-080f-11e8-9daa-000c295eb8fc');
+
 
 $globalPrices = [
     "daftari" => 15000,
@@ -477,6 +479,41 @@ $app->get('/carrier_price', function (Request $request, Response $response, $arg
 $app->get('/bill', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $response->getBody()->write($twig->render('bill.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
 })->setName('bill');
+
+$app->get('/gopay', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $data = array('MerchantID' => ZARRIN,
+        'Amount' => 100,
+        'CallbackURL' => 'http://www.YourSite.com/',
+        'Description' => 'ثبت سفارش ترجمه');
+    $jsonData = json_encode($data);
+    $ch = curl_init('https://www.zarinpal.com/pg/rest/WebGate/PaymentRequest.json');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($jsonData)
+    ));
+    $result = curl_exec($ch);
+    $err = curl_error($ch);
+    $result = json_decode($result, true);
+    curl_close($ch);
+    if ($err) {
+        $response->getBody()->write("cURL Error #:" . $err);
+        return;
+    } else {
+        if ($result["Status"] == 100) {
+            return $response->withRedirect('https://www.zarinpal.com/pg/StartPay/' . $result["Authority"]);
+            
+        } else {
+            $response->getBody()->write('ERR: ' . $result["Status"]);
+            return;
+        }
+    }
+})->setName('gopay');
 
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $path = trim(urldecode($args["name"]));
