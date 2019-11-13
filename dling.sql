@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Nov 10, 2019 at 11:21 AM
+-- Generation Time: Nov 13, 2019 at 03:29 PM
 -- Server version: 5.7.26
 -- PHP Version: 7.2.18
 
@@ -608,26 +608,6 @@ CREATE TABLE IF NOT EXISTS `filetype` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `order`
---
-
-DROP TABLE IF EXISTS `order`;
-CREATE TABLE IF NOT EXISTS `order` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) NOT NULL,
-  `center_id` bigint(20) NOT NULL,
-  `order_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `priority` int(11) NOT NULL,
-  `status` int(11) NOT NULL,
-  `carrier` int(11) NOT NULL,
-  `address_id` bigint(20) NOT NULL,
-  `bill` text COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `order_file`
 --
 
@@ -776,7 +756,8 @@ INSERT INTO `product` (`id`, `title`, `price`, `extra`, `desc`, `url`, `category
 (101, 'سند طلاق يا رونوشت آن', 105000, 126000, NULL, 'ترجمه_رسمی_سند_طلاق_يا_رونوشت_آن', 1, b'0'),
 (102, 'سند مالكيت (تك برگي)', 105000, 126000, NULL, 'ترجمه_رسمی_سند_مالكيت_تك_برگي', 3, b'0'),
 (103, 'قرارداد ', 105000, 126000, NULL, 'ترجمه_رسمی_قرارداد', 3, b'1'),
-(104, 'وكالتنامه بزرگ ', 105000, 126000, NULL, 'ترجمه_رسمی_وكالتنامه_بزرگ', 3, b'1');
+(104, 'وكالتنامه بزرگ ', 105000, 126000, NULL, 'ترجمه_رسمی_وكالتنامه_بزرگ', 3, b'1'),
+(105, 'تست', 100, 120, 'محصول تست', 'test', 1, b'0');
 
 -- --------------------------------------------------------
 
@@ -801,6 +782,26 @@ CREATE TABLE IF NOT EXISTS `score` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL,
   `center_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `the_order`
+--
+
+DROP TABLE IF EXISTS `the_order`;
+CREATE TABLE IF NOT EXISTS `the_order` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) NOT NULL,
+  `center_id` bigint(20) NOT NULL,
+  `order_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` int(11) NOT NULL,
+  `address_id` bigint(20) NOT NULL,
+  `bill` text COLLATE utf8_unicode_ci NOT NULL,
+  `amount` bigint(20) NOT NULL,
+  `paycode` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
