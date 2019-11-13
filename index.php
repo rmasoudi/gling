@@ -425,43 +425,77 @@ $app->get('/bill', function (Request $request, Response $response, $args) use ($
     $response->getBody()->write($twig->render('bill.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
 })->setName('bill');
 
+$app->get('/verify', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $order = $_SESSION["order"];
+    $auth = $request->getQueryParams()["Authority"];
+    $data = array('MerchantID' => ZARRIN, 'Authority' => $auth, 'Amount' => $order->amount);
+    $jsonData = json_encode($data);
+    $ch = curl_init('https://www.zarinpal.com/pg/rest/WebGate/PaymentVerification.json');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($jsonData)
+    ));
+    $result = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    $result = json_decode($result, true);
+    if ($err) {
+        $response->getBody()->write($err);
+    } else {
+        if ($result['Status'] == 100) {
+            $response->getBody()->write('Transation success. RefID:' . $result['RefID']);
+            completeOrder($order->id, $result['RefID']);
+        } else {
+            $response->getBody()->write('Transation failed. Status:' . $result['Status']);
+        }
+    }
+})->setName('verify');
+
 $app->post('/gopay', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $data = $_POST["data"];
     $data = json_decode($data);
     $total = 0;
     $center = getElasticCenter($data->center);
-    
-    if(!isset($center->account)){
+
+    if (!isset($center->account)) {
         $response->getBody()->write("شماره حساب دفتر ترجمه ثبت نشده است.");
         return;
     }
     foreach ($data->products as $item) {
         $total+=getProductPrice($item, $globalPrices);
     }
-    $total+=$globalPrices["daftari"];
-    $carrierPrice = getCarrierPrice($data->addressLoc, $data->centerLoc);
-    if ($carrierPrice != -1) {
-        $total+=$carrierPrice;
-    }
+//    $total+=$globalPrices["daftari"];
+//    $carrierPrice = getCarrierPrice($data->addressLoc, $data->centerLoc);
+//    if ($carrierPrice != -1) {
+//        $total+=$carrierPrice;
+//    }
+
+    $orderId = saveOrder($center->id, $data->address->id, $data, $total);
+    $_SESSION["order"] = ["id" => $orderId, "amount" => $total];
+
     $forMe = 5 * $total / 100;
     $forHim = $total - $forMe;
 
     $item = array();
     $item["Amount"] = $forHim;
-    $item["Description"] = "واریز حق ترجمه سایت " . APP_NAME;
+    $item["Description"] = "واریز حق ترجمه";
     $additionlData = array();
-    $additionlData[$supplierAccount] = $item;
+    $additionlData["zp." . $center->account . ".1"] = $item;
     $payload = array();
     $payload["Wages"] = $additionlData;
 
     $data = array('MerchantID' => ZARRIN,
         'Amount' => $total,
-        'CallbackURL' => 'http://www.YourSite.com/',
+        'CallbackURL' => 'http://localhost/gling/verify',
         'Description' => 'ثبت سفارش ترجمه',
         'AdditionalData' => json_encode($payload, JSON_UNESCAPED_UNICODE)
     );
     $jsonData = json_encode($data);
-    $ch = curl_init('https://www.zarinpal.com/pg/rest/WebGate/PaymentRequest.json');
+    $ch = curl_init('https://www.zarinpal.com/pg/rest/WebGate/PaymentRequestWithExtra.json');
     curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
@@ -584,6 +618,26 @@ function getCarrierPrice($p1, $p2) {
             return $res->object->price;
         }
     }
+}
+
+function saveOrder($centerId, $addressId, $bill, $amount) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("INSERT INTO the_order(user_id,center_id,address_id,bill,amount)VALUES(?,?,?,?,?)");
+    $stmt->bind_param("iiisi", getCurrentUser()->id, $centerId, $addressId, $bill, $amount);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $last_id = $conn->insert_id;
+    $stmt->close();
+    $conn->close();
+    return $last_id;
+}
+function completeOrder($id,$code) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("UPDATE the_order SET paycode=? WHERE id=?");
+    $stmt->bind_param("si", $id, $code);
+    $stmt->execute();
+    $stmt->close();
+    $conn->close();
 }
 
 function getProductPrice($product, $globalPrices) {
