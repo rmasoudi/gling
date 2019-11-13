@@ -19,7 +19,19 @@
             getCarrierPrice();
             loadCenterDetails();
             loadCustomerDetails();
+            loadOrderData();
 	});
+        
+        function loadOrderData(){
+            var data={
+                center:parseInt(getCenter().item.id),
+                centerLoc:getCenter().item.loc,
+                addressLoc:getAddress().item.point,
+                address:getAddress().item.id,
+                products:getProducts()
+            };
+            $("#txtData").val(JSON.stringify(data));
+        }
         
         function loadCenterDetails(){
             var center=getCenter().item;
@@ -319,7 +331,9 @@
             </div>
         </div>
     </div>
-    
-    <a href="gopay"> <div class="btn btn-primary topButton" style="margin-top:10px;float: left;">پرداخت و ثبت سفارش</div></a>
+    <form method="post" action="gopay">
+        <input name="data" id="txtData" type="text" style="display: none;"/>
+        <button class="btn btn-primary topButton" style="margin-top:10px;float: left;margin-bottom:10px;" type="submit">پرداخت و ثبت سفارش</button>
+    </form>
 </div>
 {% endblock %}

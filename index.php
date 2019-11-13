@@ -417,62 +417,7 @@ $app->get('/centers', function (Request $request, Response $response, $args) use
 $app->get('/carrier_price', function (Request $request, Response $response, $args) use ($twig, $app) {
     $p1 = $request->getQueryParams()["p1"];
     $p2 = $request->getQueryParams()["p2"];
-    $loc1 = explode(",", $p1);
-    $loc2 = explode(",", $p2);
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI0MTEsImlzcyI6Imh0dHA6XC9cL3NhbmRib3gtcGFuZWwuYWxvcGV5ay5jb21cL2dlbmVyYXRlLXRva2VuXC8yNDExIiwiaWF0IjoxNTIzOTQ2NTE1LCJleHAiOjUxMjM5NTAxMTUsIm5iZiI6MTUyMzk0NjUxNSwianRpIjoiMjJlZTBkZmExYzlmOGM0MjRjMjc2ZDc1YjZkOTFkY2IifQ.2AiK11OVIXcpkwfLu5uFLobED8kn-ae3DSZKMZDE7Uo";
-    curl_setopt_array($curl, [
-        CURLOPT_URL => "https://sandbox-api.alopeyk.com/api/v2/orders/price/calc",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode(
-                [
-                    "transport_type" => "motor_taxi",
-                    "addresses" => [
-                        [
-                            "type" => "origin",
-                            "lat" => $loc1[0],
-                            "lng" => $loc1[1],
-                        ],
-                        [
-                            "type" => "destination",
-                            "lat" => $loc2[0],
-                            "lng" => $loc2[1],
-                        ]
-                    ],
-                    "has_return" => true,
-                    "cashed" => false,
-                ]
-        ),
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer " . $token,
-            "Content-Type: application/json; charset=utf-8",
-            "X-Requested-With: XMLHttpRequest"
-        ],
-    ]);
-
-    $res = curl_exec($curl);
-    $err = curl_error($curl);
-
-    curl_close($curl);
-
-    if ($err) {
-        $response->getBody()->write(-1);
-    } else {
-        $res = json_decode($res);
-        $status = $res->status;
-        if ($status == "fail") {
-            $response->getBody()->write(-1);
-        } else {
-            $response->getBody()->write($res->object->price);
-        }
-    }
+    $response->getBody()->write(getCarrierPrice($p1, $p2));
     return;
 })->setName('centers');
 
@@ -480,11 +425,41 @@ $app->get('/bill', function (Request $request, Response $response, $args) use ($
     $response->getBody()->write($twig->render('bill.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
 })->setName('bill');
 
-$app->get('/gopay', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+$app->post('/gopay', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $data = $_POST["data"];
+    $data = json_decode($data);
+    $total = 0;
+    $center = getElasticCenter($data->center);
+    
+    if(!isset($center->account)){
+        $response->getBody()->write("شماره حساب دفتر ترجمه ثبت نشده است.");
+        return;
+    }
+    foreach ($data->products as $item) {
+        $total+=getProductPrice($item, $globalPrices);
+    }
+    $total+=$globalPrices["daftari"];
+    $carrierPrice = getCarrierPrice($data->addressLoc, $data->centerLoc);
+    if ($carrierPrice != -1) {
+        $total+=$carrierPrice;
+    }
+    $forMe = 5 * $total / 100;
+    $forHim = $total - $forMe;
+
+    $item = array();
+    $item["Amount"] = $forHim;
+    $item["Description"] = "واریز حق ترجمه سایت " . APP_NAME;
+    $additionlData = array();
+    $additionlData[$supplierAccount] = $item;
+    $payload = array();
+    $payload["Wages"] = $additionlData;
+
     $data = array('MerchantID' => ZARRIN,
-        'Amount' => 100,
+        'Amount' => $total,
         'CallbackURL' => 'http://www.YourSite.com/',
-        'Description' => 'ثبت سفارش ترجمه');
+        'Description' => 'ثبت سفارش ترجمه',
+        'AdditionalData' => json_encode($payload, JSON_UNESCAPED_UNICODE)
+    );
     $jsonData = json_encode($data);
     $ch = curl_init('https://www.zarinpal.com/pg/rest/WebGate/PaymentRequest.json');
     curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
@@ -507,7 +482,6 @@ $app->get('/gopay', function (Request $request, Response $response, $args) use (
     } else {
         if ($result["Status"] == 100) {
             return $response->withRedirect('https://www.zarinpal.com/pg/StartPay/' . $result["Authority"]);
-            
         } else {
             $response->getBody()->write('ERR: ' . $result["Status"]);
             return;
@@ -553,6 +527,112 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
 });
 
 $app->run();
+
+function getCarrierPrice($p1, $p2) {
+    $loc1 = explode(",", $p1);
+    $loc2 = explode(",", $p2);
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjI0MTEsImlzcyI6Imh0dHA6XC9cL3NhbmRib3gtcGFuZWwuYWxvcGV5ay5jb21cL2dlbmVyYXRlLXRva2VuXC8yNDExIiwiaWF0IjoxNTIzOTQ2NTE1LCJleHAiOjUxMjM5NTAxMTUsIm5iZiI6MTUyMzk0NjUxNSwianRpIjoiMjJlZTBkZmExYzlmOGM0MjRjMjc2ZDc1YjZkOTFkY2IifQ.2AiK11OVIXcpkwfLu5uFLobED8kn-ae3DSZKMZDE7Uo";
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "https://sandbox-api.alopeyk.com/api/v2/orders/price/calc",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => json_encode(
+                [
+                    "transport_type" => "motor_taxi",
+                    "addresses" => [
+                        [
+                            "type" => "origin",
+                            "lat" => $loc1[0],
+                            "lng" => $loc1[1],
+                        ],
+                        [
+                            "type" => "destination",
+                            "lat" => $loc2[0],
+                            "lng" => $loc2[1],
+                        ]
+                    ],
+                    "has_return" => true,
+                    "cashed" => false,
+                ]
+        ),
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer " . $token,
+            "Content-Type: application/json; charset=utf-8",
+            "X-Requested-With: XMLHttpRequest"
+        ],
+    ]);
+
+    $res = curl_exec($curl);
+    $err = curl_error($curl);
+    curl_close($curl);
+
+    if ($err) {
+        return -1;
+    } else {
+        $res = json_decode($res);
+        $status = $res->status;
+        if ($status == "fail") {
+            return -1;
+        } else {
+            return $res->object->price;
+        }
+    }
+}
+
+function getProductPrice($product, $globalPrices) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM product WHERE id=?");
+    $stmt->bind_param("i", $product->product->id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if (mysqli_num_rows($result) == 0) {
+        return -1;
+    }
+    $row = $result->fetch_assoc();
+
+    $total = 0;
+    $translateBase = $row["price"];
+    if ($product->lang !== "1") {
+        $translateBase = $product->$row["extra"];
+    }
+    $stmt->close();
+    $conn->close();
+    $pages = intval($product->pages);
+    if ($pages > 1) {
+        $total = $translateBase * $pages;
+    } else {
+        $total = $translateBase;
+    }
+    if ($product->marriage) {
+        $total+=$globalPrices["shenas_item"];
+    }
+    if ($product->talagh) {
+        $total+=$globalPrices["shenas_item"];
+    }
+    if ($product->wifeDie) {
+        $total+=$globalPrices["shenas_item"];
+    }
+    if ($product->die) {
+        $total+=$globalPrices["shenas_item"];
+    }
+    if ($product->desc) {
+        $total+=$globalPrices["shenas_item"];
+    }
+    $total+=$globalPrices["shenas_item"] * $product->childCount;
+    $total+=$globalPrices["passport"] * ($product->mohrCount + $product->vizaCount);
+    $total+=$globalPrices["enteghal"] * ($product->entghalCount);
+    if ($product->clone !== "1") {
+        $total+=(intval($product->clone) - 1) * $total / 4;
+    }
+    return $total;
+}
 
 function getUserAddressList() {
     $conn = getConnection();
@@ -829,9 +909,9 @@ function getElasticCenters($point, $sort) {
     $array = [];
     foreach ($res as $item) {
         $correct = $item->_source;
+        $correct->id = $item->_id;
         $correct->raw_sort = $item->sort[0];
         $correct->sort = getDistance($item->sort[0]);
-        //$correct["sort"] =  getDistance( $item->sort);
         unset($correct->username);
         unset($correct->password);
         unset($correct->link);
