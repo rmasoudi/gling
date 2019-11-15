@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Nov 13, 2019 at 03:29 PM
+-- Generation Time: Nov 15, 2019 at 02:50 PM
 -- Server version: 5.7.26
 -- PHP Version: 7.2.18
 
@@ -797,13 +797,23 @@ CREATE TABLE IF NOT EXISTS `the_order` (
   `user_id` bigint(20) NOT NULL,
   `center_id` bigint(20) NOT NULL,
   `order_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `status` int(11) NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '0',
   `address_id` bigint(20) NOT NULL,
   `bill` text COLLATE utf8_unicode_ci NOT NULL,
   `amount` bigint(20) NOT NULL,
-  `paycode` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `paycode` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `the_order`
+--
+
+INSERT INTO `the_order` (`id`, `user_id`, `center_id`, `order_time`, `status`, `address_id`, `bill`, `amount`, `paycode`) VALUES
+(6, 10, 370, '2019-11-15 10:17:37', 0, 3, '{\"center\":370,\"centerLoc\":\"35.734475273634,51.467568197149\",\"addressLoc\":\"35.7307673157573,51.47725582122803\",\"address\":3,\"products\":[{\"product\":{\"id\":105,\"title\":\"تست\",\"price\":100,\"extra\":120,\"desc\":\"محصول تست\",\"url\":\"test\",\"category\":1,\"fi\":0},\"lang\":\"1\",\"clone\":\"1\",\"pages\":0,\"marriage\":false,\"talagh\":false,\"wifeDie\":false,\"child\":false,\"die\":false,\"desc\":false,\"childCount\":0,\"mohrCount\":0,\"vizaCount\":0,\"entghalCount\":0}]}', 100, '44953331384'),
+(7, 10, 370, '2019-11-15 14:32:00', 0, 3, '{\"center\":370,\"centerLoc\":\"35.734475273634,51.467568197149\",\"addressLoc\":\"35.7307673157573,51.47725582122803\",\"address\":3,\"products\":[{\"product\":{\"id\":105,\"title\":\"تست\",\"price\":100,\"extra\":120,\"desc\":\"محصول تست\",\"url\":\"test\",\"category\":1,\"fi\":0},\"lang\":\"1\",\"clone\":\"1\",\"pages\":0,\"marriage\":false,\"talagh\":false,\"wifeDie\":false,\"child\":false,\"die\":false,\"desc\":false,\"childCount\":0,\"mohrCount\":0,\"vizaCount\":0,\"entghalCount\":0}]}', 100, NULL),
+(8, 10, 370, '2019-11-15 14:33:32', 0, 3, '{\"center\":370,\"centerLoc\":\"35.734475273634,51.467568197149\",\"addressLoc\":\"35.7307673157573,51.47725582122803\",\"address\":3,\"products\":[{\"product\":{\"id\":105,\"title\":\"تست\",\"price\":100,\"extra\":120,\"desc\":\"محصول تست\",\"url\":\"test\",\"category\":1,\"fi\":0},\"lang\":\"1\",\"clone\":\"1\",\"pages\":0,\"marriage\":false,\"talagh\":false,\"wifeDie\":false,\"child\":false,\"die\":false,\"desc\":false,\"childCount\":0,\"mohrCount\":0,\"vizaCount\":0,\"entghalCount\":0}]}', 100, '43953503094'),
+(9, 10, 370, '2019-11-15 14:37:26', 0, 3, '{\"center\":370,\"centerLoc\":\"35.734475273634,51.467568197149\",\"addressLoc\":\"35.7307673157573,51.47725582122803\",\"address\":3,\"products\":[{\"product\":{\"id\":105,\"title\":\"تست\",\"price\":100,\"extra\":120,\"desc\":\"محصول تست\",\"url\":\"test\",\"category\":1,\"fi\":0},\"lang\":\"1\",\"clone\":\"1\",\"pages\":0,\"marriage\":false,\"talagh\":false,\"wifeDie\":false,\"child\":false,\"die\":false,\"desc\":false,\"childCount\":0,\"mohrCount\":0,\"vizaCount\":0,\"entghalCount\":0}]}', 100, '45953506084');
 
 -- --------------------------------------------------------
 

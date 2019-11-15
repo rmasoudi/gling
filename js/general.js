@@ -97,14 +97,14 @@ function getCenter() {
     return JSON.parse(localStorage.getItem("center"));
 }
 function isFreeCarrier(center,dist){
-    if(center.item.carrier==="0"){
+    if(center.carrier==="0"){
         return false;
     }
-    if(center.item.carrier==="7"){
+    if(center.carrier==="7"){
         return true;
     }
     var range=0;
-    switch(center.item.carrier){
+    switch(center.carrier){
         case "1":
             range=3;
             break;

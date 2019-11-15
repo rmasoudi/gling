@@ -428,12 +428,14 @@ $app->get('/bill', function (Request $request, Response $response, $args) use ($
 $app->get('/verify', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $order = $_SESSION["order"];
     $auth = $request->getQueryParams()["Authority"];
-    $data = array('MerchantID' => ZARRIN, 'Authority' => $auth, 'Amount' => $order->amount);
+    $data = array('MerchantID' => ZARRIN, 'Authority' => $auth, 'Amount' => $order["amount"]);
     $jsonData = json_encode($data);
     $ch = curl_init('https://www.zarinpal.com/pg/rest/WebGate/PaymentVerification.json');
     curl_setopt($ch, CURLOPT_USERAGENT, 'ZarinPal Rest Api v1');
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
     curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Content-Type: application/json',
@@ -446,11 +448,17 @@ $app->get('/verify', function (Request $request, Response $response, $args) use 
     if ($err) {
         $response->getBody()->write($err);
     } else {
+        $orderId=$order["id"];
         if ($result['Status'] == 100) {
-            $response->getBody()->write('Transation success. RefID:' . $result['RefID']);
-            completeOrder($order->id, $result['RefID']);
+            $paycode= $result['RefID'];
+            
+            $error = verifyOrder($orderId, $paycode);
+            
+            $response->getBody()->write($twig->render('receipt.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"order"=> $orderId, "paycode" => $paycode, "manager" => $order["center"]->manager, "phone" => $order["center"]->phone]));
+            return;
         } else {
             $response->getBody()->write('Transation failed. Status:' . $result['Status']);
+            return;
         }
     }
 })->setName('verify');
@@ -474,8 +482,10 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
 //        $total+=$carrierPrice;
 //    }
 
-    $orderId = saveOrder($center->id, $data->address->id, $data, $total);
-    $_SESSION["order"] = ["id" => $orderId, "amount" => $total];
+    $orderId = saveOrder($center->id, $data->address, $_POST["data"], $total);
+//    $response->getBody()->write($orderId);
+//    return;
+    $_SESSION["order"] = ["id" => $orderId, "amount" => $total, "center" => $center];
 
     $forMe = 5 * $total / 100;
     $forHim = $total - $forMe;
@@ -623,7 +633,10 @@ function getCarrierPrice($p1, $p2) {
 function saveOrder($centerId, $addressId, $bill, $amount) {
     $conn = getConnection();
     $stmt = $conn->prepare("INSERT INTO the_order(user_id,center_id,address_id,bill,amount)VALUES(?,?,?,?,?)");
-    $stmt->bind_param("iiisi", getCurrentUser()->id, $centerId, $addressId, $bill, $amount);
+    $user = intval(getCurrentUser()["id"]);
+    $centerId = intval($centerId);
+    $addressId = intval($addressId);
+    $stmt->bind_param("iiisi", $user, $centerId, $addressId, $bill, $amount);
     $stmt->execute();
     $result = $stmt->get_result();
     $last_id = $conn->insert_id;
@@ -631,13 +644,16 @@ function saveOrder($centerId, $addressId, $bill, $amount) {
     $conn->close();
     return $last_id;
 }
-function completeOrder($id,$code) {
+
+function verifyOrder($orderId, $paycode) {
     $conn = getConnection();
     $stmt = $conn->prepare("UPDATE the_order SET paycode=? WHERE id=?");
-    $stmt->bind_param("si", $id, $code);
+    $stmt->bind_param("is", $paycode, $orderId);
     $stmt->execute();
+    $error = $stmt->error;
     $stmt->close();
     $conn->close();
+    return $error;
 }
 
 function getProductPrice($product, $globalPrices) {
