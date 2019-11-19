@@ -70,9 +70,21 @@ $app->get('/upload_test', function (Request $request, Response $response, $args)
     }
 })->setName('upload_test');
 
-
-
 $app->get('/', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM product");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $list = array();
+    while ($row = $result->fetch_assoc()) {
+        array_push($list, [ "category" => $row["category"], "url" => $row["url"], "title" => $row["title"]]);
+    }
+    $stmt->close();
+    $conn->close();
+    $response->getBody()->write($twig->render('home.twig', [ "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
+})->setName('home');
+
+$app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app) {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
     $stmt->execute();
