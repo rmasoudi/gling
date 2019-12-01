@@ -14,16 +14,29 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/general.js"></script>
 {% block scripts %}{% endblock %}
-<div class="topBar">
-	<div id="userPanel">
-            {% if user == null %}
-                <a href="login" ><div class="btn btn-light topButton">ورود</div></a>
-                <a href="register" ><div class="btn btn-light topButton">ثبت نام</div></a>
-            {% else %}
-                <a href="profile" ><div class="btn btn-light topButton">{{user.name}}</div></a>
-                <a href="logout" ><div class="btn btn-light topButton">خروج</div></a>
-            {% endif %}
-	</div>
+<div class="shadow-sm p-3 mb-5 topBar">
+    <div id="logoPanel">
+        <img id="logo" alt="ترجمه رسمی آنلاین {{app_name}}" src="images/logo.png"/>
+        <div id="logoTitle">اولین سامانه متمرکز ترجمه رسمی</div>
+    </div>
+    
+    <div id="userPanel">
+        <img id="menuToggler" style="height: 32px;"  alt="ترجمه رسمی آنلاین {{app_name}}" src="images/bars.png"/>
+        {% if user == null %}
+            <a class="hidden" id="btnLogin" href="login" ><div class="btn btn-light headerButton">ورود</div></a>
+            <a class="hidden" id="btnRegister" href="register" ><div class="btn btn-light headerButton">ثبت نام</div></a>
+        {% else %}
+            <a class="hidden" id="btnProfile" href="profile" ><div class="btn btn-light headerButton">{{user.name}}</div></a>
+            <a class="hidden" id="btnLogout" href="logout" ><div class="btn btn-light headerButton">خروج</div></a>
+        {% endif %}
+    </div>
+    <div id="mainMenu">
+        <div class="menuitem">سفارش ترجمه</div>
+        <div class="menuitem">دفاتر ترجمه</div>
+        <div class="menuitem">نرخنامه</div>
+        <div class="menuitem">صفحه مترجمان</div>
+        <div class="menuitem">درباره ما</div>
+    </div>
 </div>
 {% block slider %}
 

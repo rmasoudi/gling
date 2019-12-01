@@ -9,10 +9,10 @@
     font-family: "BYekan";
     direction:rtl;
     box-sizing: border-box;
-     -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-   box-sizing: border-box;
-   outline: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    outline: none;
 }
 .product{
     background-color: #fafdff;
@@ -54,16 +54,16 @@
     background-color: #61c7ff;
 }
 .mainContainer{
-    margin-top: 60px;
+    margin-top: 150px;
     min-height: 100%;
     margin-bottom: -100px;
 }
 .topBar{
-    height: 60px;
+    height: 80px;
     width: 100%;
     position: fixed;
     top:0;
-    background-color: #73d5df;
+    background-color: #39b6db;
     z-index: 10000;
 }
 .bottomBar{
@@ -113,10 +113,20 @@ a:active {
     text-align: right;
     color: #00a090;
 }
-#userPanel{
-    position: absolute;
-    right: 10px;
-    top: 10px;
+
+.headerButton{
+    color: #ffffff;
+    background-color: transparent;
+    border-color: transparent;
+    cursor: pointer;
+    font-size: 11pt;
+    -webkit-transition: background-color .3s; 
+    transition: background-color .3s;
+}
+.headerButton:hover{
+    background-color: #0f6fa4;
+    border-color: transparent;
+    color: #ffffff;
 }
 .topButton{
     color: #ffffff;
@@ -478,68 +488,68 @@ html, body {
 
 
 h1 {
-   text-align: center;
-   font-weight: 300;
-   color: #777
+    text-align: center;
+    font-weight: 300;
+    color: #777
 }
 
 h1 span {
-   font-weight: 600;
+    font-weight: 600;
 }
 
 .timecontainer {
-   width: 80%;
-   padding: 50px 0;
-   margin: 50px auto;
-   position: relative;
-   overflow: hidden;
+    width: 80%;
+    padding: 50px 0;
+    margin: 50px auto;
+    position: relative;
+    overflow: hidden;
 }
 
 .timecontainer:before {
-   content: '';
-   position: absolute;
-   top: 0;
-   right: 50%;
-   margin-right: -1px;
-   width: 2px;
-   height: 100%;
-   background: #CCD1D9;
-   z-index: 1
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50%;
+    margin-right: -1px;
+    width: 2px;
+    height: 100%;
+    background: #CCD1D9;
+    z-index: 1
 }
 
 .timeline-block {
-   width: -webkit-calc(50% + 8px);
-   width: -moz-calc(50% + 8px);
-   width: calc(50% + 8px);
-   display: -webkit-box;
-   display: -webkit-flex;
-   display: -moz-box;
-   display: flex;
-   -webkit-box-pack: justify;
-   -webkit-justify-content: space-between;
-   -moz-box-pack: justify;
-   justify-content: space-between;
-   clear: both;
+    width: -webkit-calc(50% + 8px);
+    width: -moz-calc(50% + 8px);
+    width: calc(50% + 8px);
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: flex;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -moz-box-pack: justify;
+    justify-content: space-between;
+    clear: both;
 }
 
 .timeline-block-right {
-   float: right;
+    float: right;
 }
 
 .timeline-block-left {
-   float: left;
-   direction: rtl;
-   text-align: right;
+    float: left;
+    direction: rtl;
+    text-align: right;
 }
 
 .marker {
-   width: 16px;
-   height: 16px;
-   border-radius: 50%;
-   border: 2px solid #F5F7FA;
-   background: #4FC1E9;
-   margin-top: 10px;
-   z-index: 9999
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #F5F7FA;
+    background: #4FC1E9;
+    margin-top: 10px;
+    z-index: 9999
 }
 
 .timeline-content {
@@ -552,22 +562,22 @@ h1 span {
 }
 
 .timeline-content h3 {
-   margin-top: 5px;
-   margin-bottom: 5px;
-   font-size: 25px;
-   font-weight: 500
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 25px;
+    font-weight: 500
 }
 
 .timeline-content span {
-   font-size: 15px;
-   color: #a4a4a4;
+    font-size: 15px;
+    color: #a4a4a4;
 }
 
 .timeline-content p {
-   font-size: 14px;
-   line-height: 1.5em;
-   word-spacing: 1px;
-   color: #278e98;
+    font-size: 14px;
+    line-height: 1.5em;
+    word-spacing: 1px;
+    color: #278e98;
 }
 
 
@@ -609,12 +619,12 @@ h1 span {
     background-color: #1fde3d;
 }
 @keyframes highlight {
-  0% {
-    background-color: #1fde3d;
-  }
-  100 {
-    background-color: white;
-  }
+    0% {
+        background-color: #1fde3d;
+    }
+    100 {
+        background-color: white;
+    }
 }
 .sliderTitle{
     color: #0773e6;
@@ -639,4 +649,68 @@ h1 span {
 .sliderButton:hover{
     background-color: #73b6ff;
     color: white;
+}
+.menuitem{
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 11pt;
+    -webkit-transition: background-color .3s; 
+    transition: background-color .3s;
+    padding: 5px;
+    margin-right: 10px;
+    border-radius: 5px;
+    text-align: center;
+
+}
+.menuitem:hover{
+    background-color: #0f6fa4;
+    border-color: transparent;
+    color: #ffffff;
+}
+#mainMenu{
+    display: none;
+    align-items:center;
+    justify-content: center;
+}
+#userPanel{
+    position: absolute;
+    right: 10px;
+    top: -2px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#logoPanel{
+    position: absolute;
+    left: 10px;
+    top: -2px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+#logo{
+    height: 50px;
+}
+#logoTitle{
+    color: #FFFFFF;
+    font-size: 10pt;
+    text-align: center;
+}
+#menuToggler{
+    cursor: pointer;
+}
+
+@media all and (min-width: 600px) {
+    #mainMenu{
+        display: flex;
+    }
+    #btnLogin,#btnRegister,#btnProfile,#btnLogout{
+        display: block;
+    }
+    #menuToggler{
+        display: none;
+    }
 }
