@@ -21,7 +21,7 @@
     </div>
     
     <div id="userPanel">
-        <img id="menuToggler" style="height: 32px;"  alt="ترجمه رسمی آنلاین {{app_name}}" src="images/bars.png"/>
+        <img data-toggle="modal" data-target="#modalMenu" id="menuToggler" style="height: 32px;"  alt="ترجمه رسمی آنلاین {{app_name}}" src="images/bars.png"/>
         {% if user == null %}
             <a class="hidden" id="btnLogin" href="login" ><div class="btn btn-light headerButton">ورود</div></a>
             <a class="hidden" id="btnRegister" href="register" ><div class="btn btn-light headerButton">ثبت نام</div></a>
@@ -42,6 +42,20 @@
 
 {% endblock %}
 <div class="container mainContainer">
+<div class="modal fade" id="modalMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+    </div>
+  </div>
+</div>
 	{% block content %}{% endblock %}
         <div class="push"></div>
  </div>
