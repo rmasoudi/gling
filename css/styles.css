@@ -193,14 +193,16 @@ a:active {
 }
 .listItem{
     text-align: center;
-    color: #ffffff;
-    background-color: #44bce0;
+    color: #185ba0;
+    background-color: #ffffff;
     font-size: 10pt;
     padding-right: 15px;
     padding-left: 15px;
     padding-top: 5px;
     border-radius: 5px;
-    margin-top:10px;
+    margin-top: 10px;
+    height: 60px;
+    border: solid 1px #d4d4d4;
 }
 
 .editButton{
@@ -442,15 +444,17 @@ html, body {
     color: #1a71c4;
 }
 .homePanel{
-    background-color: #f8fdff;
     padding: 10px;
     padding-top: 0;
+    padding-bottom: 0;
     padding-right: 0;
     border-radius: 5px;
-    border: solid 1px #579eb9;
+    border: solid 1px #39b6db;
+    margin-bottom: 20px;
 }
 .homePanelTitleCenter{
-    color: #ffffff;background-color: #579eb9;
+    color: #ffffff;
+    background-color: #39b6db;
     padding: 5px;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -502,6 +506,8 @@ h1 span {
     width: 80%;
     padding: 50px 0;
     margin: 50px auto;
+    margin-top: 0;
+    margin-bottom: 0;
     position: relative;
     overflow: hidden;
 }
@@ -514,7 +520,7 @@ h1 span {
     margin-right: -1px;
     width: 2px;
     height: 100%;
-    background: #CCD1D9;
+    background: #39b6db;
     z-index: 1
 }
 
@@ -557,9 +563,10 @@ h1 span {
     width: 95%;
     padding: 5px 15px;
     color: #666;
-    background-color: #dcf4fd;
     text-align: center;
     border-radius: 5px;
+    background-color: #fdfdfd;
+    border: solid 1px #ececec;
 }
 
 .timeline-content h3 {
@@ -578,7 +585,10 @@ h1 span {
     font-size: 14px;
     line-height: 1.5em;
     word-spacing: 1px;
-    color: #278e98;
+    color: #646365;
+}
+.timeline-content h5{
+    color: #2a94b3;
 }
 
 
@@ -751,4 +761,7 @@ h1 span {
 }
 .modalMenuItem:hover{
     background-color: #f1f1f1;
+}
+#productList{
+    text-align: center;
 }
