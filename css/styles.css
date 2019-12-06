@@ -205,26 +205,6 @@ a:active {
     border: solid 1px #d4d4d4;
 }
 
-.editButton{
-    cursor: pointer;
-    background-color: #2fa1c3;
-    color: #ffffff;
-    border-bottom-left-radius: 5px;
-}
-.editButton:hover{
-    background-color: #58ecf1;
-}
-
-.deleteButton{
-    cursor: pointer;
-    background-color: #b5799d;
-    color: #ffffff;
-    border-bottom-right-radius: 5px;
-}
-.deleteButton:hover{
-    background-color: #de639e;
-}
-
 legend.scheduler-border {
     width:inherit; /* Or auto */
     padding:0 10px; /* To give a bit of padding on the left and right */
@@ -764,4 +744,23 @@ h1 span {
 }
 #productList{
     text-align: center;
+}
+.cartButton{
+    padding: 5px;
+    cursor: pointer;
+    background-color: #ebebeb;
+    color: #105474;
+}
+.cartButtonEdit{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    
+}
+.cartButtonRemove{
+    margin-top: 1px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+.cartButton:hover{
+    background-color: #c9c9c9;
 }

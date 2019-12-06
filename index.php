@@ -84,7 +84,7 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
     $response->getBody()->write($twig->render('home.twig', [ "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
 })->setName('home');
 
-$app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app,$globalPrices) {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
     $stmt->execute();
@@ -95,7 +95,7 @@ $app->get('/main', function (Request $request, Response $response, $args) use ($
     }
     $stmt->close();
     $conn->close();
-    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
+    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
 })->setName('main');
 
 $app->get('/register', function (Request $request, Response $response, $args) use ($twig, $app) {

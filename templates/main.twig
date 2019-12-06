@@ -7,8 +7,150 @@
             $(".circle").click(function (e){
                 stepClicked(e);
             });
-            createTable();
+            loadCart();
 	});
+        function loadCart(){
+            var products= getProducts();
+            var total=0;
+            for(var i=0;i<products.length;i++){
+                 total+=addProductRow(products[i],i);
+            }
+            $("#billRows").find(".billRow").last().css("border-bottom","solid 1px #9999ff");
+        }
+        function correctPage(page){
+            if(page==="0" || page===0){
+                return 1;
+            }
+            return parseInt(page);
+        }
+        function addProductRow(product,index){
+            var row=$("<div></div>");
+            row.addClass("billRow");
+            row.data("index",index);
+            if(index%2===0){
+                row.addClass("billRowEven");
+            }
+            else{
+                row.addClass("billRowOdd");
+            }
+            row.addClass("row");
+            row.append($("<div class='col-4'>"+product.product.title+"</div>"));
+            row.append($("<div class='col-2'>"+correctPage(product.clone)+"</div>"));
+            row.append($("<div class='col-2'>"+correctPage(product.product.price)+"</div>"));
+            var total=getRowPrice(product);
+            row.append($("<div class='col-2'>"+total+"</div>"));
+            
+            var changeRow=$("<div class='row'></div>");
+            var removeButton=$("<div class='cartButton cartButtonEdit'>حذف</div>");
+            var editButton=$("<div class='cartButton cartButtonRemove'>ویرایش</div>");
+            removeButton.click(function(){
+                var index= $(this).parent().parent().parent().data().index;
+                removeProduct(index);
+                $(this).parent().parent().parent().parent().remove();
+            });            
+            editButton.click(function(){
+                 var index= $(this).parent().parent().parent().parent().data().index;
+                 var product=getProducts()[index];
+                 setEditing(index,product);
+                 window.location=product.product.url;
+             });
+            
+            
+            var removeCol=$("<div class='col-12'></div>");
+            var editCol=$("<div class='col-12'></div>");
+            removeCol.append(removeButton);
+            editCol.append(editButton);
+            changeRow.append(removeCol);
+            changeRow.append(editCol);
+            
+            var lastCol=$("<div class='col-2'></div>");
+            lastCol.append(changeRow);
+            row.append(lastCol);
+            
+            $("#billRows").append(row);
+            return total;
+        }
+        function addExtraRows(parent,product){
+            var hasExtra=false;
+            if(product.marriage){
+                $(parent).append(getExtraRow("ازدواج"));    
+                hasExtra=true;
+            }
+            if(product.talagh){
+                $(parent).append(getExtraRow("طلاق"));    
+                hasExtra=true;
+            }
+            if(product.wifeDie){
+                $(parent).append(getExtraRow("فوت همسر"));    
+                hasExtra=true;
+            }
+            if(product.child){
+                $(parent).append(getExtraRow(product.childCount+" فرزند"));    
+                hasExtra=true;
+            }
+            if(product.die){
+                $(parent).append(getExtraRow("فوت صاحب شناسنامه"));    
+            }
+            if(product.desc){
+                $(parent).append(getExtraRow("توضیحات شناسنامه"));
+                hasExtra=true;
+            }
+            if(product.mohrCount){
+                $(parent).append(getExtraRow(product.mohrCount+" صفحه مهر شده"));    
+                hasExtra=true;
+            }
+            if(product.vizaCount){
+                $(parent).append(getExtraRow(product.vizaCount+" ویزا"));    
+                hasExtra=true;
+            }
+            if(product.entghalCount){
+                $(parent).append(getExtraRow(product.entghalCount+" انتقال سند"));    
+                hasExtra=true;
+            }
+            if(!hasExtra){
+                $(parent).append(getExtraRow("-"));    
+            }
+        }
+        function getExtraRow(title){
+            return $("<div>"+title+"</div>");
+        }
+        function getRowPrice(product){
+            var prices=JSON.parse($("#txtPrice").val());
+            var total=0;
+            var translateBase=product.product.price;
+            if(product.lang!=="1"){
+                translateBase=product.product.extra;
+            }
+            var pages=parseInt(product.pages);
+            if(pages>1){
+                total=translateBase*pages;
+            }
+            else{
+                total=translateBase;
+            }
+            if(product.marriage){
+                total+=prices.shenas_item;
+            }
+            if(product.talagh){
+                total+=prices.shenas_item;
+            }            
+            if(product.wifeDie){
+                total+=prices.shenas_item;
+            }           
+            if(product.die){
+                total+=prices.shenas_item;
+            }           
+            if(product.desc){
+                total+=prices.shenas_item;
+            }          
+            total+=prices.shenas_item*product.childCount;
+            total+=prices.passport*(product.mohrCount+product.vizaCount);
+            total+=prices.enteghal*(product.entghalCount);
+            if(product.clone!=="1"){
+                total+=(parseInt(product.clone)-1)*total/4;
+            }
+            return total;
+        }
 	function categClick(id,e){
 		$(".category").removeClass("categorySelected");
 		$("#categ"+id).addClass("categorySelected");
@@ -32,62 +174,6 @@
 			}
 		}
 	}
-        
-        function createTable(){
-            var products= getProducts();
-            for(var i=0;i<products.length;i++){
-                var col=$("<div></div>");
-                var item=$("<div></div>");
-                col.addClass("col-sm-3");
-                col.addClass("col-6");
-                item.addClass("listItem");
-                item.data("index",i);
-                
-                var contentRow=$("<div></div>");
-                contentRow.addClass("row");
-                
-                var title=products[i].product.title;
-                if(title.length>20){
-                    title=title.substr(0,20)+" ...";
-                }
-                
-                var titleCol=$("<div style='border-bottom:solid 1px #1b96bb;font-size:10pt;'>"+title+"</div>");
-                titleCol.addClass("col-12");
-                
-                var removeCol=$("<div>حذف</div>");
-                removeCol.addClass("col-6");
-                removeCol.addClass("deleteButton");
-                removeCol.click(function(){
-                    var index= $(this).parent().parent().data().index;
-                    removeProduct(index);
-                    $(this).parent().parent().parent().remove();
-                });
-                
-                var editCol=$("<div>ویرایش</div>");
-                editCol.addClass("col-6");
-                editCol.addClass("editButton");
-                editCol.click(function(){
-                    var index= $(this).parent().parent().data().index;
-                    var product=getProducts()[index];
-                    setEditing(index,product);
-                    window.location=product.product.url;
-                });
-                
-                contentRow.append(titleCol);
-                contentRow.append(removeCol);
-                contentRow.append(editCol);
-                
-                
-                
-                item.html(contentRow);
-                col.append(item);
-                
-                var deleteButton=$("<span class='glyphicon glyphicon-remove'></span>");
-                col.append(deleteButton);
-                
-                $("#productList").append(col);
-            }
-        }
         function productClick(e){
             var href = this.href;
             setEditing(-1,null);
@@ -98,6 +184,7 @@
 
 
 {% block content %}
+    <input id="txtPrice" style="display: none" value="{{prices}}"/>
 <div class="stepper">
   <div id="step1" class="circle active"> <span class="label">1</span>
     <span class="title">انتخاب مدارک</span>
@@ -124,12 +211,16 @@
 
   </div>
 </div>
-<fieldset class="scheduler-border">
-    <legend class="scheduler-border">مدارک انتخاب شده</legend>
-    <div id="productList" class="row">
+<div id="billHeader" class="row">
+        <div class="col-4">نوع مدرک</div>
+        <div class="col-2">تعداد نسخه</div>
+        <div class="col-2">قیمت پایه</div>
+        <div class="col-2">جمع</div>
+        <div class="col-2"></div>
     </div>
-</fieldset>
-<a href="پیوست_مدارک_ترجمه_رسمی"> <div class="btn btn-primary topButton">ثبت سفارش</div></a>
+    <div id="billRows">
+    </div>
+<a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">ثبت سفارش</div></a>
 
 <div id="page1" class="row" style="direction:rtl;margin-top:10px;">
     <div class="col-4 col-sm-2">
