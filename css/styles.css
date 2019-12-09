@@ -574,28 +574,6 @@ h1 span {
 }
 
 
-/*@media screen and (max-width: 768px) {
-   .container:before {
-      left: 8px;
-      width: 2px;
-   }
-   .timeline-block {
-      width: 100%;
-      margin-bottom: 30px;
-   }
-   .timeline-block-right {
-      float: none;
-   }
-
-   .timeline-block-left {
-      float: none;
-      direction: rtl;
-   }
-   .timecontainer:before{
-       right: 0%;
-   }
-}*/
-
 .orderButton{
     width: 200px;
     background-color: #0099ff;
@@ -693,7 +671,7 @@ h1 span {
     z-index: 100000;
     padding-right: 0px !important;
 }
-@media all and (min-width: 600px) {
+@media all and (min-width: 942px) {
     #mainMenu{
         display: flex;
     }
