@@ -729,3 +729,8 @@ h1 span {
 .topBarMoving{
     background-color: #39b6db !important;
 }
+.orderTime{
+    float: left;
+    margin-left: 5px;
+    font-size: 12pt;
+}

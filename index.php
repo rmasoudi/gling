@@ -84,7 +84,7 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
     $response->getBody()->write($twig->render('home.twig', [ "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
 })->setName('home');
 
-$app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app,$globalPrices) {
+$app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
     $stmt->execute();
@@ -375,8 +375,33 @@ $app->get('/translators', function (Request $request, Response $response, $args)
     if (!isManagerLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
     }
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT the_order.*,user.name as username,user.mail as mail,user.mobile as user_mobile,address.address as address,address.mobile as address_mobile,address.name as address_name FROM `the_order` LEFT JOIN user ON user_id=user.id lEFT JOIN address ON address_id=address.id WHERE center_id=? AND paycode IS NOT NULL");
+    $stmt->bind_param("i", getCurrentManager()->id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $list = array();
+    while ($row = $result->fetch_assoc()) {
+        array_push($list, [
+            "user_id" => $row["user_id"],
+            "order_time" => $row["order_time"],
+            "status" => $row["status"],
+            "address_id" => $row["address_id"],
+            "bill" => $row["bill"],
+            "amount" => $row["amount"],
+            "paycode" => $row["paycode"],
+            "username" => $row["username"],
+            "mail" => $row["mail"],
+            "user_mobile" => $row["user_mobile"],
+            "address" => $row["address"],
+            "address_mobile" => $row["address_mobile"],
+            "address_name" => $row["address_name"],
+        ]);
+    }
+    $stmt->close();
+    $conn->close();
     $user = ["name" => getCurrentManager()->manager];
-    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
+    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user,"orders" => $list]));
 })->setName('translators');
 
 $app->get('/terms', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
@@ -460,13 +485,13 @@ $app->get('/verify', function (Request $request, Response $response, $args) use 
     if ($err) {
         $response->getBody()->write($err);
     } else {
-        $orderId=$order["id"];
+        $orderId = $order["id"];
         if ($result['Status'] == 100) {
-            $paycode= $result['RefID'];
-            
+            $paycode = $result['RefID'];
+
             $error = verifyOrder($orderId, $paycode);
-            
-            $response->getBody()->write($twig->render('receipt.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),"order"=> $orderId, "paycode" => $paycode, "manager" => $order["center"]->manager, "phone" => $order["center"]->phone]));
+
+            $response->getBody()->write($twig->render('receipt.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "order" => $orderId, "paycode" => $paycode, "manager" => $order["center"]->manager, "phone" => $order["center"]->phone]));
             return;
         } else {
             $response->getBody()->write('Transation failed. Status:' . $result['Status']);
