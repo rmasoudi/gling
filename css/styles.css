@@ -65,6 +65,8 @@
     top:0;
     background-color: #39b6db;
     z-index: 10000;
+    -webkit-transition: background-color .5s; 
+    transition: background-color .5s;
 }
 .bottomBar{
     height: 100px;
@@ -623,24 +625,6 @@ h1 span {
 .sliderDesc{
     color: #0773e6;
 }
-.sliderButton{
-    border: solid 1px #56a7ff;
-    background-color: rgba(255,255,255,0.5);
-    color: #0773e6; 
-    width: 150px;
-    padding: 5px;
-    cursor: pointer;
-    border-radius: 5px;
-    text-align: center;
-    position: absolute;
-    top:10%;;
-    left: 5%;
-    z-index: 9999;
-}
-.sliderButton:hover{
-    background-color: #73b6ff;
-    color: white;
-}
 .menuitem{
     color: #ffffff;
     cursor: pointer;
@@ -763,4 +747,7 @@ h1 span {
 }
 .cartButton:hover{
     background-color: #c9c9c9;
+}
+.topBarMoving{
+    background-color: #39b6db !important;
 }

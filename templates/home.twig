@@ -5,16 +5,20 @@
 {% endblock %}
 {% block scripts %}
 <script type="text/javascript">
-    $(document).ready(function() {
-
+    $(document).ready(function (){
+        $('.topBar').css("background-color","transparent");
+        $(window).scroll(function(){
+          var scroll = $(window).scrollTop();
+          if (scroll >= 80)
+              $('.topBar').addClass('topBarMoving');
+          else
+              $('.topBar').removeClass('topBarMoving');
+        });    
     });
 </script>
 {% endblock %}
 
 {% block slider %}
-
-{% endblock %}
-{% block content %}
     <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="2800">
         <ol class="carousel-indicators">
             <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
@@ -29,7 +33,6 @@
                     <h5 class="sliderTitle">بهترین مترجم رسمی را انتخاب کنید</h5>
                     <p class="sliderDesc d-none d-md-block">امکان انتخاب نزدیک ترین، محبوب ترین و سریعترین مترجم رسمی</p>
                 </div>
-                <a href="انتخاب_مدارک_ترجمه_رسمی"><div class="sliderButton">شروع کنید</div></a>
             </div>
             <div class="carousel-item">
 
@@ -38,7 +41,6 @@
                     <h5 class="sliderTitle">آسان، سریع و مطمئن</h5>
                     <p class="sliderDesc d-none d-md-block">{{app_name}} اولین سامانه متمرکز ترجمه رسمی آنلاین</p>
                 </div>
-                <a href="انتخاب_مدارک_ترجمه_رسمی"><div class="sliderButton">شروع کنید</div></a>
             </div>
             <div class="carousel-item">
 
@@ -47,7 +49,6 @@
                     <h5 class="sliderTitle">وقت شما ارزشمند است</h5>
                     <p class="sliderDesc d-none d-md-block">سامانه آنلاین ترجمه رسمی {{app_name}}</p>
                 </div>
-                <a href="انتخاب_مدارک_ترجمه_رسمی"><div class="sliderButton">شروع کنید</div></a>
             </div>
         </div>
         <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
@@ -59,17 +60,13 @@
             <span class="sr-only">Next</span>
         </a>
     </div>
+{% endblock %}
+
+{% block content %}
 <div style="display: flex;justify-content: center;">
     <a href="انتخاب_مدارک_ترجمه_رسمی"><div class="orderButton">سفارش آنلاین ترجمه رسمی</div></a>
 </div>
 
-{#<div class="homePanel">
-    <div class="d-flex justify-content-center">
-        <span class="homePanelTitleCenter">سیستم جامع ترجمه رسمی {{app_name}}</span>
-    </div>
-
-    <div class="homeText">{{app_name}} یه سیستم جامع برای سفارش اینترنتی ترجمه رسمی هست. توی {{app_name}} خیلی راحت می تونید نزدیکترین، محبوبترین یا سریعترین دفاتر ترجمه رسمی اطراف خودتون رو پیدا کنید و سفارش ترجمه تون رو بدون مراجعه حضوری به دفتر ترجمه برسونید.</div>
-</div>#}
 <div class="homePanel">
 
     <div class="d-flex justify-content-center">
