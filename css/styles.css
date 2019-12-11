@@ -716,7 +716,7 @@ h1 span {
 .cartButtonEdit{
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    
+
 }
 .cartButtonRemove{
     margin-top: 1px;
@@ -732,5 +732,46 @@ h1 span {
 .orderTime{
     float: left;
     margin-left: 5px;
-    font-size: 12pt;
+    font-size: 10pt;
+    color: #0773e6;
+}
+.orderStatus{
+    font-size: 10pt !important;
+    color: #32aace !important;
+    float: left;
+    margin-left: 10px;
+}
+.orderField{
+    color: #0380a4;
+    margin-left: 10px;
+}
+.orderValue{
+    color: #105474;
+}
+.orderAddressPane{
+    border: solid 1px #f7f7f7;
+    background-color: #fbfcff;
+    border-radius: 5px;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+.addressField{
+    color: #0d6bd0;
+    font-size: 11pt;
+}
+.addressValue{  
+    color: #0d55a1;
+    font-size: 11pt;
+}
+.productDetail{
+    color: #5d5d5d;
+    font-size: 10pt;
+}
+.cartProduct{
+    border: solid 1px #dedede;
+    padding: 5px;
+    margin-top: 5px;
+    border-radius: 5px;
+    background-color: #f7f7f763;
 }

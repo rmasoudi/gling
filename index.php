@@ -376,13 +376,14 @@ $app->get('/translators', function (Request $request, Response $response, $args)
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
     }
     $conn = getConnection();
-    $stmt = $conn->prepare("SELECT the_order.*,user.name as username,user.mail as mail,user.mobile as user_mobile,address.address as address,address.mobile as address_mobile,address.name as address_name FROM `the_order` LEFT JOIN user ON user_id=user.id lEFT JOIN address ON address_id=address.id WHERE center_id=? AND paycode IS NOT NULL");
+    $stmt = $conn->prepare("SELECT the_order.*,user.name as username,user.mail as mail,user.mobile as user_mobile,address.address as address,address.mobile as address_mobile,address.name as address_name FROM `the_order` LEFT JOIN user ON user_id=user.id lEFT JOIN address ON address_id=address.id WHERE center_id=? AND paycode IS NOT NULL ORDER BY order_time DESC;");
     $stmt->bind_param("i", getCurrentManager()->id);
     $stmt->execute();
     $result = $stmt->get_result();
     $list = array();
     while ($row = $result->fetch_assoc()) {
         array_push($list, [
+            "id" => $row["id"],
             "user_id" => $row["user_id"],
             "order_time" => $row["order_time"],
             "status" => $row["status"],
@@ -518,12 +519,13 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
 //    if ($carrierPrice != -1) {
 //        $total+=$carrierPrice;
 //    }
-
+//    $total=500;
     $orderId = saveOrder($center->id, $data->address, $_POST["data"], $total);
 //    $response->getBody()->write($orderId);
 //    return;
     $_SESSION["order"] = ["id" => $orderId, "amount" => $total, "center" => $center];
 
+    
     $forMe = 5 * $total / 100;
     $forHim = $total - $forMe;
 
