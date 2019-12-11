@@ -73,6 +73,12 @@
                         productDiv.append($("<div class='productDetail'>دارای "+product.entghalCount+" مورد انتقال سند می باشد.</div>"));
                     }
                 }
+                if(product.uploads!==null && product.uploads!==undefined){
+                    for(var k=0;k<product.uploads.length;k++){
+                        var upload=$("<img title='برای بزرگنمایی کلیک کنید' class='productUpload' alt='upload' src='"+product.uploads[k]+"'/>");
+                        productDiv.append(upload);
+                    }
+                }
                 $(cards[i]).find(".productDetails").append(productDiv);
                 
             }
@@ -134,8 +140,8 @@
                             <hr/>
                             <div>
                                 <div class="addressField">سفارشات ترجمه</div>
-                                <div class="productDetails"></div>
-                            </div>
+                                    <div class="productDetails"></div>
+                                </div>
                             
                         </div>
                     </div>
