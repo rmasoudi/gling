@@ -402,7 +402,32 @@ $app->get('/translators', function (Request $request, Response $response, $args)
     $stmt->close();
     $conn->close();
     $user = ["name" => getCurrentManager()->manager];
-    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user,"orders" => $list]));
+    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user, "orders" => $list]));
+})->setName('translators');
+$app->post('/change-state', function (Request $request, Response $response, $args) use ($twig, $app) {
+    if (!isManagerLogged()) {
+        return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
+    }
+    $params = $request->getQueryParams();
+    $orderId = $params["id"];
+    $status = $params["status"];
+    $managerId = intval(getCurrentManager()->id);
+
+    if ($status == 3) {
+        $response->getBody()->write(json_encode(["status" => false, "error" => "last status"]));
+        return;
+    }
+    $status++;
+
+    $conn = getConnection();
+    $stmt = $conn->prepare("UPDATE the_order SET status=? WHERE id=? AND center_id=?");
+    $stmt->bind_param("iii", $status, $orderId, $managerId);
+    $stmt->execute();
+    $error = $stmt->error;
+    $stmt->close();
+    $conn->close();
+    $response->getBody()->write(json_encode(["status" => true, "new" => $status]));
+    return;
 })->setName('translators');
 
 $app->get('/terms', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
@@ -525,7 +550,7 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
 //    return;
     $_SESSION["order"] = ["id" => $orderId, "amount" => $total, "center" => $center];
 
-    
+
     $forMe = 5 * $total / 100;
     $forHim = $total - $forMe;
 

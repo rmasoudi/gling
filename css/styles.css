@@ -784,3 +784,19 @@ h1 span {
 .productUpload:hover{
     border: solid 2px #0994af;
 }
+.flexContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.stateButton{
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    background-color: #86a1fa;
+    color: white;
+    cursor: pointer;
+}
+.stateButton:hover{
+    background-color: #5475e7;
+}
