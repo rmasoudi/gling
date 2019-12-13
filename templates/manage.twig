@@ -120,6 +120,10 @@
                 if(product.uploads!==null && product.uploads!==undefined){
                     for(var k=0;k<product.uploads.length;k++){
                         var upload=$("<img title='برای بزرگنمایی کلیک کنید' class='productUpload' alt='upload' src='"+product.uploads[k]+"'/>");
+                        upload.click(function (){
+                            $("#myModal").css("display","block");
+                            $("#img01").attr("src",$(this).attr("src"));
+                        });
                         productDiv.append(upload);
                     }
                 }
@@ -134,6 +138,11 @@
 
 {% block content %} 
 <div class="container" style="direction: rtl;text-align: right;">
+<div id="myModal" class="modal">
+  <span onclick="$('#myModal').css('display','none');" class="closeModal">بستن تصویر</span>
+  <span onclick="window.print();" class="print">چاپ تصویر</span>
+  <img class="modal-content" id="img01">
+</div>
     <div class="accordion" id="accordion">
         {% for order in orders %}
                 <div class="card">
