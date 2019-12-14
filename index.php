@@ -531,6 +531,7 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
     $data = json_decode($data);
     $total = 0;
     $center = getElasticCenter($data->center);
+    incCenterScore($data->center);
 
     if (!isset($center->account)) {
         $response->getBody()->write("شماره حساب دفتر ترجمه ثبت نشده است.");
@@ -539,12 +540,12 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
     foreach ($data->products as $item) {
         $total+=getProductPrice($item, $globalPrices);
     }
-//    $total+=$globalPrices["daftari"];
-//    $carrierPrice = getCarrierPrice($data->addressLoc, $data->centerLoc);
-//    if ($carrierPrice != -1) {
-//        $total+=$carrierPrice;
-//    }
-//    $total=500;
+    $total+=$globalPrices["daftari"];
+    $carrierPrice = getCarrierPrice($data->addressLoc, $data->centerLoc);
+    if ($carrierPrice != -1) {
+        $total+=$carrierPrice;
+    }
+    $total=500;
     $orderId = saveOrder($center->id, $data->address, $_POST["data"], $total);
 //    $response->getBody()->write($orderId);
 //    return;
@@ -857,6 +858,36 @@ function getElasticCenter($id) {
     curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_doc/" . $id);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $res = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+    $res = json_decode($res);
+    $res = $res->_source;
+    $res->id = $id;
+    return $res;
+}
+
+function incCenterScore($id) {
+    $header = array(
+        "content-type: application/json",
+        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
+    );
+
+    $param = '
+    {
+        "script" : {
+            "lang": "painless",
+            "source":"ctx._source.score++"
+        }
+    }';
+
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_update/" . $id);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
     $res = curl_exec($curl);
     $error = curl_error($curl);
     curl_close($curl);
