@@ -48,13 +48,14 @@
         }
         function getCarrierPrice(){
             var center=getCenter();
-            var loc=getCenter().item.loc;
+            var centerLat=center.item.lat;
+            var centerLon=center.item.lon;
             var userPoint=getAddress().item.point;
-            var dist=getDistance(loc,userPoint);
+            var dist=getDistance(centerLat,centerLon,userPoint);
             if(isFreeCarrier(center,dist)){
                 $("#carrierPrice").html("رایگان");
             }
-            fetch("carrier_price?p1="+userPoint+"&p2="+loc,{
+            fetch("carrier_price?p1="+userPoint+"&p2="+centerLat+","+centerLon,{
                  method:"get"
              })
              .then(res=>res.json())

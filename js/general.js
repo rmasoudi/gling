@@ -126,14 +126,11 @@ function isFreeCarrier(center, dist) {
     }
     return dist <= range;
 }
-function getDistance(loc, point) {
-    var array = loc.split(",");
-    lat1 = parseFloat(array[0]);
-    lon1 = parseFloat(array[1]);
+function getDistance(lat1,lon1, point) {
     array = point.split(",");
     lat2 = parseFloat(array[0]);
     lon2 = parseFloat(array[1]);
-    if ((lat1 == lat2) && (lon1 == lon2)) {
+    if ((lat1 === lat2) && (lon1 === lon2)) {
         return 0;
     }
     else {

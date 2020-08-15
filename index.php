@@ -14,7 +14,6 @@ DEFINE('PASSWORD', 'a');
 DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'جیلینگ');
 DEFINE('APP_SITE', 'gling.ir');
-DEFINE('ELASTIC_HOST', 'https://6b9o9l9h74:yqegnzdccv@first-cluster-6104576857.us-east-1.bonsaisearch.net:443');
 DEFINE('ZARRIN', '2fca4aec-080f-11e8-9daa-000c295eb8fc');
 
 
@@ -48,9 +47,9 @@ $app = new \Slim\App($config);
 
 $app->get('/upload_test', function (Request $request, Response $response, $args) use ($twig, $app) {
     \Cloudinary::config(array(
-        "cloud_name" => "dr4eclxx1",
-        "api_key" => "169382814821652",
-        "api_secret" => "Zq7MK4ARDH6lEbuUW2cBok6XB0o",
+        "cloud_name" => "dnkwnroze",
+        "api_key" => "712965462651979",
+        "api_secret" => "esfquKb0zWuvXfqNgHZr2wsKH2I",
         "secure" => true
     ));
     $default_upload_options = array('tags' => 'basic_sample');
@@ -77,11 +76,11 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
     $result = $stmt->get_result();
     $list = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($list, [ "category" => $row["category"], "url" => $row["url"], "title" => $row["title"]]);
+        array_push($list, ["category" => $row["category"], "url" => $row["url"], "title" => $row["title"]]);
     }
     $stmt->close();
     $conn->close();
-    $response->getBody()->write($twig->render('home.twig', [ "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
+    $response->getBody()->write($twig->render('home.twig', ["user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
 })->setName('home');
 
 $app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
@@ -91,7 +90,7 @@ $app->get('/main', function (Request $request, Response $response, $args) use ($
     $result = $stmt->get_result();
     $list = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($list, [ "category" => $row["category"], "url" => $row["url"], "title" => $row["title"]]);
+        array_push($list, ["category" => $row["category"], "url" => $row["url"], "title" => $row["title"]]);
     }
     $stmt->close();
     $conn->close();
@@ -463,15 +462,17 @@ $app->get('/centers', function (Request $request, Response $response, $args) use
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
         $params = $request->getQueryParams();
-        $point = "35.729357,51.437731";
-        if (isset($params["point"])) {
-            $point = $params["point"];
+        $lat = 35.729357;
+        $lon = 51.437731;
+        if (isset($params["lat"]) && isset($params["lon"])) {
+            $lat = floatval($params["lat"]);
+            $lon = floatval($params["lon"]);
         }
         $sort = "loc";
         if (isset($params["sort"])) {
             $sort = $params["sort"];
         }
-        $centers = getElasticCenters($point, $sort);
+        $centers = getCenters($lat, $lon, $sort);
         $response->getBody()->write(json_encode($centers));
         return;
     }
@@ -530,7 +531,7 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
     $data = $_POST["data"];
     $data = json_decode($data);
     $total = 0;
-    $center = getElasticCenter($data->center);
+    $center = getCenter($data->center);
     incCenterScore($data->center);
 
     if (!isset($center->account)) {
@@ -538,14 +539,14 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
         return;
     }
     foreach ($data->products as $item) {
-        $total+=getProductPrice($item, $globalPrices);
+        $total += getProductPrice($item, $globalPrices);
     }
-    $total+=$globalPrices["daftari"];
+    $total += $globalPrices["daftari"];
     $carrierPrice = getCarrierPrice($data->addressLoc, $data->centerLoc);
     if ($carrierPrice != -1) {
-        $total+=$carrierPrice;
+        $total += $carrierPrice;
     }
-    $total=500;
+    $total = 500;
     $orderId = saveOrder($center->id, $data->address, $_POST["data"], $total);
 //    $response->getBody()->write($orderId);
 //    return;
@@ -746,25 +747,25 @@ function getProductPrice($product, $globalPrices) {
         $total = $translateBase;
     }
     if ($product->marriage) {
-        $total+=$globalPrices["shenas_item"];
+        $total += $globalPrices["shenas_item"];
     }
     if ($product->talagh) {
-        $total+=$globalPrices["shenas_item"];
+        $total += $globalPrices["shenas_item"];
     }
     if ($product->wifeDie) {
-        $total+=$globalPrices["shenas_item"];
+        $total += $globalPrices["shenas_item"];
     }
     if ($product->die) {
-        $total+=$globalPrices["shenas_item"];
+        $total += $globalPrices["shenas_item"];
     }
     if ($product->desc) {
-        $total+=$globalPrices["shenas_item"];
+        $total += $globalPrices["shenas_item"];
     }
-    $total+=$globalPrices["shenas_item"] * $product->childCount;
-    $total+=$globalPrices["passport"] * ($product->mohrCount + $product->vizaCount);
-    $total+=$globalPrices["enteghal"] * ($product->entghalCount);
+    $total += $globalPrices["shenas_item"] * $product->childCount;
+    $total += $globalPrices["passport"] * ($product->mohrCount + $product->vizaCount);
+    $total += $globalPrices["enteghal"] * ($product->entghalCount);
     if ($product->clone !== "1") {
-        $total+=(intval($product->clone) - 1) * $total / 4;
+        $total += (intval($product->clone) - 1) * $total / 4;
     }
     return $total;
 }
@@ -777,7 +778,7 @@ function getUserAddressList() {
     $result = $stmt->get_result();
     $list = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($list, [ "address" => $row["address"], "mobile" => $row["mobile"], "point" => $row["point"], "name" => $row["name"], "id" => $row["address_id"]]);
+        array_push($list, ["address" => $row["address"], "mobile" => $row["mobile"], "point" => $row["point"], "name" => $row["name"], "id" => $row["address_id"]]);
     }
     $stmt->close();
     $conn->close();
@@ -846,274 +847,56 @@ function sendMail($to, $message, $title, $twig) {
     mail($to, $title, $body, $headers);
 }
 
-function getElasticCenter($id) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_doc/" . $id);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $res = json_decode($res);
-    $res = $res->_source;
-    $res->id = $id;
-    return $res;
+function getCenter($id) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM center WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $conn->close();
+    while ($row = $result->fetch_assoc()) {
+        return $row;
+    }
+    return null;
 }
 
 function incCenterScore($id) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-
-    $param = '
-    {
-        "script" : {
-            "lang": "painless",
-            "source":"ctx._source.score++"
-        }
-    }';
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_update/" . $id);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $res = json_decode($res);
-    $res = $res->_source;
-    $res->id = $id;
-    return $res;
 }
 
 function getCenterByCode($link) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search?q=code:" . $link);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $res = json_decode($res);
-    $res = $res->hits;
-    $res = $res->hits;
-    if (count($res) == 0) {
-        return null;
-    }
-    $id = $res[0]->_id;
-    $res = $res[0]->_source;
-    $res->id = $id;
-    return $res;
+    
 }
 
 function getCenterByLink($link) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search?q=link:" . $link);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $res = json_decode($res);
-    $res = $res->hits;
-    $res = $res->hits;
-    if (count($res) == 0) {
-        return null;
-    }
-    $id = $res[0]->_id;
-    $res = $res[0]->_source;
-    $res->id = $id;
-    return $res;
+   
 }
 
 function getCenterByAuth($username, $password) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-
-    $param = '
-        {
-            "query":{
-                "bool":{
-                    "filter":[
-                        {
-                            "term":{
-                                "username":"' . $username . '"
-                            }
-                        },
-                        {
-                            "term":{
-                                "password":"' . $password . '"
-                            }
-                        }
-                    ]
-                }
-            }
-        }';
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search");
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $res = json_decode($res);
-
-    $res = $res->hits;
-    $res = $res->hits;
-    if (count($res) == 0) {
-        return null;
-    }
-    $id = $res[0]->_id;
-    $res = $res[0]->_source;
-    $res->id = $id;
-    return $res;
+   
 }
 
-function getElasticCenters($point, $sort) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-    $param = '
-        {
-            "query" : {
-                        "geo_distance":{
-                                "distance":"200km",
-                                "loc":"' . $point . '"
-                        }
-            },
-                        "sort" : [
-                                {
-                                        "_geo_distance" : {
-                                                "loc" : "' . $point . '",
-                                                "order" : "asc",
-                                                "unit" : "km",
-                                                "mode" : "min",
-                                                "distance_type" : "arc",
-                                                "ignore_unmapped": true
-                                        }
-                                }
-                        ]
-        }';
+function getCenters($lat, $lon, $sort) {
+    $conn = getConnection();
     if ($sort == "score") {
-        $param = '
-        {
-            "query" : {
-                        "match_all":{}
-            },
-                        "sort" : [
-                                {
-                                    "score":{
-                                        "order":"desc"
-                                    }
-                                }
-                        ]
-        }';
+        $stmt = $conn->prepare("SELECT * FROM center WHERE account IS NOT NULL ORDER BY score DESC LIMIT 0, 20");
     } else if ($sort == "duration") {
-        $param = '
-        {
-            "query" : {
-                        "match_all":{}
-            },
-                        "sort" : [
-                                {
-                                    "duration":{
-                                        "order":"asc"
-                                    }
-                                }
-                        ]
-        }';
+        $stmt = $conn->prepare("SELECT * FROM center WHERE account IS NOT NULL ORDER BY duration ASC LIMIT 0, 20");
+    } else {
+        //lat lon lat dist
+        $stmt = $conn->prepare("SELECT *, (6371000 *acos(cos(radians(?)) * cos(radians(lat)) * cos(radians(lon) - radians(?)) + sin(radians(?)) * sin(radians(lat )))) AS distance FROM center WHERE account IS NOT NULL HAVING distance < 50000 ORDER BY distance LIMIT 0, 20");
+        $stmt->bind_param("ddd", $lat, $lon, $lat);
     }
-
-
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_search");
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    $res = json_decode($res);
-    $res = $res->hits;
-    $res = $res->hits;
-    $array = [];
-    foreach ($res as $item) {
-        $correct = $item->_source;
-        $correct->id = $item->_id;
-        $correct->raw_sort = $item->sort[0];
-        $correct->sort = getDistance($item->sort[0]);
-        unset($correct->username);
-        unset($correct->password);
-        unset($correct->link);
-        array_push($array, $correct);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $list = array();
+    while ($row = $result->fetch_assoc()) {
+        array_push($list, $row);
     }
-    return $array;
+    return $list;
 }
 
 function updateCenter($id, $mail, $account, $carrier, $duration, $license, $javaz, $password) {
-    $header = array(
-        "content-type: application/json",
-        "Authorization: Basic NmI5bzlsOWg3NDp5cWVnbnpkY2N2"
-    );
-
-    $param = '
-        {
-            "doc":{
-                "mail":"' . $mail . '",
-                "account":"' . $account . '",
-                "carrier":"' . $carrier . '",
-                "duration":' . $duration . ',
-                "license":"' . $license . '",
-                "password":"' . $password . '",    
-                "javaz":"' . $javaz . '"
-            }
-        }';
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($curl, CURLOPT_URL, ELASTIC_HOST . "/centers/_update/" . $id);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $param);
-    $res = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
+   
 }
 
 function getDistance($sort) {
