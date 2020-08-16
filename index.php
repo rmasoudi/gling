@@ -591,8 +591,7 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
         return;
     }
     if ($path == "دفاتر_ترجمه_رسمی") {
-//        return $response->withJson(getCities());
-        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices,"cities"=> getCities()]));
+        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices, "cities" => getCities()]));
         return;
     }
     if ($path == "پیوست_مدارک_ترجمه_رسمی") {
@@ -607,6 +606,24 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
         $code = $array[count($array) - 2];
         $center = getCenterByCode($code);
         $response->getBody()->write($twig->render('center.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "center" => $center]));
+        return;
+    }
+    if (strpos($path, "دفاتر_ترجمه_رسمی_") === 0) {
+        $array = explode("_", $path);
+        $code = $array[count($array) - 1];
+
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT * FROM center WHERE city=?");
+        $stmt->bind_param("s", $code);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $list = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($list, $row);
+        }
+        $stmt->close();
+        $conn->close();
+        $response->getBody()->write($twig->render('city.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "city" => $code,"centers"=>$list]));
         return;
     }
     $docType = getDocType($path);

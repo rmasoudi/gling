@@ -63,7 +63,7 @@
     width: 100%;
     position: fixed;
     top:0;
-    background-color: #68c7ff;
+    background-color: #35a8ea;
     z-index: 10000;
     -webkit-transition: background-color .5s; 
     transition: background-color .5s;
@@ -171,12 +171,13 @@ a:active {
     width: 200px;
     right: 5px;
     bottom: 0px;
-    background-color:  #68c7ff;
+    background-color:  #2599dc;
     text-align: center;
     color: #ffffff;
     border-top-right-radius: 5px;
     border-top-left-radius: 5px;
     cursor: pointer;
+    z-index: 1001;
 }
 
 .list-group-item.active {
@@ -898,4 +899,7 @@ h1 span {
     border-radius: 5px;
     margin: 5px;
     text-align: center;
+}
+.cityItem:hover{
+    background-color: #f6f6f6;
 }
