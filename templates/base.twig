@@ -3,6 +3,8 @@
 <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="keywords" content="{% block keywords %}{% endblock %}">
+        <meta name="description" content="{% block desc %}{% endblock %}">    
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/wizard.css">
         <link rel="stylesheet" href="css/styles.css">
@@ -36,9 +38,9 @@
         <a href="./"> <div class="menuitem">صفحه اصلی</div></a>
         <a href="./انتخاب_مدارک_ترجمه_رسمی"> <div class="menuitem">سفارش ترجمه</div></a>
         <a href="./دفاتر_ترجمه_رسمی"> <div class="menuitem">دفاتر ترجمه</div></a>
-        <a href=""> <div class="menuitem">نرخنامه</div></a>
+        <a href="./لیست_قیمت_ترجمه_رسمی"> <div class="menuitem">نرخنامه</div></a>
         <a href="./translators"> <div class="menuitem">صفحه مترجمان</div></a>
-        <a href=""> <div class="menuitem">درباره ما</div></a>
+        <a href="./about"> <div class="menuitem">درباره ما</div></a>
     </div>
 </div>
 {% block slider %}
@@ -78,16 +80,16 @@
                 <div class="col-12"><a href="./انتخاب_مدارک_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">سفارش ترجمه</div></a></div>
             </div>
             <div class="row">
-                <div class="col-12"><a href="" ><div class="btn btn-light modalButton modalMenuItem">دفاتر ترجمه</div></a></div>
+                <div class="col-12"><a href="./دفاتر_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">دفاتر ترجمه</div></a></div>
             </div>
             <div class="row">
-                <div class="col-12"><a href="" ><div class="btn btn-light modalButton modalMenuItem">نرخنامه</div></a></div>
+                <div class="col-12"><a href="./لیست_قیمت_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">نرخنامه</div></a></div>
             </div>
             <div class="row">
                 <div class="col-12"><a href="./translators" ><div class="btn btn-light modalButton modalMenuItem">صفحه مترجمان</div></a></div>
             </div>
             <div class="row">
-                <div class="col-12"><a href="" ><div class="btn btn-light modalButton modalMenuItem">درباره ما</div></a></div>
+                <div class="col-12"><a href="./about" ><div class="btn btn-light modalButton modalMenuItem">درباره ما</div></a></div>
             </div>
       </div>
     </div>
@@ -106,7 +108,7 @@
                 <a href="{{app_site}}" style="color: #FFFFFF">سیستم جامع ترجمه رسمی</a>
                 <div style="margin-top:5px;">
                     <a href="mailto:info@{{app_site}}" class="contactPhone">info@{{app_site}}</a>
-                    <a href="tel:77990540" class="contactPhone">021-77990540</a>
+                    <a href="tel:02177990540" class="contactPhone">021-77990540</a>
                 </div>
             </div>
     </div>

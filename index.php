@@ -59,18 +59,27 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
 })->setName('home');
 
 $app->get('/main', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+
+    $response->getBody()->write($twig->render('main.twig', ["products" => getProducts(), "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
+})->setName('main');
+
+$app->get('/about', function (Request $request, Response $response, $args) use ($twig, $app) {
+    $response->getBody()->write($twig->render('about.twig', ["user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
+})->setName('about');
+
+function getProducts() {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
     $stmt->execute();
     $result = $stmt->get_result();
     $list = array();
     while ($row = $result->fetch_assoc()) {
-        array_push($list, ["category" => $row["category"], "url" => $row["url"], "title" => $row["title"]]);
+        array_push($list, $row);
     }
     $stmt->close();
     $conn->close();
-    $response->getBody()->write($twig->render('main.twig', ["products" => $list, "user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
-})->setName('main');
+    return $list;
+}
 
 $app->get('/register', function (Request $request, Response $response, $args) use ($twig, $app) {
     $referer = urldecode($_SERVER['HTTP_REFERER']);
@@ -601,6 +610,10 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     }
+    if ($path == "لیست_قیمت_ترجمه_رسمی") {
+        $response->getBody()->write($twig->render('pricelist.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "products" => getProducts()]));
+        return;
+    }
     if (substr($path, 0, 40) === "دفتر_ترجمه_رسمی_شماره_") {
         $array = explode("_", $path);
         $code = $array[count($array) - 2];
@@ -623,7 +636,7 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
         }
         $stmt->close();
         $conn->close();
-        $response->getBody()->write($twig->render('city.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "city" => $code,"centers"=>$list]));
+        $response->getBody()->write($twig->render('city.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "city" => $code, "centers" => $list]));
         return;
     }
     $docType = getDocType($path);
