@@ -1,4 +1,11 @@
-
+$(window).scroll(function () {
+    if ($(window).scrollTop() + $(window).height() === getDocHeight()) {
+        $(".bottomBar").removeClass("bottomBarClosed");
+    }
+    else{
+        $(".bottomBar").addClass("bottomBarClosed");
+    }
+});
 function addProduct(item) {
     var products = getProducts();
     products.push(item);
@@ -10,8 +17,7 @@ function getProducts() {
     var products;
     if (productsStr === null || productsStr === undefined) {
         products = [];
-    }
-    else {
+    } else {
         products = JSON.parse(productsStr);
     }
     return products;
@@ -37,8 +43,7 @@ function setProductUrl(index, pageIndex, url) {
     var uploads;
     if (product.uploads === null || product.uploads === undefined) {
         uploads = [];
-    }
-    else {
+    } else {
         uploads = product.uploads;
     }
     uploads[pageIndex] = url;
@@ -126,14 +131,13 @@ function isFreeCarrier(center, dist) {
     }
     return dist <= range;
 }
-function getDistance(lat1,lon1, point) {
+function getDistance(lat1, lon1, point) {
     array = point.split(",");
     lat2 = parseFloat(array[0]);
     lon2 = parseFloat(array[1]);
     if ((lat1 === lat2) && (lon1 === lon2)) {
         return 0;
-    }
-    else {
+    } else {
         var radlat1 = Math.PI * lat1 / 180;
         var radlat2 = Math.PI * lat2 / 180;
         var theta = lon1 - lon2;
@@ -198,8 +202,7 @@ function stepClicked(e) {
     var id = "";
     if (item.prop("tagName") === "DIV" && item.hasClass("done") && item.hasClass("circle")) {
         id = item.prop("id");
-    }
-    else if (item.prop("tagName") === "SPAN" && item.parent().hasClass("done") && item.parent().hasClass("circle")) {
+    } else if (item.prop("tagName") === "SPAN" && item.parent().hasClass("done") && item.parent().hasClass("circle")) {
         id = item.parent().prop("id");
     }
     var loc = "";
@@ -223,4 +226,13 @@ function stepClicked(e) {
     if (loc !== "") {
         window.location = loc;
     }
+}
+
+function getDocHeight() {
+    var D = document;
+    return Math.max(
+            D.body.scrollHeight, D.documentElement.scrollHeight,
+            D.body.offsetHeight, D.documentElement.offsetHeight,
+            D.body.clientHeight, D.documentElement.clientHeight
+            );
 }

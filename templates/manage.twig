@@ -50,9 +50,10 @@
                 data: JSON.stringify({
                 }),
                 success: function (data){
+                    debugger
                     data=JSON.parse(data);
                     if(data.status){
-                        location.reload(true);
+                        window.location="translators";
                     }
                 }
               });

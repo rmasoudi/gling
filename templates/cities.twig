@@ -1,0 +1,23 @@
+{% extends 'base.twig' %}
+
+{% block title %} دفاتر ترجمه رسمی{% endblock %}
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+        });
+
+    </script>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container mainContainer">
+        <div class="row">
+            {% for city in cities %}
+                <div class='col-6 col-sm-3'><a  href='./دفاتر_ترجمه_رسمی_{{ city |replace({' ':'_'}) }}'> <div class='cityItem'>دفاتر ترجمه رسمی {{city}}</div> </a></div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

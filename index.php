@@ -44,31 +44,6 @@ $config = [
 ];
 $app = new \Slim\App($config);
 
-
-$app->get('/upload_test', function (Request $request, Response $response, $args) use ($twig, $app) {
-    \Cloudinary::config(array(
-        "cloud_name" => "dnkwnroze",
-        "api_key" => "712965462651979",
-        "api_secret" => "esfquKb0zWuvXfqNgHZr2wsKH2I",
-        "secure" => true
-    ));
-    $default_upload_options = array('tags' => 'basic_sample');
-    $dir = "C:\\Users\\User\\Desktop\\google-images-download-master\\google_images_download\\downloads\\hm3\\";
-    $files = scandir($dir);
-    foreach ($files as $item) {
-        $path = $dir . "" . $item;
-        if (!is_dir($path)) {
-            echo $path . "<br/>";
-            $id = \Cloudinary\Uploader::upload(
-                            $path, array_merge(
-                                    $default_upload_options, array('public_id' => $item)
-                            )
-            );
-            echo $id . "<br/>";
-        }
-    }
-})->setName('upload_test');
-
 $app->get('/', function (Request $request, Response $response, $args) use ($twig, $app) {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
@@ -365,7 +340,9 @@ $app->post('/doact', function (Request $request, Response $response, $args) use 
         $javaz = $_POST["javaz"];
         $password = $_POST["password"];
         $manager = getCurrentManager();
-        updateCenter($manager->id, $mail, $account, $carrier, $duration, $license, $javaz, $password);
+        $conn = getConnection();
+        updateCenter($conn, $manager->id, $mail, $account, $carrier, $duration, $license, $javaz, $password);
+        $conn->close();
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
     }
 })->setName('doact');
@@ -376,7 +353,7 @@ $app->get('/translators', function (Request $request, Response $response, $args)
     }
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT the_order.*,user.name as username,user.mail as mail,user.mobile as user_mobile,address.address as address,address.mobile as address_mobile,address.name as address_name FROM `the_order` LEFT JOIN user ON user_id=user.id lEFT JOIN address ON address_id=address.id WHERE center_id=? AND paycode IS NOT NULL ORDER BY order_time DESC;");
-    $stmt->bind_param("i", getCurrentManager()->id);
+    $stmt->bind_param("i", getCurrentManager()["id"]);
     $stmt->execute();
     $result = $stmt->get_result();
     $list = array();
@@ -400,7 +377,7 @@ $app->get('/translators', function (Request $request, Response $response, $args)
     }
     $stmt->close();
     $conn->close();
-    $user = ["name" => getCurrentManager()->manager];
+    $user = ["name" => getCurrentManager()["manager"]];
     $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user, "orders" => $list]));
 })->setName('translators');
 $app->post('/change-state', function (Request $request, Response $response, $args) use ($twig, $app) {
@@ -410,7 +387,7 @@ $app->post('/change-state', function (Request $request, Response $response, $arg
     $params = $request->getQueryParams();
     $orderId = $params["id"];
     $status = $params["status"];
-    $managerId = intval(getCurrentManager()->id);
+    $managerId = intval(getCurrentManager()["id"]);
 
     if ($status == 3) {
         $response->getBody()->write(json_encode(["status" => false, "error" => "last status"]));
@@ -515,13 +492,11 @@ $app->get('/verify', function (Request $request, Response $response, $args) use 
         $orderId = $order["id"];
         if ($result['Status'] == 100) {
             $paycode = $result['RefID'];
-
             $error = verifyOrder($orderId, $paycode);
-
             $response->getBody()->write($twig->render('receipt.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "order" => $orderId, "paycode" => $paycode, "manager" => $order["center"]->manager, "phone" => $order["center"]->phone]));
             return;
         } else {
-            $response->getBody()->write('Transation failed. Status:' . $result['Status']);
+            $response->getBody()->write($twig->render('payerror.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "error" => $result['Status']]));
             return;
         }
     }
@@ -531,10 +506,12 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
     $data = $_POST["data"];
     $data = json_decode($data);
     $total = 0;
-    $center = getCenter($data->center);
-    incCenterScore($data->center);
+    $conn = getConnection();
+    $center = getCenter($conn, $data->center);
+    $centerId = $data->center;
+    incCenterScore($conn, $centerId);
 
-    if (!isset($center->account)) {
+    if ($center["account"] == null) {
         $response->getBody()->write("شماره حساب دفتر ترجمه ثبت نشده است.");
         return;
     }
@@ -547,7 +524,7 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
         $total += $carrierPrice;
     }
     $total = 500;
-    $orderId = saveOrder($center->id, $data->address, $_POST["data"], $total);
+    $orderId = saveOrder($conn, $center["id"], $data->address, $_POST["data"], $total);
 //    $response->getBody()->write($orderId);
 //    return;
     $_SESSION["order"] = ["id" => $orderId, "amount" => $total, "center" => $center];
@@ -560,7 +537,7 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
     $item["Amount"] = $forHim;
     $item["Description"] = "واریز حق ترجمه";
     $additionlData = array();
-    $additionlData["zp." . $center->account . ".1"] = $item;
+    $additionlData["zp." . $center["account"] . ".1"] = $item;
     $payload = array();
     $payload["Wages"] = $additionlData;
 
@@ -611,6 +588,11 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     }
     if ($path == "لیست_دفاتر_ترجمه_رسمی") {
         $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices]));
+        return;
+    }
+    if ($path == "دفاتر_ترجمه_رسمی") {
+//        return $response->withJson(getCities());
+        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices,"cities"=> getCities()]));
         return;
     }
     if ($path == "پیوست_مدارک_ترجمه_رسمی") {
@@ -696,8 +678,7 @@ function getCarrierPrice($p1, $p2) {
     }
 }
 
-function saveOrder($centerId, $addressId, $bill, $amount) {
-    $conn = getConnection();
+function saveOrder($conn, $centerId, $addressId, $bill, $amount) {
     $stmt = $conn->prepare("INSERT INTO the_order(user_id,center_id,address_id,bill,amount)VALUES(?,?,?,?,?)");
     $user = intval(getCurrentUser()["id"]);
     $centerId = intval($centerId);
@@ -707,7 +688,6 @@ function saveOrder($centerId, $addressId, $bill, $amount) {
     $result = $stmt->get_result();
     $last_id = $conn->insert_id;
     $stmt->close();
-    $conn->close();
     return $last_id;
 }
 
@@ -847,12 +827,33 @@ function sendMail($to, $message, $title, $twig) {
     mail($to, $title, $body, $headers);
 }
 
-function getCenter($id) {
-    $conn = getConnection();
+function getCenter($conn, $id) {
     $stmt = $conn->prepare("SELECT * FROM center WHERE id=?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
+    $stmt->close();
+    while ($row = $result->fetch_assoc()) {
+        return $row;
+    }
+    return null;
+}
+
+function incCenterScore($conn, $id) {
+    $stmt = $conn->prepare("UPDATE center SET score=score+1 WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+}
+
+function getCenterByCode($code) {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM center WHERE code=?");
+    $stmt->bind_param("i", $code);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
     $conn->close();
     while ($row = $result->fetch_assoc()) {
         return $row;
@@ -860,19 +861,32 @@ function getCenter($id) {
     return null;
 }
 
-function incCenterScore($id) {
-}
-
-function getCenterByCode($link) {
-    
-}
-
 function getCenterByLink($link) {
-   
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM center WHERE link=?");
+    $stmt->bind_param("s", $link);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    $conn->close();
+    while ($row = $result->fetch_assoc()) {
+        return $row;
+    }
+    return null;
 }
 
 function getCenterByAuth($username, $password) {
-   
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT * FROM center WHERE username=? AND password=?");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    $conn->close();
+    while ($row = $result->fetch_assoc()) {
+        return $row;
+    }
+    return null;
 }
 
 function getCenters($lat, $lon, $sort) {
@@ -895,8 +909,12 @@ function getCenters($lat, $lon, $sort) {
     return $list;
 }
 
-function updateCenter($id, $mail, $account, $carrier, $duration, $license, $javaz, $password) {
-   
+function updateCenter($conn, $id, $mail, $account, $carrier, $duration, $license, $javaz, $password) {
+    $stmt = $conn->prepare("UPDATE center SET mail=?,account=?,carrier=?,duration=?,license=?,javaz=?,password=? WHERE id=?");
+    $stmt->bind_param("ssiisssi", $mail, $account, $carrier, $duration, $license, $javaz, $password, $id);
+    $stmt->execute();
+    $error = $stmt->error;
+    $stmt->close();
 }
 
 function getDistance($sort) {
@@ -905,4 +923,17 @@ function getDistance($sort) {
     } else {
         return sprintf("%.2f", $sort) . " کیلومتر";
     }
+}
+
+function getCities() {
+    $conn = getConnection();
+    $stmt = $conn->prepare("SELECT DISTINCT(city) FROM center");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $list = array();
+    while ($row = $result->fetch_assoc()) {
+        array_push($list, $row["city"]);
+    }
+    $conn->close();
+    return $list;
 }
