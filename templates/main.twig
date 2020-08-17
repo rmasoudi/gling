@@ -5,6 +5,10 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(document).ready(function(){     
+  {#          var $grid = $('#productGrid').isotope({
+              itemSelector: '.productItem',
+              layoutMode: 'fitRows'
+            });#}
             $(".circle").click(function (e){
                 stepClicked(e);
             });
@@ -70,50 +74,6 @@
             
             $("#billRows").append(row);
             return total;
-        }
-        function addExtraRows(parent,product){
-            var hasExtra=false;
-            if(product.marriage){
-                $(parent).append(getExtraRow("ازدواج"));    
-                hasExtra=true;
-            }
-            if(product.talagh){
-                $(parent).append(getExtraRow("طلاق"));    
-                hasExtra=true;
-            }
-            if(product.wifeDie){
-                $(parent).append(getExtraRow("فوت همسر"));    
-                hasExtra=true;
-            }
-            if(product.child){
-                $(parent).append(getExtraRow(product.childCount+" فرزند"));    
-                hasExtra=true;
-            }
-            if(product.die){
-                $(parent).append(getExtraRow("فوت صاحب شناسنامه"));    
-            }
-            if(product.desc){
-                $(parent).append(getExtraRow("توضیحات شناسنامه"));
-                hasExtra=true;
-            }
-            if(product.mohrCount){
-                $(parent).append(getExtraRow(product.mohrCount+" صفحه مهر شده"));    
-                hasExtra=true;
-            }
-            if(product.vizaCount){
-                $(parent).append(getExtraRow(product.vizaCount+" ویزا"));    
-                hasExtra=true;
-            }
-            if(product.entghalCount){
-                $(parent).append(getExtraRow(product.entghalCount+" انتقال سند"));    
-                hasExtra=true;
-            }
-            if(!hasExtra){
-                $(parent).append(getExtraRow("-"));    
-            }
-        }
-        function getExtraRow(title){
-            return $("<div>"+title+"</div>");
         }
         function getRowPrice(product){
             var prices=JSON.parse($("#txtPrice").val());
@@ -224,7 +184,14 @@
 <a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">ثبت سفارش</div></a>
 
 <div id="page1" class="row" style="direction:rtl;margin-top:10px;">
-    <div class="col-4 col-sm-2">
+    <div id="productGrid" style="margin-top: 10px;width: 100%;">
+        <div class="row">
+        {% for product in products %}
+            <div class='col-lg-3 col-md-4 col-sm-6 col-12 categ{{product.category}}'><a onclick="productClick(event);" href='{{product.url}}'> <div class='productItem ml-1 mr-1 mt-3'>{{product.title}}</div> </a></div>
+        {% endfor %}
+        </div>
+    </div>
+{#    <div class="col-4 col-sm-2">
                 <div id="categ0" onclick="categClick(0);" class="category categorySelected" >همه مدارک</div>
                 <div id="categ1" onclick="categClick(1);" class="category">احوال شخصیه</div>
                 <div id="categ3" onclick="categClick(3);" class="category">اسناد</div>
@@ -233,12 +200,8 @@
                 <div id="categ5" onclick="categClick(5);" class="category">گواهی و پروانه</div>
     </div>
     <div class="col-8 col-sm-10">
-        <div class="row" style="overflow:auto;margin-top: 10px;height: 290px;background-color: #f1f6ff;">
-            {% for product in products %}
-            <div class='col-6 col-sm-3 categ{{product.category}}'><a onclick="productClick(event);" href='{{product.url}}'> <div class='product'>{{product.title}}</div> </a></div>
-            {% endfor %}
-        </div>
-    </div>
+        
+    </div>#}
 	
 </div>
 
