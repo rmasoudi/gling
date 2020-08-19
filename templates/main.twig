@@ -3,176 +3,182 @@
 {% block desc%}{{app_name}} سیستم ترجمه رسمی آنلاین{% endblock %}
 {% block title %}انتخاب مدارک ترجمه رسمی{% endblock %}
 {% block scripts %}
-<script type="text/javascript">
-	$(document).ready(function(){     
-  {#          var $grid = $('#productGrid').isotope({
-              itemSelector: '.productItem',
-              layoutMode: 'fitRows'
-            });#}
-            $(".circle").click(function (e){
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $grid = $('#productGrid').isotope({
+                itemSelector: '.pitem',
+                layoutMode: 'fitRows'
+            });
+            $(".circle").click(function (e) {
                 stepClicked(e);
             });
+            $(".filterItem").click(function () {
+                $(".filterItem").removeClass("filterItemSelected");
+                $(this).addClass("filterItemSelected");
+                var categId = $(this).data().filter;
+                $grid.isotope({filter: ".categ" + categId});
+            });
+            $(".filterItem").first().click();
             loadCart();
-	});
-        function loadCart(){
-            var products= getProducts();
-            var total=0;
-            for(var i=0;i<products.length;i++){
-                 total+=addProductRow(products[i],i);
+        });
+        function loadCart() {
+            var products = getProducts();
+            var total = 0;
+            for (var i = 0; i < products.length; i++) {
+                total += addProductRow(products[i], i);
             }
-            $("#billRows").find(".billRow").last().css("border-bottom","solid 1px #9999ff");
+            $("#billRows").find(".billRow").last().css("border-bottom", "solid 1px #9999ff");
         }
-        function correctPage(page){
-            if(page==="0" || page===0){
+        function correctPage(page) {
+            if (page === "0" || page === 0) {
                 return 1;
             }
             return parseInt(page);
         }
-        function addProductRow(product,index){
-            var row=$("<div></div>");
+        function addProductRow(product, index) {
+            var row = $("<div></div>");
             row.addClass("billRow");
-            row.data("index",index);
-            if(index%2===0){
+            row.data("index", index);
+            if (index % 2 === 0) {
                 row.addClass("billRowEven");
-            }
-            else{
+            } else {
                 row.addClass("billRowOdd");
             }
             row.addClass("row");
-            row.append($("<div class='col-4'>"+product.product.title+"</div>"));
-            row.append($("<div class='col-2'>"+correctPage(product.clone)+"</div>"));
-            row.append($("<div class='col-2'>"+correctPage(product.product.price)+"</div>"));
-            var total=getRowPrice(product);
-            row.append($("<div class='col-2'>"+total+"</div>"));
-            
-            var changeRow=$("<div class='row'></div>");
-            var removeButton=$("<div class='cartButton cartButtonEdit'>حذف</div>");
-            var editButton=$("<div class='cartButton cartButtonRemove'>ویرایش</div>");
-            removeButton.click(function(){
-                var index= $(this).parent().parent().parent().data().index;
+            row.append($("<div class='col-4'>" + product.product.title + "</div>"));
+            row.append($("<div class='col-2'>" + correctPage(product.clone) + "</div>"));
+            row.append($("<div class='col-2'>" + correctPage(product.product.price) + "</div>"));
+            var total = getRowPrice(product);
+            row.append($("<div class='col-2'>" + total + "</div>"));
+
+            var changeRow = $("<div class='row'></div>");
+            var removeButton = $("<div class='cartButton cartButtonEdit'>حذف</div>");
+            var editButton = $("<div class='cartButton cartButtonRemove'>ویرایش</div>");
+            removeButton.click(function () {
+                var index = $(this).parent().parent().parent().data().index;
                 removeProduct(index);
                 $(this).parent().parent().parent().parent().remove();
-            });            
-            editButton.click(function(){
-                 var index= $(this).parent().parent().parent().parent().data().index;
-                 var product=getProducts()[index];
-                 setEditing(index,product);
-                 window.location=product.product.url;
-             });
-            
-            
-            var removeCol=$("<div class='col-12'></div>");
-            var editCol=$("<div class='col-12'></div>");
+            });
+            editButton.click(function () {
+                var index = $(this).parent().parent().parent().parent().data().index;
+                var product = getProducts()[index];
+                setEditing(index, product);
+                window.location = product.product.url;
+            });
+
+
+            var removeCol = $("<div class='col-12'></div>");
+            var editCol = $("<div class='col-12'></div>");
             removeCol.append(removeButton);
             editCol.append(editButton);
             changeRow.append(removeCol);
             changeRow.append(editCol);
-            
-            var lastCol=$("<div class='col-2'></div>");
+
+            var lastCol = $("<div class='col-2'></div>");
             lastCol.append(changeRow);
             row.append(lastCol);
-            
+
             $("#billRows").append(row);
             return total;
         }
-        function getRowPrice(product){
-            var prices=JSON.parse($("#txtPrice").val());
-            var total=0;
-            var translateBase=product.product.price;
-            if(product.lang!=="1"){
-                translateBase=product.product.extra;
+        function getRowPrice(product) {
+            var prices = JSON.parse($("#txtPrice").val());
+            var total = 0;
+            var translateBase = product.product.price;
+            if (product.lang !== "1") {
+                translateBase = product.product.extra;
             }
-            var pages=parseInt(product.pages);
-            if(pages>1){
-                total=translateBase*pages;
+            var pages = parseInt(product.pages);
+            if (pages > 1) {
+                total = translateBase * pages;
+            } else {
+                total = translateBase;
             }
-            else{
-                total=translateBase;
+            if (product.marriage) {
+                total += prices.shenas_item;
             }
-            if(product.marriage){
-                total+=prices.shenas_item;
+            if (product.talagh) {
+                total += prices.shenas_item;
             }
-            if(product.talagh){
-                total+=prices.shenas_item;
-            }            
-            if(product.wifeDie){
-                total+=prices.shenas_item;
-            }           
-            if(product.die){
-                total+=prices.shenas_item;
-            }           
-            if(product.desc){
-                total+=prices.shenas_item;
-            }          
-            total+=prices.shenas_item*product.childCount;
-            total+=prices.passport*(product.mohrCount+product.vizaCount);
-            total+=prices.enteghal*(product.entghalCount);
-            if(product.clone!=="1"){
-                total+=(parseInt(product.clone)-1)*total/4;
+            if (product.wifeDie) {
+                total += prices.shenas_item;
+            }
+            if (product.die) {
+                total += prices.shenas_item;
+            }
+            if (product.desc) {
+                total += prices.shenas_item;
+            }
+            total += prices.shenas_item * product.childCount;
+            total += prices.passport * (product.mohrCount + product.vizaCount);
+            total += prices.enteghal * (product.entghalCount);
+            if (product.clone !== "1") {
+                total += (parseInt(product.clone) - 1) * total / 4;
             }
             return total;
         }
-	function categClick(id,e){
-		$(".category").removeClass("categorySelected");
-		$("#categ"+id).addClass("categorySelected");
-		
-		if(id===0){
-			for(var i=1;i<=5;i++){
-				$(".categ"+i).removeClass("hidden");
-				$(".categ"+i).addClass("visible");
-			}
-		}
-		else{
-			for(var i=1;i<=5;i++){
-				if(i===id){
-					$(".categ"+i).removeClass("hidden");
-					$(".categ"+i).addClass("visible");					
-				}
-				else{
-					$(".categ"+i).removeClass("visible");
-					$(".categ"+i).addClass("hidden");					
-				}
-			}
-		}
-	}
-        function productClick(e){
+        function categClick(id, e) {
+            $(".category").removeClass("categorySelected");
+            $("#categ" + id).addClass("categorySelected");
+
+            if (id === 0) {
+                for (var i = 1; i <= 5; i++) {
+                    $(".categ" + i).removeClass("hidden");
+                    $(".categ" + i).addClass("visible");
+                }
+            } else {
+                for (var i = 1; i <= 5; i++) {
+                    if (i === id) {
+                        $(".categ" + i).removeClass("hidden");
+                        $(".categ" + i).addClass("visible");
+                    } else {
+                        $(".categ" + i).removeClass("visible");
+                        $(".categ" + i).addClass("hidden");
+                    }
+                }
+            }
+        }
+        function productClick(e) {
             var href = this.href;
-            setEditing(-1,null);
+            setEditing(-1, null);
             location.href = href;
         }
-</script>
+    </script>
 {% endblock %}
 
 
 {% block content %}
     <input id="txtPrice" style="display: none" value="{{prices}}"/>
-<div class="stepper">
-  <div id="step1" class="circle active"> <span class="label">1</span>
-    <span class="title">انتخاب مدارک</span>
+    <div class="stepper">
+        <div id="step1" class="circle active"> <span class="label">1</span>
+            <span class="title">انتخاب مدارک</span>
 
-  </div> <span class="bar active"></span>
+        </div> <span class="bar active"></span>
 
-  <div id="step2" class="circle"> <span class="label">2</span>
-    <span class="title"> پیوست مدارک</span>
+        <div id="step2" class="circle"> <span class="label">2</span>
+            <span class="title"> پیوست مدارک</span>
 
-  </div> <span class="bar"></span>
+        </div> <span class="bar"></span>
 
-  <div id="step3" class="circle"> <span class="label">3</span>
-    <span class="title">تعیین آدرس</span>
+        <div id="step3" class="circle"> <span class="label">3</span>
+            <span class="title">تعیین آدرس</span>
 
-  </div> <span class="bar"></span>
+        </div> <span class="bar"></span>
 
-  <div id="step4" class="circle"> <span class="label">4</span>
-    <span class="title">انتخاب دفتر ترجمه</span>
+        <div id="step4" class="circle"> <span class="label">4</span>
+            <span class="title">انتخاب دفتر ترجمه</span>
 
-  </div> <span class="bar"></span>
+        </div> <span class="bar"></span>
 
-  <div id="step5" class="circle"> <span class="label">5</span>
-    <span class="title">صورتحساب</span>
+        <div id="step5" class="circle"> <span class="label">5</span>
+            <span class="title">صورتحساب</span>
 
-  </div>
-</div>
-<div id="billHeader" class="row">
+        </div>
+    </div>
+    <div style="display: flex;align-items: center;justify-content: center">
+        <div class="btnCart">سبد خرید</div>
+    </div>
+    <div id="billHeader" class="row">
         <div class="col-4">نوع مدرک</div>
         <div class="col-2">تعداد نسخه</div>
         <div class="col-2">قیمت پایه</div>
@@ -181,29 +187,25 @@
     </div>
     <div id="billRows">
     </div>
-<a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">ثبت سفارش</div></a>
+    <a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">ثبت سفارش</div></a>
 
-<div id="page1" class="row" style="direction:rtl;margin-top:10px;">
-    <div id="productGrid" style="margin-top: 10px;width: 100%;">
-        <div class="row">
-        {% for product in products %}
-            <div class='col-lg-3 col-md-4 col-sm-6 col-12 categ{{product.category}}'><a onclick="productClick(event);" href='{{product.url}}'> <div class='productItem ml-1 mr-1 mt-3'>{{product.title}}</div> </a></div>
-        {% endfor %}
+
+    <div id="page1" style="direction:rtl;margin-top:10px;">
+        <div style="width: 100%;display: flex;flex-wrap: wrap;align-content: stretch;">
+            <div data-filter="1" class="filterItem">مدارک شخصی</div>
+            <div data-filter="2" class="filterItem">اسناد</div>
+            <div data-filter="3" class="filterItem">مدارک تحصیلی</div>
+            <div data-filter="4" class="filterItem">شرکت ها و دفاتر</div>
+            <div data-filter="5" class="filterItem">گواهی و پروانه</div>
+        </div>
+        <div id="productGrid" style="margin-top: 10px;width: 100%;">
+            <div class="row">
+                {% for product in products %}
+                    <div class='pitem col-lg-3 col-md-4 col-sm-6 col-12 categ{{product.category}}'><a onclick="productClick(event);" href='{{product.url}}'> <div class='productItem ml-1 mr-1 mt-3'>{{product.title}}</div> </a></div>
+                {% endfor %}
+            </div>
         </div>
     </div>
-{#    <div class="col-4 col-sm-2">
-                <div id="categ0" onclick="categClick(0);" class="category categorySelected" >همه مدارک</div>
-                <div id="categ1" onclick="categClick(1);" class="category">احوال شخصیه</div>
-                <div id="categ3" onclick="categClick(3);" class="category">اسناد</div>
-                <div id="categ2" onclick="categClick(2);" class="category">مدارک تحصیلی</div>
-                <div id="categ4" onclick="categClick(4);" class="category">شرکت ها و دفاتر</div>
-                <div id="categ5" onclick="categClick(5);" class="category">گواهی و پروانه</div>
-    </div>
-    <div class="col-8 col-sm-10">
-        
-    </div>#}
-	
-</div>
 
 
 {% endblock %}

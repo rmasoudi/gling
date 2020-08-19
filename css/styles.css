@@ -962,3 +962,35 @@ table.paleBlueRows tfoot td {
 .productItem:hover{
     background-color:  #1575ac;
 }
+
+.filterItem{
+    padding: 5px;
+    background-color: #0c648d;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+.filterItem:hover{
+    background-color: #1777ab;
+}
+.filterItemSelected{
+    background-color: #456fe6;
+}
+.filterItemSelected:hover{
+    background-color: #456fe6;
+}
+.btnCart{
+    padding: 5px;
+    width: 150px;
+    background-color: #fcfcfc;
+    border: solid 1px #00738e;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 5px;
+    color: #0093b6;
+}
+.btnCart:hover{
+    background-color: #0093b6;
+    color: white;
+}
