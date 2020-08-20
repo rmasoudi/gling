@@ -1,10 +1,15 @@
 $(window).scroll(function () {
     if ($(window).scrollTop() + $(window).height() === getDocHeight()) {
         $(".bottomBar").removeClass("bottomBarClosed");
-    }
-    else{
+    } else {
         $(".bottomBar").addClass("bottomBarClosed");
     }
+
+    $('#sidePanel').slideReveal({
+        trigger: $("#btnCart"),
+        push: false,
+        overlay: true
+    });
 });
 function addProduct(item) {
     var products = getProducts();

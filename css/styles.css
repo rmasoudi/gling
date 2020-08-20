@@ -344,6 +344,7 @@ fieldset.scheduler-border {
 html, body {
     height: 100%;
     margin: 0;
+    background-color: #fafafa;
 }
 .urlHolder{
     display: none;
@@ -948,12 +949,12 @@ table.paleBlueRows tfoot td {
     font-size: 14px;
 }
 .productItem{
- background-color: #2891cd;
-  color: white;
-  text-align: center;
-  height: 60px;
-  line-height: 60px;
-  border-radius: 5px;
+    background-color: #2891cd;
+    color: white;
+    text-align: center;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 5px;
 }
 .productItem a{
     color:white !important;
@@ -993,4 +994,43 @@ table.paleBlueRows tfoot td {
 .btnCart:hover{
     background-color: #0093b6;
     color: white;
+}
+.cartIcon{
+background-color: #4778d1;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1001;
+}
+.cartIcon:hover{
+    background-color: #3a75e0;
+}
+
+.supportIcon{
+    cursor: pointer;
+    position: fixed;
+    bottom: 0px;
+    right: 5px;
+    z-index: 1001;
+    width: 100px;
+    -webkit-transition: all .5s; 
+    transition: all .5s;
+}
+.supportIcon:hover{
+    width: 128px;
+}
+#sidePanel{
+    width: 300px;
+    background-color: white;
+    z-index:10001 !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 10px;
 }

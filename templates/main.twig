@@ -27,7 +27,6 @@
             for (var i = 0; i < products.length; i++) {
                 total += addProductRow(products[i], i);
             }
-            $("#billRows").find(".billRow").last().css("border-bottom", "solid 1px #9999ff");
         }
         function correctPage(page) {
             if (page === "0" || page === 0) {
@@ -36,50 +35,27 @@
             return parseInt(page);
         }
         function addProductRow(product, index) {
-            var row = $("<div></div>");
-            row.addClass("billRow");
-            row.data("index", index);
-            if (index % 2 === 0) {
-                row.addClass("billRowEven");
-            } else {
-                row.addClass("billRowOdd");
-            }
-            row.addClass("row");
-            row.append($("<div class='col-4'>" + product.product.title + "</div>"));
-            row.append($("<div class='col-2'>" + correctPage(product.clone) + "</div>"));
-            row.append($("<div class='col-2'>" + correctPage(product.product.price) + "</div>"));
-            var total = getRowPrice(product);
-            row.append($("<div class='col-2'>" + total + "</div>"));
-
-            var changeRow = $("<div class='row'></div>");
-            var removeButton = $("<div class='cartButton cartButtonEdit'>حذف</div>");
-            var editButton = $("<div class='cartButton cartButtonRemove'>ویرایش</div>");
-            removeButton.click(function () {
-                var index = $(this).parent().parent().parent().data().index;
-                removeProduct(index);
-                $(this).parent().parent().parent().parent().remove();
+            var template = $("#productTemplate").html();
+            var total=getRowPrice(product);
+            var compiled=_.template(template);
+            var res=compiled({
+                title:product.product.title,
+                clone:product.clone,
+                price:product.product.price,
+                index:index,
+                total:total
             });
-            editButton.click(function () {
-                var index = $(this).parent().parent().parent().parent().data().index;
+            $("#billRows").append(res);
+            return total;
+        }
+        function editClicked(index){
                 var product = getProducts()[index];
                 setEditing(index, product);
                 window.location = product.product.url;
-            });
-
-
-            var removeCol = $("<div class='col-12'></div>");
-            var editCol = $("<div class='col-12'></div>");
-            removeCol.append(removeButton);
-            editCol.append(editButton);
-            changeRow.append(removeCol);
-            changeRow.append(editCol);
-
-            var lastCol = $("<div class='col-2'></div>");
-            lastCol.append(changeRow);
-            row.append(lastCol);
-
-            $("#billRows").append(row);
-            return total;
+        }
+        function removeClicked(index){
+            removeProduct(index);
+            $("#cartItem_"+index).remove();
         }
         function getRowPrice(product) {
             var prices = JSON.parse($("#txtPrice").val());
@@ -144,6 +120,21 @@
             location.href = href;
         }
     </script>
+    <script type="text/template" id="productTemplate">
+        <div id="cartItem_<%= index %>" data-index="<%= index %>" class="list-group-item list-group-item-action flex-column align-items-start" style="text-align: right;">
+               <div class="d-flex w-100 justify-content-between">
+               <h5 class="mb-1"><%= title %></h5>
+                   <small style="width: 25px;height: 25px;background-color: #1795de;color: white;border-radius: 50%;display: flex;align-items: center;justify-content: center;"><%= clone %></small>
+               </div>
+               <small>قیمت واحد: <%= price %> تومان</small>
+               <br/>
+               <small>جمع: <%= total %> تومان</small>
+                <div style="display: flex;justify-content: space-between; margin-top: 8px;">
+                    <button onclick="editClicked(<%= index %>);" type="button" style="background-color: #e6e6e6" class="btnEdit btn btn-light">ویرایش</button>
+                    <button onclick="removeClicked(<%= index %>);" type="button" style="background-color: #e6e6e6" class="btnRemove btn btn-light">حذف</button>
+                </div>
+        </div>
+    </script>
 {% endblock %}
 
 
@@ -175,18 +166,7 @@
 
         </div>
     </div>
-    <div style="display: flex;align-items: center;justify-content: center">
-        <div class="btnCart">سبد خرید</div>
-    </div>
-    <div id="billHeader" class="row">
-        <div class="col-4">نوع مدرک</div>
-        <div class="col-2">تعداد نسخه</div>
-        <div class="col-2">قیمت پایه</div>
-        <div class="col-2">جمع</div>
-        <div class="col-2"></div>
-    </div>
-    <div id="billRows">
-    </div>
+
     <a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">ثبت سفارش</div></a>
 
 

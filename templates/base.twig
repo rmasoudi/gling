@@ -1,127 +1,146 @@
 <!DOCTYPE html PUBLIC "-#W3C#DTD XHTML 1.0 Transitional#EN" "http:#www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http:#www.w3.org/1999/xhtml">
-<head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="keywords" content="{% block keywords %}{% endblock %}">
-        <meta name="description" content="{% block desc %}{% endblock %}">    
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/wizard.css">
-        <link rel="stylesheet" href="css/styles.css">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+        <meta name="keywords" content="{% block keywords %}{% endblock %}"/>
+        <meta name="description" content="{% block desc %}{% endblock %}"/>    
+        <link rel="stylesheet" href="css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="css/wizard.css"/>
+        <link rel="stylesheet" href="css/styles.css"/>
         {% block styles %}{% endblock %}
         <title>{% block title %}{% endblock %}</title>
-</head>
-<body>	
-<script src="js/jquery-3.4.1.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/general.js"></script>
-<script src="js/isotope.pkgd.min.js"></script>
-<script src="js/jquery.slidereveal.min.js"></script>
-{% block scripts %}{% endblock %}
-<div class="shadow-sm p-3 mb-5 topBar">
-    <a href="./">
-        <div id="logoPanel">
-            <img id="logo" alt="ترجمه رسمی آنلاین {{app_name}}" src="images/logo.png"/>
-            <div id="logoTitle">اولین سامانه متمرکز ترجمه رسمی</div>
-        </div>
-    </a>
-    
-    <div id="userPanel">
-        <img data-toggle="modal" data-target="#modalMenu" id="menuToggler" style="height: 32px;"  alt="ترجمه رسمی آنلاین {{app_name}}" src="images/bars.png"/>
-        {% if user == null %}
-            <a class="hidden" id="btnLogin" href="login" ><div class="btn btn-light headerButton">ورود</div></a>
-            <a class="hidden" id="btnRegister" href="register" ><div class="btn btn-light headerButton">ثبت نام</div></a>
-        {% else %}
-            <a class="hidden" id="btnProfile" href="profile" ><div class="btn btn-light headerButton">{{user.name}}</div></a>
-            <a class="hidden" id="btnLogout" href="logout" ><div class="btn btn-light headerButton">خروج</div></a>
-        {% endif %}
-    </div>
-    <div id="mainMenu">
-        <a href="./"> <div class="menuitem">صفحه اصلی</div></a>
-        <a href="./انتخاب_مدارک_ترجمه_رسمی"> <div class="menuitem">سفارش ترجمه</div></a>
-        <a href="./دفاتر_ترجمه_رسمی"> <div class="menuitem">دفاتر ترجمه</div></a>
-        <a href="./لیست_قیمت_ترجمه_رسمی"> <div class="menuitem">نرخنامه</div></a>
-        <a href="./translators"> <div class="menuitem">صفحه مترجمان</div></a>
-        <a href="./about"> <div class="menuitem">درباره ما</div></a>
-    </div>
-</div>
-{% block slider %}
+    </head>
+    <body>	
+        <script src="js/jquery-3.4.1.min.js"></script>
+        <script src="js/underscore-min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/general.js"></script>
+        <script src="js/isotope.pkgd.min.js"></script>
+        <script src="js/jquery.slidereveal.min.js"></script>
 
-{% endblock %}
-<div class="container mainContainer">
-<div class="modal fade" id="modalMenu" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-          <br/>
-          <br/>
-          <div class="row">
-            {% if user == null %}
-              <div class="col-6">
-                  <a href="login" ><div class="btn btn-light modalButton">ورود</div></a>
-              </div>
-              <div class="col-6">
-                  <a href="register" ><div class="btn btn-light modalButton">ثبت نام</div></a>
-              </div>
-            {% else %}
-              <div class="col-6">
-                  <a href="profile" ><div class="btn btn-light modalButton">{{user.name}}</div></a>
-              </div>
-              <div class="col-6">
-                  <a href="logout" ><div class="btn btn-light modalButton">خروج</div></a>
-              </div>
-            {% endif %}
-          </div>
-            <div class="row">
-                <div class="col-12"><a href="./" ><div class="btn btn-light modalButton modalMenuItem">صفحه اصلی</div></a></div>
+        <div id="sidePanel">
+            <div id="billRows" class="list-group">
+{#                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" style="text-align: right;">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">شناسنامه</h5>
+                        <small style="width: 25px;height: 25px;background-color: #1795de;color: white;border-radius: 50%;display: flex;align-items: center;justify-content: center;">5</small>
+                    </div>
+                    <small>قیمت واحد: 1000 تومان</small>
+                    <br/>
+                    <small>جمع: 2500 تومان</small>
+                    <div style="display: flex;justify-content: space-between;">
+                        <button type="button" style="background-color: #e6e6e6" class="btn btn-light btnEdit">ویرایش</button>
+                        <button type="button" style="background-color: #e6e6e6" class="btn btn-light btnRemove">حذف</button>
+                    </div>
+                </a>#}
             </div>
-            <div class="row">
-                <div class="col-12"><a href="./انتخاب_مدارک_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">سفارش ترجمه</div></a></div>
+        </div>
+        {% block scripts %}{% endblock %}
+        <div class="shadow-sm p-3 mb-5 topBar">
+            <a href="./">
+                <div id="logoPanel">
+                    <img id="logo" alt="ترجمه رسمی آنلاین {{app_name}}" src="images/logo.png"/>
+                    <div id="logoTitle">اولین سامانه متمرکز ترجمه رسمی</div>
+                </div>
+            </a>
+
+            <div id="userPanel">
+                <img data-toggle="modal" data-target="#modalMenu" id="menuToggler" style="height: 32px;"  alt="ترجمه رسمی آنلاین {{app_name}}" src="images/bars.png"/>
+                {% if user == null %}
+                    <a class="hidden" id="btnLogin" href="login" ><div class="btn btn-light headerButton">ورود</div></a>
+                    <a class="hidden" id="btnRegister" href="register" ><div class="btn btn-light headerButton">ثبت نام</div></a>
+                {% else %}
+                    <a class="hidden" id="btnProfile" href="profile" ><div class="btn btn-light headerButton">{{user.name}}</div></a>
+                    <a class="hidden" id="btnLogout" href="logout" ><div class="btn btn-light headerButton">خروج</div></a>
+                {% endif %}
+
             </div>
-            <div class="row">
-                <div class="col-12"><a href="./دفاتر_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">دفاتر ترجمه</div></a></div>
+            <div id="mainMenu">
+                <a href="./"> <div class="menuitem">صفحه اصلی</div></a>
+                <a href="./انتخاب_مدارک_ترجمه_رسمی"> <div class="menuitem">سفارش ترجمه</div></a>
+                <a href="./دفاتر_ترجمه_رسمی"> <div class="menuitem">دفاتر ترجمه</div></a>
+                <a href="./لیست_قیمت_ترجمه_رسمی"> <div class="menuitem">نرخنامه</div></a>
+                <a href="./translators"> <div class="menuitem">صفحه مترجمان</div></a>
+                <a href="./about"> <div class="menuitem">درباره ما</div></a>
             </div>
-            <div class="row">
-                <div class="col-12"><a href="./لیست_قیمت_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">نرخنامه</div></a></div>
-            </div>
-            <div class="row">
-                <div class="col-12"><a href="./translators" ><div class="btn btn-light modalButton modalMenuItem">صفحه مترجمان</div></a></div>
-            </div>
-            <div class="row">
-                <div class="col-12"><a href="./about" ><div class="btn btn-light modalButton modalMenuItem">درباره ما</div></a></div>
-            </div>
-      </div>
-    </div>
-  </div>
-</div>
-	{% block content %}{% endblock %}
- </div>
- <div style="height: 210px;">
-     
- </div>
-<footer class="bottomBar bottomBarClosed">
-    <div class="row">
-            <div style="margin-right: auto;margin-left: auto;width: 300px;margin-top: 5px;text-align: center;">
-                <strong><a href="{{app_site}}" style="color: #FFFFFF;text-decoration: bold;">{{app_name}}</a></strong>
-                <br/>
-                <a href="{{app_site}}" style="color: #FFFFFF">سیستم جامع ترجمه رسمی</a>
-                <div style="margin-top:5px;">
-                    <a href="mailto:info@{{app_site}}" class="contactPhone">info@{{app_site}}</a>
-                    <a href="tel:02177990540" class="contactPhone">021-77990540</a>
+        </div>
+        {% block slider %}
+
+        {% endblock %}
+        <div class="container mainContainer">
+            <div class="modal fade" id="modalMenu" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <br/>
+                            <br/>
+                            <div class="row">
+                                {% if user == null %}
+                                    <div class="col-6">
+                                        <a href="login" ><div class="btn btn-light modalButton">ورود</div></a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="register" ><div class="btn btn-light modalButton">ثبت نام</div></a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-6">
+                                        <a href="profile" ><div class="btn btn-light modalButton">{{user.name}}</div></a>
+                                    </div>
+                                    <div class="col-6">
+                                        <a href="logout" ><div class="btn btn-light modalButton">خروج</div></a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                <div class="col-12"><a href="./" ><div class="btn btn-light modalButton modalMenuItem">صفحه اصلی</div></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12"><a href="./انتخاب_مدارک_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">سفارش ترجمه</div></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12"><a href="./دفاتر_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">دفاتر ترجمه</div></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12"><a href="./لیست_قیمت_ترجمه_رسمی" ><div class="btn btn-light modalButton modalMenuItem">نرخنامه</div></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12"><a href="./translators" ><div class="btn btn-light modalButton modalMenuItem">صفحه مترجمان</div></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12"><a href="./about" ><div class="btn btn-light modalButton modalMenuItem">درباره ما</div></a></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-    </div>
-    
-</footer>
-
-<a href="https://api.whatsapp.com/send?phone=989367270443">
-    <div class="chat">
-        <div class="row">
-            <div class="col-8">مشاور آنلاین</div>
-            <div class="col-4"><img class="whatsapp" src="images/whatsapp.png"/></div>
+            {% block content %}{% endblock %}
         </div>
-    </div>
-</a>
+        <div style="height: 210px;">
+
+        </div>
+        <footer class="bottomBar bottomBarClosed">
+            <div class="row">
+                <div style="margin-right: auto;margin-left: auto;width: 300px;margin-top: 5px;text-align: center;">
+                    <strong><a href="{{app_site}}" style="color: #FFFFFF;text-decoration: bold;">{{app_name}}</a></strong>
+                    <br/>
+                    <a href="{{app_site}}" style="color: #FFFFFF">سیستم جامع ترجمه رسمی</a>
+                    <div style="margin-top:5px;">
+                        <a href="mailto:info@{{app_site}}" class="contactPhone">info@{{app_site}}</a>
+                        <a href="tel:02177990540" class="contactPhone">021-77990540</a>
+                    </div>
+                </div>
+            </div>
+
+        </footer>
+        <div id="btnCart" class="cartIcon" >
+            <img src="images/cart.png"/>
+        </div>
+        <a target="_blank" href="https://api.whatsapp.com/send?phone=989367270443">
+            <img class="supportIcon" src="images/support.png"/>
+        </a>
+    </body>
+</html>
