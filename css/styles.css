@@ -62,10 +62,8 @@
     width: 100%;
     position: fixed;
     top:0;
-    background-color: #35a8ea;
     z-index: 10000;
-    -webkit-transition: background-color .5s; 
-    transition: background-color .5s;
+    background-color: #35a8ea;
 }
 .bottomBar{
     position: fixed;
@@ -1033,4 +1031,7 @@ background-color: #4778d1;
     overflow-x: hidden;
     overflow-y: auto;
     padding: 10px;
+}
+#slider{
+    margin-top: 80px;
 }
