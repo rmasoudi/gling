@@ -248,30 +248,10 @@
 
 {% block content %}
 <div class="stepper">
-  <div id="step1" class="circle done"> <span class="label">1</span>
-    <span class="title">انتخاب مدارک</span>
-
-  </div> <span class="bar done"></span>
-
-  <div id="step2" class="circle done"> <span class="label">2</span>
-    <span class="title"> پیوست مدارک</span>
-
-  </div> <span class="bar done"></span>
-
-  <div id="step3" class="circle done"> <span class="label">3</span>
-    <span class="title">تعیین آدرس</span>
-
-  </div> <span class="bar done"></span>
-
-  <div id="step4" class="circle done"> <span class="label">4</span>
-    <span class="title">انتخاب دفتر ترجمه</span>
-
-  </div> <span class="bar done"></span>
-
-  <div id="step5" class="circle active"> <span class="label">5</span>
-    <span class="title">صورتحساب</span>
-
-  </div>
+    
+    <a href="لیست_دفاتر_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
+    <div class="stepTitle">صورتحساب</div>
+    <a href="#"> <div style="margin-top: 10px;" class="btn btn-primary topButton stepDisabled">مرحله بعد</div></a>
 </div>
 <div class="container mainContainer" style="text-align: right;direction: rtl;">
     <input id="txtPrice" style="display: none" value="{{prices}}"/>

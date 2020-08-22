@@ -6,7 +6,6 @@
         <meta name="keywords" content="{% block keywords %}{% endblock %}"/>
         <meta name="description" content="{% block desc %}{% endblock %}"/>    
         <link rel="stylesheet" href="css/bootstrap.min.css"/>
-        <link rel="stylesheet" href="css/wizard.css"/>
         <link rel="stylesheet" href="css/styles.css"/>
         {% block styles %}{% endblock %}
         <title>{% block title %}{% endblock %}</title>
@@ -19,7 +18,7 @@
         <script src="js/isotope.pkgd.min.js"></script>
         <script src="js/jquery.slidereveal.min.js"></script>
 
-        <div id="sidePanel">
+        <div id="sidePanel" class="hidden">
             <div id="billRows" class="list-group">
             </div>
         </div>

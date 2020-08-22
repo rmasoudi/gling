@@ -131,30 +131,9 @@
 
 {% block content %}
 <div class="stepper">
-    <div id="step1" class="circle done"> <span class="label">1</span>
-        <span class="title">انتخاب مدارک</span>
-
-    </div> <span class="bar done"></span>
-
-    <div id="step2" class="circle active"> <span class="label">2</span>
-        <span class="title"> پیوست مدارک</span>
-
-    </div> <span class="bar active"></span>
-
-    <div id="step3" class="circle"> <span class="label">3</span>
-        <span class="title">تعیین آدرس</span>
-
-    </div> <span class="bar"></span>
-
-    <div id="step4" class="circle"> <span class="label">4</span>
-        <span class="title">انتخاب دفتر ترجمه</span>
-
-    </div> <span class="bar"></span>
-
-    <div id="step5" class="circle"> <span class="label">5</span>
-        <span class="title">صورتحساب</span>
-
-    </div>
+    <a href="انتخاب_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
+    <div class="stepTitle">پیوست مدارک</div>
+    <a href="تعیین_آدرس"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
 </div>
 
 
@@ -163,6 +142,4 @@
 
     </div>
 </div>
-
-<a href="تعیین_آدرس"> <div class="btn btn-primary topButton" style="margin-top:10px;">ادامه</div></a>
 {% endblock %}

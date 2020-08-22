@@ -139,7 +139,7 @@ a:active {
 }
 .topButton{
     color: #ffffff;
-    background-color: #41bdca;
+    background-color: #2531b9;
     border-color: transparent;
     cursor: pointer;
     font-size: 11pt;
@@ -147,7 +147,7 @@ a:active {
     transition: background-color .5s;
 }
 .topButton:hover{
-    background-color: #44bae3;
+    background-color: #325fe3;
     border-color: transparent;
     color: #ffffff;
 }
@@ -947,7 +947,7 @@ table.paleBlueRows tfoot td {
     font-size: 14px;
 }
 .productItem{
-    background-color: #2891cd;
+    background-color: #3fc31e;
     color: white;
     text-align: center;
     height: 60px;
@@ -959,7 +959,7 @@ table.paleBlueRows tfoot td {
 }
 
 .productItem:hover{
-    background-color:  #1575ac;
+    background-color:  #32aa14;
 }
 
 .filterItem{
@@ -969,6 +969,7 @@ table.paleBlueRows tfoot td {
     border-radius: 5px;
     cursor: pointer;
     margin: 5px;
+    text-align: center;
 }
 .filterItem:hover{
     background-color: #1777ab;
@@ -994,7 +995,7 @@ table.paleBlueRows tfoot td {
     color: white;
 }
 .cartIcon{
-background-color: #4778d1;
+    background-color: #4778d1;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -1034,4 +1035,48 @@ background-color: #4778d1;
 }
 #slider{
     margin-top: 80px;
+}
+.stepTitle{
+    margin-top: 10px;
+    color: #ffffff;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 11pt;
+}
+.stepper {
+    width: 100%;
+    margin: 40px auto;
+    margin-top:40px;
+    margin-bottom:0px;
+    text-align: center;
+    padding-bottom: 10px;
+    background-color: #3498d1 !important;
+    position: fixed;
+    top: 40px;
+    left:50%;
+    z-index: 10000;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: space-around;
+}
+.stepDisabled{
+    color: #acacac;
+    background-color: #e2e2e2;
+    cursor: default;
+}
+.stepDisabled:hover{
+    color: #acacac;
+    background-color: #e2e2e2;
+}
+.stepDisabled:active{
+    color: #acacac;
+    background-color: #e2e2e2;
+}
+
+
+.selectric{
+    text-align: right;
+}
+.selectric-items li{
+    text-align: right;
 }

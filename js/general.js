@@ -10,6 +10,7 @@ $(window).scroll(function () {
         push: false,
         overlay: true
     });
+    $('#sidePanel').removeClass("hidden");
 });
 function addProduct(item) {
     var products = getProducts();
