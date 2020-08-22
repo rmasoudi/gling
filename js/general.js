@@ -58,6 +58,28 @@ function setProductUrl(index, pageIndex, url) {
     setProducts(products);
 }
 
+function isUploadOK() {
+    var products = getProducts();
+    if (products === null || products === undefined) {
+        return false;
+    }
+    for (var i = 0; i < products.length; i++) {
+        if (products[i].uploads === undefined) {
+            return false;
+        }
+        var imageUploads = products[i].uploads;
+        if (imageUploads === undefined || imageUploads === null) {
+            return false;
+        }
+        if (products[i].pages !== undefined && products[i].pages !== null) {
+            if (products[i].uploads.length < parseInt(products[i].pages)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 function setEditing(index, product) {
     if (index === -1) { // clear editing item
         localStorage.removeItem("editing");
@@ -210,4 +232,47 @@ function getDocHeight() {
             D.body.offsetHeight, D.documentElement.offsetHeight,
             D.body.clientHeight, D.documentElement.clientHeight
             );
+}
+
+function goNext(next) {
+    if (next === 2) {
+        var products = getProducts();
+        if (products.length === 0) {
+            $.notify(
+                    "ابتدا نوع سند را انتخاب کنید.",
+                    {position: "top center"}
+            );
+            return;
+        }
+        window.location = "upload";
+    } else if (next === 3) {
+        if (isUploadOK()) {
+            window.location = "address";
+        } else {
+            $.notify(
+                    "لطفا مدارک لازم را پیوست کنید",
+                    {position: "b"}
+            );
+        }
+    }
+    else if(next===4){
+        if (getAddress()!==null) {
+            window.location = "centers_step";
+        } else {
+            $.notify(
+                   "لطفا آدرس را تعیین کنید",
+                    {position: "b"}
+            );
+        }        
+    }
+    else if(next===5){
+        if (getCenter()!==null) {
+            window.location = "bill";
+        } else {
+            $.notify(
+                   "لطفا مترجم را انتخاب کنید",
+                    {position: "b"}
+            );
+        }        
+    }
 }

@@ -93,7 +93,7 @@
             row.append($("<div class='col-2'>"+correctPage(product.product.price)+"</div>"));
             var total=getRowPrice(product);
             row.append($("<div class='col-2'>"+total+"</div>"));
-            $("#billRows").append(row);
+            $("#billRows1").append(row);
             return total;
         }
         function addSumRow(total){
@@ -110,7 +110,7 @@
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div id='sum' class='col-2'>"+total+"</div>"));
-            $("#billRows").append(row);
+            $("#billRows1").append(row);
         }
         function addCarrierRow(total){
             var row=$("<div></div>");
@@ -130,7 +130,7 @@
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div id='carrierPrice' class='col-2'></div>"));
-            $("#billRows").append(row);
+            $("#billRows1").append(row);
         }
         function addDaftariRow(index){
             var prices=JSON.parse($("#txtPrice").val());
@@ -149,7 +149,7 @@
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>-</div>"));
             row.append($("<div class='col-2'>"+prices.daftari+"</div>"));
-            $("#billRows").append(row);
+            $("#billRows1").append(row);
             return prices.daftari;
         }
         function correctPage(page){
@@ -267,7 +267,7 @@
         <div class="col-2">قیمت پایه</div>
         <div class="col-2">جمع</div>
     </div>
-    <div id="billRows">
+    <div id="billRows1">
     </div>
     <div class="centerDetails row">
         <div class="col-12">
@@ -313,5 +313,6 @@
         <input name="data" id="txtData" type="text" style="display: none;"/>
         <button class="btn btn-primary topButton" style="margin-top:10px;float: left;margin-bottom:10px;" type="submit">پرداخت و ثبت سفارش</button>
     </form>
+    <br/><br/><br/>
 </div>
 {% endblock %}

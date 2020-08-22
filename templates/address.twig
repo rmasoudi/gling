@@ -16,8 +16,8 @@
                 setAddress(index,item);
            });
            var selectedAddress=getAddress();
+           $(".list-group-item").removeClass("active");
            if(selectedAddress!==null){
-               $(".list-group-item").removeClass("active");
                $($(".list-group-item")[selectedAddress.index]).click();
            }
         });
@@ -49,7 +49,11 @@
 <div class="stepper">
     <a href="upload"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
     <div class="stepTitle">تعیین آدرس</div>
-    <a href="centers_step"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
+    {% if user != null %}
+        <div onclick="goNext(4);" style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div>
+    {% else %}
+        <a href="#"> <div style="margin-top: 10px;" class="btn btn-primary topButton stepDisabled">مرحله بعد</div></a>
+    {% endif %}
 </div>
     {% if user == null %}
         <div class="info">لطفا وارد سیستم شوید. برای ورود 

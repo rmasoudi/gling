@@ -144,9 +144,9 @@
 {% block content %}
     <input id="txtPrice" style="display: none" value="{{prices}}"/>
     <div class="stepper">
-        <a href="#"> <div style="margin-top: 10px;" class="btn btn-primary topButton stepDisabled">مرحله قبل</div></a>
+        <div style="margin-top: 10px;" class="btn btn-primary topButton stepDisabled">مرحله قبل</div>
         <div class="stepTitle">انتخاب مدارک</div>
-        <a href="upload"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
+        <div onclick="goNext(2);" style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div>
     </div>
 
     <div id="page1" style="direction:rtl;margin-top:10px;">
