@@ -4,9 +4,6 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(document).ready(function(){  
-            $(".circle").click(function (e){
-                stepClicked(e);
-            });
             
             var products= getProducts();
             var total=0;
@@ -249,7 +246,7 @@
 {% block content %}
 <div class="stepper">
     
-    <a href="لیست_دفاتر_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
+    <a href="centers_step"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
     <div class="stepTitle">صورتحساب</div>
     <a href="#"> <div style="margin-top: 10px;" class="btn btn-primary topButton stepDisabled">مرحله بعد</div></a>
 </div>

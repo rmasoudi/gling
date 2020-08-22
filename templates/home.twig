@@ -3,10 +3,17 @@
 {% block desc%}{{app_name}} سیستم ترجمه رسمی آنلاین{% endblock %}
 {% block title %}ترجمه رسمی آنلاین {{app_name}}{% endblock %}
 {% block styles %}
+    <style>
+        .mainContainer{
+            margin-top: 5px;
+            min-height: 100%;
+            margin-bottom: -100px;
+        }
+    </style>
 {% endblock %}
 {% block scripts %}
-<script type="text/javascript">
-</script>
+    <script type="text/javascript">
+    </script>
 {% endblock %}
 
 {% block slider %}
@@ -14,81 +21,81 @@
 {% endblock %}
 
 {% block content %}
-<div style="display: flex;justify-content: center;">
-    <a href="انتخاب_مدارک_ترجمه_رسمی"><div class="orderButton">سفارش آنلاین ترجمه رسمی</div></a>
-</div>
-
-<div class="homePanel">
-
-    <div class="d-flex justify-content-center">
-        <span class="homePanelTitleCenter">فرایند سفارش ترجمه در {{app_name}}</span>
+    <div style="display: flex;justify-content: center;">
+        <a href="انتخاب_مدارک_ترجمه_رسمی"><div class="orderButton">سفارش آنلاین ترجمه رسمی</div></a>
     </div>
 
-    <div class="timecontainer">
+    <div class="homePanel">
 
-        <div class="timeline-block timeline-block-right">
-
-            <div class="timeline-content">
-                <h5>انتخاب مدارک</h5>
-                <p>در این مرحله تعیین می کنید چه نوع اسنادی به چه زبانی باید ترجمه شود.</p>
-            </div>
-            <div class="marker"></div>
+        <div class="d-flex justify-content-center">
+            <span class="homePanelTitleCenter">فرایند سفارش ترجمه در {{app_name}}</span>
         </div>
 
-        <div class="timeline-block timeline-block-left">
-            <div class="marker"></div>
-            <div class="timeline-content">
-                <h5>پیوست تصویر مدارک</h5>
-                <p>در این مرحله یک تصویر خوانا از مدارکی که باید ترجمه شود ارسال می کنید.</p>
+        <div class="timecontainer">
+
+            <div class="timeline-block timeline-block-right">
+
+                <div class="timeline-content">
+                    <h5>انتخاب مدارک</h5>
+                    <p>در این مرحله تعیین می کنید چه نوع اسنادی به چه زبانی باید ترجمه شود.</p>
+                </div>
+                <div class="marker"></div>
+            </div>
+
+            <div class="timeline-block timeline-block-left">
+                <div class="marker"></div>
+                <div class="timeline-content">
+                    <h5>پیوست تصویر مدارک</h5>
+                    <p>در این مرحله یک تصویر خوانا از مدارکی که باید ترجمه شود ارسال می کنید.</p>
+                </div>
+            </div>
+
+            <div class="timeline-block timeline-block-right">
+                <div class="timeline-content">
+                    <h5>ثبت سفارش</h5>
+                    <p>پس از تعیین آدرس و انتخاب دفتر ترجمه مطلوب خود، سفارش را ثبت می کنید.</p>
+                </div>
+                <div class="marker"></div>
+            </div>
+
+            <div class="timeline-block timeline-block-left">
+                <div class="marker"></div>
+                <div class="timeline-content">
+                    <h5>انجام ترجمه توسط مترجم رسمی</h5>
+                    <p>سفارش شما به اطلاع مترجم انتخاب شده رسیده و کار ترجمه آغاز می شود.</p>
+                </div>
+            </div>
+
+            <div class="timeline-block timeline-block-right">
+                <div class="timeline-content">
+                    <h5>تماس با شما جهت هماهنگی</h5>
+                    <p>پس از انجام ترجمه مترجم با شما تماس می گیرد تا زمانی را جهت دریافت اصل مدارک از شما هماهنگ کند.</p>
+                </div>
+                <div class="marker"></div>
+            </div>
+            <div class="timeline-block timeline-block-left">
+                <div class="marker"></div>
+                <div class="timeline-content">
+                    <h5>ارسال پیک دفتر ترجمه جهت دریافت اصل مدارک</h5>
+                    <p>پیک دفتر ترجمه جهت دریافت اصل مدارک به آدرس شما ارسال می شود.</p>
+                </div>
+            </div>
+            <div class="timeline-block timeline-block-right">
+                <div class="timeline-content">
+                    <h5>مشاهده اصل مدارک توسط مترجم و مهر کردن ترجمه ها</h5>
+                    <p>مترجم با دیدن و تصدیق اصل مدارک، ترجمه آن ها را مهر کرده و به پیک تحویل می دهد.</p>
+                </div>
+                <div class="marker"></div>
+            </div>
+            <div class="timeline-block timeline-block-left">
+                <div class="marker"></div>
+                <div class="timeline-content">
+                    <h5>بازگرداندن اصل و ترجمه مدارک توسط پیک</h5>
+                    <p>مدارک ترجمه شده به همراه اصل آن ها توسط پیک به آدرس شما ارسال می شود.</p>
+                </div>
             </div>
         </div>
 
-        <div class="timeline-block timeline-block-right">
-            <div class="timeline-content">
-                <h5>ثبت سفارش</h5>
-                <p>پس از تعیین آدرس و انتخاب دفتر ترجمه مطلوب خود، سفارش را ثبت می کنید.</p>
-            </div>
-            <div class="marker"></div>
-        </div>
-
-        <div class="timeline-block timeline-block-left">
-            <div class="marker"></div>
-            <div class="timeline-content">
-                <h5>انجام ترجمه توسط مترجم رسمی</h5>
-                <p>سفارش شما به اطلاع مترجم انتخاب شده رسیده و کار ترجمه آغاز می شود.</p>
-            </div>
-        </div>
-
-        <div class="timeline-block timeline-block-right">
-            <div class="timeline-content">
-                <h5>تماس با شما جهت هماهنگی</h5>
-                <p>پس از انجام ترجمه مترجم با شما تماس می گیرد تا زمانی را جهت دریافت اصل مدارک از شما هماهنگ کند.</p>
-            </div>
-            <div class="marker"></div>
-        </div>
-        <div class="timeline-block timeline-block-left">
-            <div class="marker"></div>
-            <div class="timeline-content">
-                <h5>ارسال پیک دفتر ترجمه جهت دریافت اصل مدارک</h5>
-                <p>پیک دفتر ترجمه جهت دریافت اصل مدارک به آدرس شما ارسال می شود.</p>
-            </div>
-        </div>
-        <div class="timeline-block timeline-block-right">
-            <div class="timeline-content">
-                <h5>مشاهده اصل مدارک توسط مترجم و مهر کردن ترجمه ها</h5>
-                <p>مترجم با دیدن و تصدیق اصل مدارک، ترجمه آن ها را مهر کرده و به پیک تحویل می دهد.</p>
-            </div>
-            <div class="marker"></div>
-        </div>
-        <div class="timeline-block timeline-block-left">
-            <div class="marker"></div>
-            <div class="timeline-content">
-                <h5>بازگرداندن اصل و ترجمه مدارک توسط پیک</h5>
-                <p>مدارک ترجمه شده به همراه اصل آن ها توسط پیک به آدرس شما ارسال می شود.</p>
-            </div>
-        </div>
     </div>
-
-</div>
 
 {% endblock %}

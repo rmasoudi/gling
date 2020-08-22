@@ -7,9 +7,6 @@
 {% block scripts %}
     <script type="text/javascript">
         $(document).ready(function (){
-            $(".circle").click(function (e){
-                stepClicked(e);
-            });
            $(".list-group-item").first().addClass("active");
            $(".list-group-item").click(function (){
                $(".list-group-item").removeClass("active");
@@ -19,7 +16,7 @@
                 setAddress(index,item);
            });
            var selectedAddress=getAddress();
-           if(selectedAddress!=null){
+           if(selectedAddress!==null){
                $(".list-group-item").removeClass("active");
                $($(".list-group-item")[selectedAddress.index]).click();
            }
@@ -50,9 +47,9 @@
 
 {% block content %}
 <div class="stepper">
-    <a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
+    <a href="upload"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
     <div class="stepTitle">تعیین آدرس</div>
-    <a href="لیست_دفاتر_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
+    <a href="centers_step"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
 </div>
     {% if user == null %}
         <div class="info">لطفا وارد سیستم شوید. برای ورود 

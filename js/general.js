@@ -203,37 +203,6 @@ function getLangByCode(val) {
     return "";
 }
 
-function stepClicked(e) {
-    var item = $(e.target);
-    var id = "";
-    if (item.prop("tagName") === "DIV" && item.hasClass("done") && item.hasClass("circle")) {
-        id = item.prop("id");
-    } else if (item.prop("tagName") === "SPAN" && item.parent().hasClass("done") && item.parent().hasClass("circle")) {
-        id = item.parent().prop("id");
-    }
-    var loc = "";
-    switch (id) {
-        case "step1":
-            loc = "انتخاب_مدارک_ترجمه_رسمی";
-            break;
-        case "step2":
-            loc = "پیوست_مدارک_ترجمه_رسمی";
-            break;
-        case "step3":
-            loc = "تعیین_آدرس";
-            break;
-        case "step4":
-            loc = "لیست_دفاتر_ترجمه_رسمی";
-            break;
-        case "step5":
-            loc = "صورتحساب";
-            break;
-    }
-    if (loc !== "") {
-        window.location = loc;
-    }
-}
-
 function getDocHeight() {
     var D = document;
     return Math.max(

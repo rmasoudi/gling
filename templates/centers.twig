@@ -6,12 +6,6 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(document).ready(function(){  
-            
-            $(".circle").click(function (e){
-                stepClicked(e);
-            });
-            
-
            
            $(".btnSort").click(function (){
                 $(".btnSort").removeClass("btnSort-active");    
@@ -119,7 +113,7 @@
 
 {% block content %}
 <div class="stepper">
-    <a href="تعیین_آدرس"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
+    <a href="address"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله قبل</div></a>
     <div class="stepTitle">انتخاب مترجم</div>
     <a href="bill"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
 </div>

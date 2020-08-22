@@ -20,18 +20,10 @@
                         }
                     }
             );
-            $(".circle").click(function (e) {
-                stepClicked(e);
-            });
-            $(".filterItem").click(function () {
-                $(".filterItem").removeClass("filterItemSelected");
-                $(this).addClass("filterItemSelected");
-                var categId = $(this).data().filter;
-                $grid.isotope({filter: ".categ" + categId});
-            });
-            $(".filterItem").first().click();
             loadCart();
+            $grid.isotope({filter: ".categ1" });
         });
+        
         function loadCart() {
             var products = getProducts();
             var total = 0;
@@ -154,12 +146,12 @@
     <div class="stepper">
         <a href="#"> <div style="margin-top: 10px;" class="btn btn-primary topButton stepDisabled">مرحله قبل</div></a>
         <div class="stepTitle">انتخاب مدارک</div>
-        <a href="پیوست_مدارک_ترجمه_رسمی"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
+        <a href="upload"> <div style="margin-top: 10px;" class="btn btn-primary topButton">مرحله بعد</div></a>
     </div>
 
     <div id="page1" style="direction:rtl;margin-top:10px;">
 
-        <div class="box" style="width:200px;">
+        <div id="typeBox" class="box" style="width:200px;">
             <select>
                 <option value="1">مدارک شخصی</option>
                 <option value="3">اسناد</option>

@@ -961,25 +961,6 @@ table.paleBlueRows tfoot td {
 .productItem:hover{
     background-color:  #32aa14;
 }
-
-.filterItem{
-    padding: 5px;
-    background-color: #0c648d;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 5px;
-    text-align: center;
-}
-.filterItem:hover{
-    background-color: #1777ab;
-}
-.filterItemSelected{
-    background-color: #456fe6;
-}
-.filterItemSelected:hover{
-    background-color: #456fe6;
-}
 .btnCart{
     padding: 5px;
     width: 150px;
