@@ -44,7 +44,7 @@ $config = [
 ];
 $app = new \Slim\App($config);
 
-$app->get('/', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $conn = getConnection();
     $stmt = $conn->prepare("SELECT * FROM product");
     $stmt->execute();
@@ -55,7 +55,7 @@ $app->get('/', function (Request $request, Response $response, $args) use ($twig
     }
     $stmt->close();
     $conn->close();
-    $response->getBody()->write($twig->render('home.twig', ["user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
+    $response->getBody()->write($twig->render('home.twig', ["user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
     return;
 })->setName('home');
 
@@ -67,23 +67,23 @@ $app->get('/main', function (Request $request, Response $response, $args) use ($
 
 $app->get('/address', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
 
-    $response->getBody()->write($twig->render('address.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "addressList" => getUserAddressList()]));
+    $response->getBody()->write($twig->render('address.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "addressList" => getUserAddressList(), "prices" => json_encode($globalPrices)]));
     return;
 })->setName('address');
 
 $app->get('/centers_step', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
-    $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices]));
+    $response->getBody()->write($twig->render('centers.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
     return;
 })->setName('centers_step');
 
 $app->get('/upload', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
-    $response->getBody()->write($twig->render('upload.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser()]));
+    $response->getBody()->write($twig->render('upload.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
     return;
 })->setName('upload');
 
 
-$app->get('/about', function (Request $request, Response $response, $args) use ($twig, $app) {
-    $response->getBody()->write($twig->render('about.twig', ["user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE]));
+$app->get('/about', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $response->getBody()->write($twig->render('about.twig', ["user" => getCurrentUser(), "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
     return;
 })->setName('about');
 
@@ -101,31 +101,31 @@ function getProducts() {
     return $list;
 }
 
-$app->get('/register', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/register', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $referer = urldecode($_SERVER['HTTP_REFERER']);
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('register.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "redirect" => $referer]));
+        $response->getBody()->write($twig->render('register.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "redirect" => $referer, "prices" => json_encode($globalPrices)]));
         return;
     }
 })->setName('register');
-$app->get('/login', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/login', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $referer = urldecode($_SERVER['HTTP_REFERER']);
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('login.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "redirect" => $referer]));
+        $response->getBody()->write($twig->render('login.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "redirect" => $referer, "prices" => json_encode($globalPrices)]));
         return;
     }
 })->setName('login');
 
-$app->get('/newaddress', function (Request $request, Response $response, $args) use ($twig, $app) {
-    $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "address" => null]));
+$app->get('/newaddress', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
+    $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "address" => null, "prices" => json_encode($globalPrices)]));
     return;
 })->setName('newaddress');
 
-$app->get('/editaddress', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/editaddress', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
@@ -148,7 +148,7 @@ $app->get('/editaddress', function (Request $request, Response $response, $args)
                 "point" => $row["point"],
                 "name" => $row["name"]
             ];
-            $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "address" => $addr]));
+            $response->getBody()->write($twig->render('newaddress.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "address" => $addr, "prices" => json_encode($globalPrices)]));
             return;
         }
         $stmt->close();
@@ -157,14 +157,14 @@ $app->get('/editaddress', function (Request $request, Response $response, $args)
     }
 })->setName('ecitaddress');
 
-$app->get('/logout', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/logout', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     session_unset();
     session_destroy();
     $referer = urldecode($_SERVER['HTTP_REFERER']);
     return $response->withRedirect($referer);
 })->setName('logout');
 
-$app->post('/dologin', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/dologin', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $redirect = $_POST["redirect"];
     if (isLogged()) {
         return $response->withRedirect($redirect);
@@ -186,13 +186,13 @@ $app->post('/dologin', function (Request $request, Response $response, $args) us
         } else {
             $stmt->close();
             $conn->close();
-            $response->getBody()->write($twig->render('login.twig', ["error" => "رایانامه یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+            $response->getBody()->write($twig->render('login.twig', ["error" => "رایانامه یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
             return;
         }
     }
 })->setName('dologin');
 
-$app->post('/save_user', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/save_user', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $redirect = $_POST["redirect"];
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
@@ -220,13 +220,13 @@ $app->post('/save_user', function (Request $request, Response $response, $args) 
         } else {
             $stmt->close();
             $conn->close();
-            $response->getBody()->write($twig->render('register.twig', ["error" => "شماره موبایل یا رایانامه قبلا ثبت شده است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+            $response->getBody()->write($twig->render('register.twig', ["error" => "شماره موبایل یا رایانامه قبلا ثبت شده است", "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
             return;
         }
     }
 })->setName('save_user');
 
-$app->post('/save_address', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/save_address', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
@@ -261,7 +261,7 @@ $app->post('/save_address', function (Request $request, Response $response, $arg
     }
 })->setName('save_address');
 
-$app->get('/remove_address', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/remove_address', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
 
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
@@ -285,7 +285,7 @@ $app->get('/remove_address', function (Request $request, Response $response, $ar
     }
 })->setName('remove_address');
 
-$app->get('/profile', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/profile', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
@@ -294,7 +294,7 @@ $app->get('/profile', function (Request $request, Response $response, $args) use
     }
 })->setName('profile');
 
-$app->post('/update_user', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/update_user', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
@@ -317,16 +317,16 @@ $app->post('/update_user', function (Request $request, Response $response, $args
 })->setName('update_user');
 
 
-$app->get('/forget', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/forget', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
-        $response->getBody()->write($twig->render('forget.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE]));
+        $response->getBody()->write($twig->render('forget.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
         return;
     }
 })->setName('forget');
 
-$app->post('/sendpass', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/sendpass', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     } else {
@@ -339,35 +339,35 @@ $app->post('/sendpass', function (Request $request, Response $response, $args) u
         if (mysqli_num_rows($result) == 0) {
             $stmt->close();
             $conn->close();
-            $response->getBody()->write($twig->render('forget.twig', ["error" => "چنین ایمیلی در سیستم ثبت نشده است"]));
+            $response->getBody()->write($twig->render('forget.twig', ["error" => "چنین ایمیلی در سیستم ثبت نشده است", "prices" => json_encode($globalPrices)]));
         } else {
             $row = $result->fetch_assoc();
             $message = "رمز عبور شما: " + $row["password"];
             sendMail($mail, $message, "بازیابی رمز", $twig);
             $stmt->close();
             $conn->close();
-            $response->getBody()->write($twig->render('forget.twig', ["success" => true, "app_name" => APP_NAME, "app_site" => APP_SITE]));
+            $response->getBody()->write($twig->render('forget.twig', ["success" => true, "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
         }
         return;
     }
 })->setName('profile');
 
-$app->get('/act{code}', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/act{code}', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $code = $args['code'];
     $center = getCenterByLink($code);
     if ($center != null) {
         $user = ["name" => $center->manager];
         setCurrentManager($center);
-        $response->getBody()->write($twig->render('mregister.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user]));
+        $response->getBody()->write($twig->render('mregister.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user, "prices" => json_encode($globalPrices)]));
     } else {
-        $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE]));
+        $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
     }
     return;
 })->setName('act');
 
-$app->post('/doact', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/doact', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isManagerLogged()) {
-        $response->getBody()->write($twig->render('mlogin.twig', ["error" => "", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+        $response->getBody()->write($twig->render('mlogin.twig', ["error" => "", "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
     } else {
         $mail = $_POST["mail"];
         $account = $_POST["account"];
@@ -384,7 +384,7 @@ $app->post('/doact', function (Request $request, Response $response, $args) use 
     }
 })->setName('doact');
 
-$app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/translators', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isManagerLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
     }
@@ -415,10 +415,10 @@ $app->get('/translators', function (Request $request, Response $response, $args)
     $stmt->close();
     $conn->close();
     $user = ["name" => getCurrentManager()["manager"]];
-    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user, "orders" => $list]));
+    $response->getBody()->write($twig->render('manage.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => $user, "orders" => $list, "prices" => json_encode($globalPrices)]));
     return;
 })->setName('translators');
-$app->post('/change-state', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/change-state', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     if (!isManagerLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators-login"));
     }
@@ -428,7 +428,7 @@ $app->post('/change-state', function (Request $request, Response $response, $arg
     $managerId = intval(getCurrentManager()["id"]);
 
     if ($status == 3) {
-        $response->getBody()->write(json_encode(["status" => false, "error" => "last status"]));
+        $response->getBody()->write(json_encode(["status" => false, "error" => "last status", "prices" => json_encode($globalPrices)]));
         return;
     }
     $status++;
@@ -440,23 +440,23 @@ $app->post('/change-state', function (Request $request, Response $response, $arg
     $error = $stmt->error;
     $stmt->close();
     $conn->close();
-    $response->getBody()->write(json_encode(["status" => true, "new" => $status]));
+    $response->getBody()->write(json_encode(["status" => true, "new" => $status, "prices" => json_encode($globalPrices)]));
     return;
 })->setName('translators');
 
 $app->get('/terms', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
-    $response->getBody()->write($twig->render('terms.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "gain" => $globalPrices["gain"]]));
+    $response->getBody()->write($twig->render('terms.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "gain" => $globalPrices["gain"], "prices" => json_encode($globalPrices)]));
     return;
 })->setName('translators');
 
 $app->get('/translators-login', function (Request $request, Response $response, $args) use ($twig, $app) {
     $referer = urldecode($_SERVER['HTTP_REFERER']);
-    $response->getBody()->write($twig->render('mlogin.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "redirect" => $referer]));
+    $response->getBody()->write($twig->render('mlogin.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "redirect" => $referer, "prices" => json_encode($globalPrices)]));
     return;
 })->setName('translators-login');
 
 
-$app->post('/domlogin', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->post('/domlogin', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $redirect = $_POST["redirect"];
     if (isManagerLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
@@ -468,13 +468,13 @@ $app->post('/domlogin', function (Request $request, Response $response, $args) u
             setCurrentManager($center);
             return $response->withRedirect($app->getContainer()->get('router')->pathFor("translators"));
         } else {
-            $response->getBody()->write($twig->render('mlogin.twig', ["error" => "شماره موبایل یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE]));
+            $response->getBody()->write($twig->render('mlogin.twig', ["error" => "شماره موبایل یا رمز اشتباه است", "app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
             return;
         }
     }
 })->setName('domlogin');
 
-$app->get('/centers', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/centers', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
 
     if (!isLogged()) {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
@@ -496,7 +496,7 @@ $app->get('/centers', function (Request $request, Response $response, $args) use
     }
 })->setName('centers');
 
-$app->get('/carrier_price', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/carrier_price', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $p1 = $request->getQueryParams()["p1"];
     $p2 = $request->getQueryParams()["p2"];
     $response->getBody()->write(getCarrierPrice($p1, $p2));
@@ -536,10 +536,10 @@ $app->get('/verify', function (Request $request, Response $response, $args) use 
         if ($result['Status'] == 100) {
             $paycode = $result['RefID'];
             $error = verifyOrder($orderId, $paycode);
-            $response->getBody()->write($twig->render('receipt.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "order" => $orderId, "paycode" => $paycode, "manager" => $order["center"]->manager, "phone" => $order["center"]->phone]));
+            $response->getBody()->write($twig->render('receipt.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "order" => $orderId, "paycode" => $paycode, "manager" => $order["center"]->manager, "phone" => $order["center"]->phone, "prices" => json_encode($globalPrices)]));
             return;
         } else {
-            $response->getBody()->write($twig->render('payerror.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "error" => $result['Status']]));
+            $response->getBody()->write($twig->render('payerror.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "error" => $result['Status'], "prices" => json_encode($globalPrices)]));
             return;
         }
     }
@@ -622,21 +622,21 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $path = trim(urldecode($args["name"]));
     if ($path == "دفاتر_ترجمه_رسمی") {
-        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "globalPrices" => $globalPrices, "cities" => getCities()]));
+        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),  "prices" => json_encode($globalPrices), "cities" => getCities()]));
         return;
     }
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
         return $response->withRedirect($app->getContainer()->get('router')->pathFor("main"));
     }
     if ($path == "لیست_قیمت_ترجمه_رسمی") {
-        $response->getBody()->write($twig->render('pricelist.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "products" => getProducts()]));
+        $response->getBody()->write($twig->render('pricelist.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "products" => getProducts(), "prices" => json_encode($globalPrices)]));
         return;
     }
     if (substr($path, 0, 40) === "دفتر_ترجمه_رسمی_شماره_") {
         $array = explode("_", $path);
         $code = $array[count($array) - 2];
         $center = getCenterByCode($code);
-        $response->getBody()->write($twig->render('center.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "center" => $center]));
+        $response->getBody()->write($twig->render('center.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "center" => $center, "prices" => json_encode($globalPrices)]));
         return;
     }
     if (strpos($path, "دفاتر_ترجمه_رسمی_") === 0) {
@@ -654,15 +654,15 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
         }
         $stmt->close();
         $conn->close();
-        $response->getBody()->write($twig->render('city.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "city" => $code, "centers" => $list]));
+        $response->getBody()->write($twig->render('city.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "city" => $code, "centers" => $list, "prices" => json_encode($globalPrices)]));
         return;
     }
     $docType = getDocType($path);
     if ($docType != null) {
-        $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "doc" => $docType]));
+        $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "doc" => $docType, "prices" => json_encode($globalPrices)]));
         return;
     }
-    $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE]));
+    $response->getBody()->write($twig->render('notfound.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "prices" => json_encode($globalPrices)]));
     return;
 });
 

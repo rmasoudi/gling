@@ -18,6 +18,23 @@
         <script src="js/isotope.pkgd.min.js"></script>
         <script src="js/jquery.slidereveal.min.js"></script>
         <script src="js/notify.js" type="text/javascript"></script>
+        <script type="text/template" id="productTemplate">
+            <div id="cartItem_<%= index %>" data-index="<%= index %>" class="list-group-item list-group-item-action flex-column align-items-start" style="text-align: right;">
+            <div class="d-flex w-100 justify-content-between">
+            <h7 class="mb-1"><%= title %></h7>
+            </div>
+            <small>قیمت واحد: <%= price %> تومان</small>
+            <br/>
+            <small>تعداد: <%= clone %></small>
+            <br/>
+            <small>جمع: <%= total %> تومان</small>
+            <div style="display: flex;justify-content: space-between; margin-top: 8px;">
+            <button onclick="editClicked(<%= index %>);" type="button" style="background-color: #e6e6e6" class="btnEdit btn btn-light">ویرایش</button>
+            <button onclick="removeClicked(<%= index %>);" type="button" style="background-color: #e6e6e6" class="btnRemove btn btn-light">حذف</button>
+            </div>
+            </div>
+        </script>
+        <input id="txtPrice" style="display: none" value="{{prices}}"/>
         <div id="sidePanel" class="hidden">
             <div id="billRows" class="list-group">
             </div>

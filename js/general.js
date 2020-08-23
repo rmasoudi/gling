@@ -11,7 +11,84 @@ $(window).scroll(function () {
         overlay: true
     });
     $('#sidePanel').removeClass("hidden");
+    loadCart();
 });
+function loadCart() {
+    $("#billRows").html("");
+    var products = getProducts();
+    var total = 0;
+    for (var i = 0; i < products.length; i++) {
+        total += addProductRow(products[i], i);
+    }
+}
+function addProductRow(product, index) {
+    var template = $("#productTemplate").html();
+    var total = getRowPrice(product);
+    var compiled = _.template(template);
+    var res = compiled({
+        title: product.product.title,
+        clone: product.clone,
+        price: product.product.price,
+        index: index,
+        total: total
+    });
+    $("#billRows").append(res);
+    return total;
+}
+
+
+function correctPage(page) {
+    if (page === "0" || page === 0) {
+        return 1;
+    }
+    return parseInt(page);
+}
+
+function editClicked(index) {
+    var product = getProducts()[index];
+    setEditing(index, product);
+    window.location = product.product.url;
+}
+function removeClicked(index) {
+    removeProduct(index);
+    $("#cartItem_" + index).remove();
+}
+function getRowPrice(product) {
+    var prices = JSON.parse($("#txtPrice").val());
+    var total = 0;
+    var translateBase = product.product.price;
+    if (product.lang !== "1") {
+        translateBase = product.product.extra;
+    }
+    var pages = parseInt(product.pages);
+    if (pages > 1) {
+        total = translateBase * pages;
+    } else {
+        total = translateBase;
+    }
+    if (product.marriage) {
+        total += prices.shenas_item;
+    }
+    if (product.talagh) {
+        total += prices.shenas_item;
+    }
+    if (product.wifeDie) {
+        total += prices.shenas_item;
+    }
+    if (product.die) {
+        total += prices.shenas_item;
+    }
+    if (product.desc) {
+        total += prices.shenas_item;
+    }
+    total += prices.shenas_item * product.childCount;
+    total += prices.passport * (product.mohrCount + product.vizaCount);
+    total += prices.enteghal * (product.entghalCount);
+    if (product.clone !== "1") {
+        total += (parseInt(product.clone) - 1) * total / 4;
+    }
+    return total;
+}
 function addProduct(item) {
     var products = getProducts();
     products.push(item);
@@ -254,25 +331,23 @@ function goNext(next) {
                     {position: "b"}
             );
         }
-    }
-    else if(next===4){
-        if (getAddress()!==null) {
+    } else if (next === 4) {
+        if (getAddress() !== null) {
             window.location = "centers_step";
         } else {
             $.notify(
-                   "لطفا آدرس را تعیین کنید",
+                    "لطفا آدرس را تعیین کنید",
                     {position: "b"}
             );
-        }        
-    }
-    else if(next===5){
-        if (getCenter()!==null) {
+        }
+    } else if (next === 5) {
+        if (getCenter() !== null) {
             window.location = "bill";
         } else {
             $.notify(
-                   "لطفا مترجم را انتخاب کنید",
+                    "لطفا مترجم را انتخاب کنید",
                     {position: "b"}
             );
-        }        
+        }
     }
 }
