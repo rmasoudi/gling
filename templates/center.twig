@@ -5,6 +5,13 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(document).ready(function(){  
+            var langs=$("#lblLang").html().split("-");
+            var langEl="";
+            for(var i=0;i<langs.length;i++){
+                langEl+=getLangByCode(langs[i].trim())+"-";
+            }
+            $("#lblLang").html(langEl.substring(0,langEl.length-1));
+            
            var carrier=$("#carrier").html();
            var text="";
            switch(carrier){
@@ -49,7 +56,9 @@
     <span class="centerValue">{{center.manager}}</span>
     <br/>
     <span class="centerKey">زبان تخصصی: </span>
-    <span class="centerValue">{{center.lang[0]}}</span>
+    <span id="lblLang" class="centerValue">
+        {{center.lang}}{% if center.lang2 %}-{{center.lang2}}{% endif %}
+    </span>
     <br/>
     <span class="centerKey">آدرس: </span>
     <span class="centerValue">{{center.address}}</span>
