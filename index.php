@@ -566,10 +566,9 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
     if ($carrierPrice != -1) {
         $total += $carrierPrice;
     }
-    $total = 500;
+//    $total = 500;
     $orderId = saveOrder($conn, $center["id"], $data->address, $_POST["data"], $total);
-//    $response->getBody()->write($orderId);
-//    return;
+
     $_SESSION["order"] = ["id" => $orderId, "amount" => $total, "center" => $center];
 
 
