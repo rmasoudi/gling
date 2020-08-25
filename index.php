@@ -449,7 +449,7 @@ $app->get('/terms', function (Request $request, Response $response, $args) use (
     return;
 })->setName('translators');
 
-$app->get('/translators-login', function (Request $request, Response $response, $args) use ($twig, $app) {
+$app->get('/translators-login', function (Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $referer = urldecode($_SERVER['HTTP_REFERER']);
     $response->getBody()->write($twig->render('mlogin.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "redirect" => $referer, "prices" => json_encode($globalPrices)]));
     return;

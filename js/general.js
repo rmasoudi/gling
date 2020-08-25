@@ -1,10 +1,4 @@
-$(window).scroll(function () {
-    if ($(window).scrollTop() + $(window).height() === getDocHeight()) {
-        $(".bottomBar").removeClass("bottomBarClosed");
-    } else {
-        $(".bottomBar").addClass("bottomBarClosed");
-    }
-
+$(document).ready(function () {
     $('#sidePanel').slideReveal({
         trigger: $("#btnCart"),
         push: false,
@@ -12,6 +6,14 @@ $(window).scroll(function () {
     });
     $('#sidePanel').removeClass("hidden");
     loadCart();
+});
+
+$(window).scroll(function () {
+    if ($(window).scrollTop() + $(window).height() === getDocHeight()) {
+        $(".bottomBar").removeClass("bottomBarClosed");
+    } else {
+        $(".bottomBar").addClass("bottomBarClosed");
+    }
 });
 function loadCart() {
     $("#billRows").html("");
@@ -332,7 +334,7 @@ function goNext(next) {
             );
         }
     } else if (next === 4) {
-        if (getAddress() !== null) {
+        if (getAddress() !== null && getAddress().item!==undefined) {
             window.location = "centers_step";
         } else {
             $.notify(
@@ -341,7 +343,7 @@ function goNext(next) {
             );
         }
     } else if (next === 5) {
-        if (getCenter() !== null) {
+        if (getCenter() !== null && getCenter().item!==undefined) {
             window.location = "bill";
         } else {
             $.notify(

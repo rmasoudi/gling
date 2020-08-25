@@ -1061,3 +1061,25 @@ table.paleBlueRows tfoot td {
 .selectric-items li{
     text-align: right;
 }
+
+.homeDesc{
+    text-align: justify;
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    border: solid 1px #e0e0e0;
+}
+.timeline-content p{
+
+}
+
+@media all and (max-width: 599px) {
+    .timeline-content p{
+        display: none;
+    }
+    .timeline-content h5 {
+        color: #2a94b3;
+        font-size: 13pt;
+    }
+}
