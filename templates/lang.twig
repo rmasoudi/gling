@@ -1,0 +1,30 @@
+{% extends 'base.twig' %}
+{% block keywords%}ترجمه رسمی {{lang}}, ترجمه رسمی آنلاین {{lang}}, ترجمه رسمی اینترنتی {{lang}}{% endblock %}
+{% block desc%}ترجمه رسمی {{lang}}{% endblock %}
+{% block title %}ترجمه رسمی آنلاین {{lang}}{% endblock %}
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function () {
+        });
+
+    </script>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container mainContainer" style="text-align: right;direction: rtl;">
+        <h4 class="centerHeader">دفاتر ترجمه رسمی {{lang}}</h4>
+        <br/>
+        {% for center in centers %}
+            <a  class="list-group-item list-group-item-action  flex-column align-items-start"  href="دفتر_ترجمه_رسمی_شماره_{{ center.code }}_{{center.city  }}" >
+                <div class="d-flex w-100 justify-content-between">
+                    دفتر ترجمه رسمی شماره {{center.code}} {{center.city}}
+                    <small style="color: #0987b3;">{{ center.manager }}</small>
+                </div>
+            </a>
+
+        {% endfor %}
+    </div>
+
+{% endblock %}

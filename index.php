@@ -622,7 +622,7 @@ $app->post('/gopay', function (Request $request, Response $response, $args) use 
 $app->get('/{name}', function(Request $request, Response $response, $args) use ($twig, $app, $globalPrices) {
     $path = trim(urldecode($args["name"]));
     if ($path == "دفاتر_ترجمه_رسمی") {
-        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(),  "prices" => json_encode($globalPrices), "cities" => getCities()]));
+        $response->getBody()->write($twig->render('cities.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices), "cities" => getCities()]));
         return;
     }
     if ($path == "انتخاب_مدارک_ترجمه_رسمی") {
@@ -630,6 +630,10 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
     }
     if ($path == "لیست_قیمت_ترجمه_رسمی") {
         $response->getBody()->write($twig->render('pricelist.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "products" => getProducts(), "prices" => json_encode($globalPrices)]));
+        return;
+    }
+    if ($path == "زبان_های_ترجمه_رسمی") {
+        $response->getBody()->write($twig->render('langs.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "prices" => json_encode($globalPrices)]));
         return;
     }
     if (substr($path, 0, 40) === "دفتر_ترجمه_رسمی_شماره_") {
@@ -657,6 +661,25 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
         $response->getBody()->write($twig->render('city.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "city" => $code, "centers" => $list, "prices" => json_encode($globalPrices)]));
         return;
     }
+    if (strpos($path, "ترجمه_رسمی_آنلاین_") === 0) {
+        $array = explode("_", $path);
+        $lang = $array[count($array) - 1];
+        $code=getLangCode($lang);
+        $intCode= intval($code);
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT * FROM center WHERE lang=? OR lang2=?");
+        $stmt->bind_param("ii", $intCode,$intCode);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $list = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($list, $row);
+        }
+        $stmt->close();
+        $conn->close();
+        $response->getBody()->write($twig->render('lang.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "lang" => $lang, "centers" => $list, "prices" => json_encode($globalPrices)]));
+        return;
+    }
     $docType = getDocType($path);
     if ($docType != null) {
         $response->getBody()->write($twig->render('doc.twig', ["app_name" => APP_NAME, "app_site" => APP_SITE, "user" => getCurrentUser(), "doc" => $docType, "prices" => json_encode($globalPrices)]));
@@ -667,6 +690,52 @@ $app->get('/{name}', function(Request $request, Response $response, $args) use (
 });
 
 $app->run();
+
+function getLangCode($lang) {
+    if ($lang == "انگلیسی") {
+        return 1;
+    }
+    if ($lang == "فرانسوی") {
+        return 2;
+    }
+    if ($lang == "آلمانی") {
+        return 3;
+    }
+    if ($lang == "اسپانیایی") {
+        return 4;
+    }
+    if ($lang == "چینی") {
+        return 5;
+    }
+    if ($lang == "عربی") {
+        return 6;
+    }
+    if ($lang == "اردو") {
+        return 7;
+    }
+    if ($lang == "ژاپنی") {
+        return 8;
+    }
+    if ($lang == "ترکی-استانبولی") {
+        return 9;
+    }
+    if ($lang == "ترکی") {
+        return 10;
+    }
+    if ($lang == "ایتالیایی") {
+        return 11;
+    }
+    if ($lang == "روسی") {
+        return 12;
+    }
+    if ($lang == "ارمنی") {
+        return 13;
+    }
+    if ($lang == "کردی") {
+        return 14;
+    }
+    return -1;
+}
 
 function getCarrierPrice($p1, $p2) {
     $loc1 = explode(",", $p1);
