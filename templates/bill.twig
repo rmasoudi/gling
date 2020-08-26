@@ -21,7 +21,7 @@
         function loadOrderData(){
             var data={
                 center:parseInt(getCenter().item.id),
-                centerLoc:getCenter().item.loc,
+                centerLoc:getCenter().item.lat+","+getCenter().item.lon,
                 addressLoc:getAddress().item.point,
                 address:getAddress().item.id,
                 products:getProducts()
