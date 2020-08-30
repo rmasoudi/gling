@@ -14,7 +14,7 @@ DEFINE('PASSWORD', 'a');
 DEFINE('DB_NAME', 'dling');
 DEFINE('APP_NAME', 'اتیسه');
 DEFINE('APP_SITE', 'ot3.ir');
-DEFINE('ZARRIN', '2fca4aec-080f-11e8-9daa-000c295eb8fc');
+DEFINE('ZARRIN', 'a9fe073e-df47-4c5f-8b94-e1cde936d72d');
 
 
 $globalPrices = [
