@@ -12,8 +12,8 @@ DEFINE('HOST', '127.0.0.1');
 DEFINE('USER', 'root');
 DEFINE('PASSWORD', 'a');
 DEFINE('DB_NAME', 'dling');
-DEFINE('APP_NAME', 'جیلینگ');
-DEFINE('APP_SITE', 'gling.ir');
+DEFINE('APP_NAME', 'اتیسه');
+DEFINE('APP_SITE', 'ot3.ir');
 DEFINE('ZARRIN', '2fca4aec-080f-11e8-9daa-000c295eb8fc');
 
 
